@@ -1,0 +1,4 @@
+import type { Metadata } from "next";
+import { AssignmentsView } from "@/components/screens/AssignmentsView";
+export const metadata: Metadata = { title: "Assignments" };
+export default function AssignmentsPage() { return <AssignmentsView />; }
