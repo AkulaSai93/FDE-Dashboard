@@ -19,12 +19,21 @@ export interface Resource {
   href: string;
 }
 
+export interface Mcq {
+  id: string;
+  question: string;
+  options: string[];
+  /** Index into `options`. */
+  answer: number;
+}
+
+/** Assignments are short multiple-choice quizzes: answer, submit, see the score. */
 export interface Assignment {
   id: string;
   title: string;
   brief: string;
   difficulty: "Beginner" | "Intermediate" | "Advanced";
-  estMinutes: number;
+  questions: Mcq[];
 }
 
 export interface Topic {
@@ -196,20 +205,76 @@ const RESOURCE_SHAPES: ReadonlyArray<[string, Resource["kind"]]> = [
   ["Production playbook", "doc"],
 ];
 
-/** Lab briefs vary by shape rather than being one sentence with the topic
- *  swapped in, so the Assignments board reads like a real backlog. */
-const BRIEF_SHAPES: ReadonlyArray<(topic: string, module: string) => string> = [
-  (t, m) => `Take a working ${m} setup and extend it with ${t}. Submit the diff, plus a note on what you'd have done differently with twice the time.`,
-  (t) => `A client's system is failing because ${t} was never handled properly. Reproduce the failure, fix it, and prove the fix with a test.`,
-  (t, m) => `Build the smallest thing that demonstrates ${t} end to end, inside the ${m} codebase. No framework you can't explain line by line.`,
-  (t) => `Instrument ${t} so you can measure it. Capture a baseline, make one change, and show the before and after.`,
-  (t, m) => `Write the ${m} runbook for ${t}: what it does, how it fails, and what the on-call engineer should do at 3am.`,
-  (t) => `Review a deliberately flawed implementation of ${t}, list every problem you find in severity order, and ship the corrected version.`,
+/** Concept questions that hold for any topic. The first option is the
+ *  correct one; options are shuffled per topic when the quiz is built. */
+const CONCEPT_QUESTIONS: ReadonlyArray<(topic: string) => [string, string[]]> = [
+  (t) => [`What is the best first step when ${t} misbehaves in production?`, [
+    "Reproduce the issue and check the logs and metrics",
+    "Rewrite the component from scratch",
+    "Disable monitoring until it stabilises",
+    "Wait for the client to report it again",
+  ]],
+  (t) => [`How should you prove that a change to ${t} actually helped?`, [
+    "Capture a baseline, make one change, and compare the results",
+    "Ask a teammate whether it feels faster",
+    "Ship several changes together and check once",
+    "Trust that newer code is always better",
+  ]],
+  (t) => [`Before applying ${t} in a client's system, what should you confirm first?`, [
+    "The client's requirements and constraints",
+    "Which framework is trending this month",
+    "That the change can skip code review",
+    "That no documentation will be needed",
+  ]],
+  (t) => [`Which deliverable best helps a teammate pick up your ${t} work?`, [
+    "Clear documentation with a worked example",
+    "A screenshot of the final output",
+    "A verbal summary in a standup",
+    "Uncommented code in a personal branch",
+  ]],
+  (t) => [`What is the main risk of skipping tests around ${t}?`, [
+    "Regressions reach users without anyone noticing",
+    "The code will not compile",
+    "The client must pay for extra licences",
+    "Deployments become impossible",
+  ]],
 ];
 
-function deriveAssets(id: string, title: string, moduleTitle: string) {
+/** Deterministic Fisher–Yates, so server and client agree on option order. */
+function shuffle<T>(seed: string, arr: T[]): T[] {
+  const out = [...arr];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = hash(seed + i) % (i + 1);
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
+function mcq(id: string, question: string, correct: string, wrong: string[]): Mcq {
+  const options = shuffle(id, [correct, ...wrong]);
+  return { id, question, options, answer: options.indexOf(correct) };
+}
+
+function buildQuestions(id: string, topic: string, moduleTitle: string, phaseTitle: string): Mcq[] {
+  const otherModules = shuffle(id + "om", ALL_MODULE_TITLES.filter((m) => m !== moduleTitle)).slice(0, 3);
+  const otherPhases = shuffle(id + "op", RAW.map((p) => p[0]).filter((p) => p !== phaseTitle)).slice(0, 3);
+  const concepts = shuffle(id + "cq", [...CONCEPT_QUESTIONS]).slice(0, 3);
+  return [
+    mcq(`${id}-q1`, `Which module of the programme covers "${topic}"?`, moduleTitle, otherModules),
+    mcq(`${id}-q2`, `"${topic}" is taught in which phase?`, phaseTitle, otherPhases),
+    ...concepts.map((make, i) => {
+      const [q, [correct, ...wrong]] = make(topic);
+      return mcq(`${id}-q${i + 3}`, q, correct, wrong);
+    }),
+  ];
+}
+
+const ALL_MODULE_TITLES = RAW.flatMap((p) => p[2].map((m) => m[1]));
+
+function deriveAssets(id: string, title: string, moduleTitle: string, phaseTitle: string, lastInModule: boolean) {
   const videoSeconds = range(id + "v", 7, 34) * 60 + range(id + "s", 0, 59);
-  const hasAssignment = hash(id + "a") % 100 < 38;
+  // One quiz per module, on its final topic.
+  const hasAssignment = lastInModule;
   const resourceCount = range(id + "r", 1, 3);
   const resources: Resource[] = Array.from({ length: resourceCount }, (_, i) => {
     const [label, kind] = pick(id + "rs" + i, RESOURCE_SHAPES);
@@ -219,27 +284,16 @@ function deriveAssets(id: string, title: string, moduleTitle: string) {
   const assignment: Assignment | null = hasAssignment
     ? {
         id: "a" + id.slice(1),
-        title: `${title} — Lab`,
-        brief: pick(id + "br", BRIEF_SHAPES)(title.toLowerCase(), moduleTitle),
+        title: `${moduleTitle} — Module Quiz`,
+        brief: `Five quick questions to wrap up ${moduleTitle}.`,
         difficulty: DIFFICULTY[hash(id + "d") % 3],
-        estMinutes: range(id + "e", 3, 14) * 15,
+        questions: buildQuestions(id, title, moduleTitle, phaseTitle),
       }
     : null;
 
   return { videoSeconds, hasNotes: true, assignment, resources };
 }
 
-/** Hand-written briefs for the marquee labs, so the Assignments screen leads
- *  with real work rather than generated copy. Keyed by topic id. */
-const ASSIGNMENT_OVERRIDES: Record<string, Partial<Assignment>> = {
-  "t-1.2.9": { title: "Python CLI Utility", brief: "Build a command-line utility in Python that ingests a messy CSV of client records, validates it, and emits a clean, typed report. Package it so a non-engineer can run it." },
-  "t-2.3.8": { title: "Context Engineering Harness", brief: "Build a harness that assembles context for a support assistant from three sources, measures token cost per request, and proves a measurable quality lift over a naive prompt." },
-  "t-2.5.1": { title: "RAG Pipeline from Scratch", brief: "Chunk by meaning, embed, retrieve and re-rank over a real document set. Every answer must cite its source." },
-  "t-3.4.4": { title: "Build an MCP Server", brief: "Expose three internal tools over the Model Context Protocol with typed schemas, auth, and a safe execution boundary." },
-  "t-6.1.9": { title: "Harden a Production Image", brief: "Take a working Dockerfile to a hardened, non-root, multi-stage production image and document every change you made and why." },
-  "t-7.2.3": { title: "Partition a Hot Table", brief: "Take a 400M-row orders table that is timing out under load, design a partitioning strategy, migrate it with zero downtime, and show the before/after query plans." },
-  "t-9.4.10": { title: "Write a Real Statement of Work", brief: "Turn a discovery transcript into a scoped SOW with milestones, dependencies, estimates, risks and acceptance criteria a client would actually sign." },
-};
 
 /* -------------------------------------------------------------- assembled */
 
@@ -264,20 +318,8 @@ function build(): Phase[] {
           phaseId,
           topics: topics.map((ttitle, ti) => {
             const id = `t-${mcode}.${ti + 1}`;
-            const assets = deriveAssets(id, ttitle, mtitle);
-            const override = ASSIGNMENT_OVERRIDES[id];
-            const assignment =
-              override
-                ? {
-                    id: "a" + id.slice(1),
-                    title: ttitle + " — Lab",
-                    brief: "",
-                    difficulty: "Intermediate" as const,
-                    estMinutes: 120,
-                    ...assets.assignment,
-                    ...override,
-                  }
-                : assets.assignment;
+            const assets = deriveAssets(id, ttitle, mtitle, title, ti === topics.length - 1);
+            const assignment = assets.assignment;
             globalIndex += 1;
             return {
               id,
@@ -297,6 +339,20 @@ function build(): Phase[] {
 }
 
 export const PHASES: Phase[] = build();
+
+/* A long-form exam, to show the quiz scaling past a handful of questions:
+ * 60 "which module covers…" questions drawn from across the programme. */
+{
+  const exam = PHASES.flatMap((p) => p.modules).find((m) => m.id === "m-7.2")?.topics.at(-1)?.assignment;
+  if (exam) {
+    const pool = shuffle("exam", PHASES.flatMap((p) => p.modules.flatMap((m) => m.topics.map((t) => [t.title, m.title] as const))));
+    exam.title = "System Design Mid-Programme Exam";
+    exam.brief = "A 60-question checkpoint across the whole curriculum. Use the question palette to move around and mark anything you want to revisit.";
+    exam.questions = pool.slice(0, 60).map(([topic, mod], i) =>
+      mcq(`exam-q${i + 1}`, `Which module of the programme covers "${topic}"?`, mod, shuffle(`exam${i}`, ALL_MODULE_TITLES.filter((m) => m !== mod)).slice(0, 3)),
+    );
+  }
+}
 
 /* ---------------------------------------------------------------- indexes */
 

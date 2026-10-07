@@ -8,6 +8,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { createPortal } from "react-dom";
 import { Check, ChevronRight, Lock, Play, Circle, Loader2, X, ChevronDown } from "lucide-react";
 
 export { cx } from "@/lib/cx";
@@ -566,8 +567,10 @@ export function Modal({
     };
   }, [open, onClose]);
 
-  if (!open) return null;
-  return (
+  if (!open || typeof document === "undefined") return null;
+  // Portalled to <body> so an animated (transformed) ancestor can't turn
+  // `fixed` into "fixed to that ancestor" and push the dialog off-centre.
+  return createPortal(
     <div className="fixed inset-0 z-100 flex items-center justify-center p-4">
       <div className="animate-fade absolute inset-0 bg-black/80 backdrop-blur-[2px]" onClick={onClose} />
       <div
@@ -591,7 +594,8 @@ export function Modal({
         <div className="px-5 py-5">{children}</div>
         {footer && <div className="flex items-center justify-end gap-2 border-t border-line bg-bg-sub px-5 py-3.5">{footer}</div>}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

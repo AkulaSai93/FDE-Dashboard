@@ -7,10 +7,10 @@ import {
   Badge, Button, ButtonLink, Card, CardHeader, Modal, ProgressBar, SectionHeading, cx,
 } from "@/components/ui";
 import { useToast } from "@/components/ui/toast";
-import { PHASES, TOTALS } from "@/data/curriculum";
+import { ALL_TOPICS, PHASES, TOTALS } from "@/data/curriculum";
 import { PROJECTS } from "@/data/projects";
 import { USER } from "@/data/user";
-import { useRollups } from "@/state/progress";
+import { useProgress, useRollups } from "@/state/progress";
 
 function LinkedInMark() {
   return (
@@ -76,14 +76,16 @@ function Certificate({ locked }: { locked?: boolean }) {
 
 export function CertificationView() {
   const { program, byPhase, phasesCompleted, totals } = useRollups();
+  const { topics } = useProgress();
   const [preview, setPreview] = React.useState(false);
   const { push } = useToast();
 
-  const projectsDone = PROJECTS.filter((p) => p.status === "completed").length;
+  const quizTopics = ALL_TOPICS.filter((t) => t.assignment);
+  const quizzesDone = quizTopics.filter((t) => topics[t.id]?.assignment === "completed").length;
   const requirements = [
     { label: `Complete all ${totals.phases} phases`, done: phasesCompleted, total: totals.phases },
     { label: `Complete all ${totals.topics} topics`, done: program.completed, total: program.total },
-    { label: `Ship all ${PROJECTS.length} projects`, done: projectsDone, total: PROJECTS.length },
+    { label: `Complete all ${quizTopics.length} assignments`, done: quizzesDone, total: quizTopics.length },
   ];
   const eligible = requirements.every((r) => r.done >= r.total);
 

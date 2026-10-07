@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import {
   ArrowLeft, ArrowRight, Bookmark, Check, Download, ExternalLink, FileText,
-  BookOpen, Link2, ClipboardList, Upload,
+  BookOpen, Link2, ClipboardList,
 } from "lucide-react";
 import {
   AssetChips, Badge, Button, ButtonLink, Card, ProgressBar, StatusBadge, StatusDot, Tabs, cx,
@@ -12,6 +12,7 @@ import {
 import { useToast } from "@/components/ui/toast";
 import { VideoPlayer } from "./VideoPlayer";
 import { NoteReader } from "./NoteReader";
+import { AssignmentQuiz } from "./AssignmentQuiz";
 import {
   MODULE_BY_ID, PHASE_BY_ID, formatDuration, formatMinutes, topicNeighbours, type Topic,
 } from "@/data/curriculum";
@@ -26,7 +27,7 @@ export function LearnView({ topic }: { topic: Topic }) {
   const mod = MODULE_BY_ID.get(topic.moduleId)!;
   const phase = PHASE_BY_ID.get(topic.phaseId)!;
   const { prev, next } = topicNeighbours(topic.id);
-  const { topics, setVideoPosition, setTopicStatus, toggleBookmark, setAssignmentStatus } = useProgress();
+  const { topics, setVideoPosition, setTopicStatus, toggleBookmark } = useProgress();
   const { byModule, byPhase } = useRollups();
   const tp = useTopicProgress(topic.id);
   const { push } = useToast();
@@ -251,44 +252,14 @@ export function LearnView({ topic }: { topic: Topic }) {
                     <div className="flex flex-wrap items-center gap-2.5">
                       <span className="eyebrow">Assignment</span>
                       <Badge tone="neutral">{topic.assignment.difficulty}</Badge>
-                      <Badge tone="quiet">~{Math.round(topic.assignment.estMinutes / 60)} hr</Badge>
-                      <StatusBadge status={tp.assignment === "not-started" ? "not-started" : tp.assignment} className="ml-auto" />
+                      <Badge tone="quiet">{topic.assignment.questions.length} MCQs</Badge>
+                      <StatusBadge status={tp.assignment} className="ml-auto" />
                     </div>
                     <h2 className="display mt-3 text-[19px] text-ink">{topic.assignment.title}</h2>
                   </div>
                   <div className="px-5 py-5">
-                    <p className="text-[14px] leading-[1.75] text-ink-2">{topic.assignment.brief}</p>
-                    <h3 className="eyebrow mb-2.5 mt-6">Submission checklist</h3>
-                    <ul className="space-y-2">
-                      {[
-                        "A repository link with a README a reviewer can follow",
-                        "Tests, or an explanation of why the behaviour can't be tested",
-                        "A short note on the trade-off you made and what you'd change with more time",
-                      ].map((c) => (
-                        <li key={c} className="flex gap-3 text-[13px] leading-relaxed text-ink-2">
-                          <span className="mt-[7px] size-1 shrink-0 rounded-full bg-ink-4" />
-                          {c}
-                        </li>
-                      ))}
-                    </ul>
-                    <div className="mt-6 flex flex-wrap gap-2">
-                      {tp.assignment === "not-started" && (
-                        <Button variant="primary" size="sm" onClick={() => { setAssignmentStatus(topic.id, "in-progress"); push({ title: "Assignment started", description: topic.assignment!.title }); }}>
-                          Start assignment <ArrowRight size={13} />
-                        </Button>
-                      )}
-                      {tp.assignment === "in-progress" && (
-                        <Button variant="primary" size="sm" onClick={() => { setAssignmentStatus(topic.id, "submitted"); push({ tone: "success", title: "Assignment submitted", description: "You'll get reviewer feedback within 48 hours." }); }}>
-                          <Upload size={13} /> Submit for review
-                        </Button>
-                      )}
-                      {(tp.assignment === "submitted" || tp.assignment === "evaluated" || tp.assignment === "completed") && (
-                        <Button variant="secondary" size="sm" disabled>
-                          <Check size={13} strokeWidth={3} /> Submitted
-                        </Button>
-                      )}
-                      <ButtonLink href="/assignments" variant="ghost" size="sm">All assignments</ButtonLink>
-                    </div>
+                    <p className="mb-5 text-[14px] leading-[1.75] text-ink-2">{topic.assignment.brief}</p>
+                    <AssignmentQuiz topic={topic} />
                   </div>
                 </Card>
               </div>

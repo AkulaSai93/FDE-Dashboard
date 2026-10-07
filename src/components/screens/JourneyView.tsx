@@ -18,7 +18,6 @@ const MILESTONES = [
 
 export function JourneyView() {
   const { program, byPhase, byModule, phaseStatus, phasesCompleted, currentPhase } = useRollups();
-  const projectsDone = PROJECTS.filter((p) => p.status === "completed").length;
 
   return (
     <Page className="space-y-8">
@@ -30,7 +29,7 @@ export function JourneyView() {
           <div className="flex items-center gap-5">
             <div className="text-right">
               <p className="nums text-[13px] text-ink-2">{phasesCompleted} of {TOTALS.phases} phases</p>
-              <p className="nums mt-0.5 text-[12px] text-ink-3">{projectsDone} of {PROJECTS.length} projects</p>
+              <p className="nums mt-0.5 text-[12px] text-ink-3">{PROJECTS.length} projects</p>
             </div>
             <ProgressRing value={program.percent} size={88} stroke={6} sublabel="Program" />
           </div>

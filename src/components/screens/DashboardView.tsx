@@ -9,9 +9,9 @@ import {
   StatTile, StatusDot, cx,
 } from "@/components/ui";
 import {
-  MODULE_BY_ID, PHASES, PHASE_BY_ID, formatDuration, formatMinutes,
+  ALL_TOPICS, MODULE_BY_ID, PHASES, PHASE_BY_ID, formatDuration, formatMinutes,
 } from "@/data/curriculum";
-import { PROJECTS } from "@/data/projects";
+
 import { RECENT_ACTIVITY } from "@/data/activity";
 import { USER } from "@/data/user";
 import { useCurrentTopic, useProgress, useRollups, useUpNext } from "@/state/progress";
@@ -51,7 +51,8 @@ export function DashboardView() {
   const phaseRollup = byPhase.get(currentPhase.id)!;
   const tp = topics[topic.id];
 
-  const projectsDone = PROJECTS.filter((p) => p.status === "completed").length;
+  const quizTopics = ALL_TOPICS.filter((t) => t.assignment);
+  const quizzesDone = quizTopics.filter((t) => topics[t.id]?.assignment === "completed").length;
   const lastSeen = lastActiveMinutesAgo === 0 ? "just now" : `${lastActiveMinutesAgo} min ago`;
 
   return (
@@ -139,9 +140,9 @@ export function DashboardView() {
           sub={<ProgressBar value={(modulesCompleted / totals.modules) * 100} size="xs" tone="done" />}
         />
         <StatTile
-          value={<><span>{projectsDone}</span><span className="text-ink-4"> / {PROJECTS.length}</span></>}
-          label="Projects completed"
-          sub={<ProgressBar value={(projectsDone / PROJECTS.length) * 100} size="xs" tone="done" />}
+          value={<><span>{quizzesDone}</span><span className="text-ink-4"> / {quizTopics.length}</span></>}
+          label="Assignments completed"
+          sub={<ProgressBar value={(quizzesDone / quizTopics.length) * 100} size="xs" tone="done" />}
         />
         <StatTile
           value={<><span>{program.completed}</span><span className="text-ink-4"> / {program.total}</span></>}

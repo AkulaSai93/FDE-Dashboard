@@ -26,7 +26,14 @@ import {
 } from "@/data/curriculum";
 
 export type TopicStatus = "not-started" | "in-progress" | "completed";
-export type AssignmentStatus = "not-started" | "in-progress" | "submitted" | "evaluated" | "completed";
+export type AssignmentStatus = "not-started" | "completed";
+
+export interface QuizResult {
+  /** Chosen option index per question. */
+  answers: number[];
+  correct: number;
+  total: number;
+}
 export type PhaseStatus = "completed" | "in-progress" | "upcoming" | "locked";
 
 export interface TopicProgress {
@@ -34,6 +41,7 @@ export interface TopicProgress {
   /** Seconds of the video watched. */
   videoPosition: number;
   assignment: AssignmentStatus;
+  quiz?: QuizResult;
   bookmarked: boolean;
 }
 
@@ -56,19 +64,19 @@ export interface ProgressState {
  */
 export const SEED_COMPLETED_TOPICS = 237; // of 371 → 63.9%
 
-const SUBMITTED_ASSIGNMENTS = new Set(["t-7.1.4", "t-6.5.3", "t-6.4.1"]);
-
 function seed(): ProgressState {
   const topics: Record<string, TopicProgress> = {};
   for (const t of ALL_TOPICS) {
     const done = t.globalIndex <= SEED_COMPLETED_TOPICS;
     const current = t.globalIndex === SEED_COMPLETED_TOPICS + 1;
 
-    let assignment: AssignmentStatus = "not-started";
-    if (t.assignment) {
-      if (SUBMITTED_ASSIGNMENTS.has(t.id)) assignment = "submitted";
-      else if (done) assignment = hash(t.id + "ev") % 5 === 0 ? "evaluated" : "completed";
-      else if (current) assignment = "in-progress";
+    // Finished topics come with a passed quiz; the seeded answers get one
+    // question wrong on some topics so the results screen has variety.
+    let quiz: QuizResult | undefined;
+    if (t.assignment && done) {
+      const miss = hash(t.id + "ev") % 3 === 0 ? hash(t.id + "mq") % t.assignment.questions.length : -1;
+      const answers = t.assignment.questions.map((q, i) => (i === miss ? (q.answer + 1) % q.options.length : q.answer));
+      quiz = { answers, correct: answers.length - (miss >= 0 ? 1 : 0), total: answers.length };
     }
 
     topics[t.id] = {
@@ -78,7 +86,8 @@ function seed(): ProgressState {
         : current
           ? Math.floor(t.videoSeconds * 0.62)
           : 0,
-      assignment,
+      assignment: quiz ? "completed" : "not-started",
+      quiz,
       bookmarked: hash(t.id + "bm") % 23 === 0 && done,
     };
   }
@@ -121,13 +130,16 @@ interface Store extends ProgressState {
   setTopicStatus: (topicId: string, status: TopicStatus) => void;
   toggleComplete: (topicId: string) => void;
   setVideoPosition: (topicId: string, seconds: number) => void;
-  setAssignmentStatus: (topicId: string, status: AssignmentStatus) => void;
+  /** Grade and store a quiz attempt. */
+  submitQuiz: (topicId: string, answers: number[]) => QuizResult;
+  /** Clear the stored attempt so the quiz can be taken again. */
+  retakeQuiz: (topicId: string) => void;
   toggleBookmark: (topicId: string) => void;
   reset: () => void;
 }
 
 const Ctx = createContext<Store | null>(null);
-const STORAGE_KEY = "fde-lms:progress:v1";
+const STORAGE_KEY = "fde-lms:progress:v3";
 
 export function ProgressProvider({ children }: { children: React.ReactNode }) {
   // Always render the seed first so server and client markup match, then
@@ -192,7 +204,14 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
           status: complete ? "completed" : cur?.status === "completed" ? "completed" : "in-progress",
         });
       },
-      setAssignmentStatus: (topicId, status) => patch(topicId, { assignment: status }),
+      submitQuiz: (topicId, answers) => {
+        const questions = TOPIC_BY_ID.get(topicId)?.assignment?.questions ?? [];
+        const correct = questions.filter((q, i) => answers[i] === q.answer).length;
+        const quiz = { answers, correct, total: questions.length };
+        patch(topicId, { assignment: "completed", quiz });
+        return quiz;
+      },
+      retakeQuiz: (topicId) => patch(topicId, { assignment: "not-started", quiz: undefined }),
       toggleBookmark: (topicId) => patch(topicId, { bookmarked: !state.topics[topicId]?.bookmarked }, false),
       reset: () => setState(seed()),
     };
