@@ -1,14 +1,11 @@
 "use client";
 
 import {
-  ArrowUpRight, Briefcase, Check, HelpCircle, Megaphone, MessageCircle, Sparkles, Users,
+  ArrowUpRight, Briefcase, Check, HelpCircle, Megaphone, Sparkles, Users,
 } from "lucide-react";
 import { Page } from "@/components/shell/AppShell";
-import { Card, CardHeader } from "@/components/ui";
-import { COMMUNITY_STATS } from "@/data/activity";
-
-/** Invite link for the FDE WhatsApp community — replace with the real one. */
-const WHATSAPP_COMMUNITY_URL = "https://chat.whatsapp.com/your-invite-code";
+import { Card, CardHeader, WhatsAppIcon } from "@/components/ui";
+import { COMMUNITY_STATS, WHATSAPP_COMMUNITY_URL } from "@/data/activity";
 
 const PERKS = [
   { icon: HelpCircle, title: "Get unstuck fast", body: "Post a question about a lab, quiz or project and get answers from peers and mentors." },
@@ -38,7 +35,7 @@ function JoinButton({ className = "" }: { className?: string }) {
       rel="noopener noreferrer"
       className={`inline-flex items-center gap-2 rounded-md bg-[#25D366] px-5 py-2.5 text-[14px] font-medium text-black transition-opacity hover:opacity-90 ${className}`}
     >
-      <MessageCircle size={16} /> Join on WhatsApp <ArrowUpRight size={15} />
+      <WhatsAppIcon size={16} /> Join on WhatsApp <ArrowUpRight size={15} />
     </a>
   );
 }

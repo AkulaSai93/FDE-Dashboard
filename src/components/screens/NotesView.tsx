@@ -2,147 +2,181 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Bookmark, ChevronDown, FileText, Search, X } from "lucide-react";
+import { Bookmark, Check, FileText, Search, X } from "lucide-react";
 import { Page } from "@/components/shell/AppShell";
-import { Button, EmptyState, FilterChips, SectionHeading, StatusDot, cx } from "@/components/ui";
-import { PHASES, hash } from "@/data/curriculum";
+import { Button, EmptyState, FilterChips, SectionHeading, cx } from "@/components/ui";
+import { PHASES, hash, type Topic } from "@/data/curriculum";
 import { useProgress, useRollups } from "@/state/progress";
 
 type Scope = "all" | "bookmarked" | "unread";
+
+const readMinutes = (id: string) => 4 + (hash(id) % 7);
 
 export function NotesView() {
   const { topics } = useProgress();
   const { currentPhase } = useRollups();
   const [q, setQ] = React.useState("");
   const [scope, setScope] = React.useState<Scope>("all");
-  const [open, setOpen] = React.useState<Set<string>>(() => new Set([currentPhase.id]));
+  const [phaseId, setPhaseId] = React.useState(currentPhase.id);
 
   const needle = q.trim().toLowerCase();
-  const searching = needle.length > 0 || scope !== "all";
+  const filtering = needle.length > 0 || scope !== "all";
 
-  const matches = (topicId: string, title: string) => {
-    if (needle && !title.toLowerCase().includes(needle)) return false;
-    if (scope === "bookmarked" && !topics[topicId]?.bookmarked) return false;
-    if (scope === "unread" && topics[topicId]?.status === "completed") return false;
+  const matches = (t: Topic) => {
+    if (needle && !t.title.toLowerCase().includes(needle)) return false;
+    if (scope === "bookmarked" && !topics[t.id]?.bookmarked) return false;
+    if (scope === "unread" && topics[t.id]?.status === "completed") return false;
     return true;
   };
 
-  const total = PHASES.reduce(
-    (a, p) => a + p.modules.reduce((b, m) => b + m.topics.filter((t) => matches(t.id, t.title)).length, 0),
-    0,
-  );
-
   const bookmarked = Object.values(topics).filter((t) => t.bookmarked).length;
+  // While searching or filtering, show matches from every phase; otherwise just the selected one.
+  const phases = filtering ? PHASES : PHASES.filter((p) => p.id === phaseId);
+  const groups = phases
+    .map((p) => ({
+      p,
+      modules: p.modules.map((m) => ({ m, ts: m.topics.filter(matches) })).filter((x) => x.ts.length > 0),
+    }))
+    .filter((g) => g.modules.length > 0);
+  const shown = groups.reduce((a, g) => a + g.modules.reduce((b, x) => b + x.ts.length, 0), 0);
 
   return (
-    <Page className="space-y-6">
+    <Page className="space-y-7">
       <SectionHeading
         eyebrow="Notes"
-        title="Structured notes for every topic"
-        description="Module-by-module notes that follow the videos, so you revise in minutes instead of rewatching hours. Written like developer documentation, not slide dumps."
-        action={
-          <div className="flex items-center gap-2.5 rounded-xl border border-line bg-card px-4 py-3">
-            <Bookmark size={14} className="text-brand-ink" fill="currentColor" />
-            <span className="nums text-[13px] text-ink-2">{bookmarked} bookmarked</span>
-          </div>
-        }
+        title="Structured notes"
+        description="Module-by-module notes that follow the videos, so you revise in minutes instead of rewatching hours."
       />
 
-      <div className="sticky top-14 z-20 -mx-4 flex flex-wrap items-center gap-2.5 border-y border-line bg-bg/92 px-4 py-3 backdrop-blur-xl sm:-mx-6 sm:px-6">
-        <div className="relative min-w-[200px] flex-1">
+      {/* --------------------------------------------------------- toolbar */}
+      <div className="flex flex-wrap items-center gap-2.5">
+        <div className="relative min-w-[220px] flex-1">
           <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" />
           <input
             value={q}
             onChange={(e) => setQ(e.target.value)}
-            placeholder="Search notes…"
+            placeholder="Search all notes…"
             aria-label="Search notes"
-            className="h-9 w-full rounded-md border border-line bg-card pl-9 pr-9 text-[13px] text-ink outline-none transition-colors placeholder:text-ink-4 focus:border-line-hi"
+            className="h-10 w-full rounded-[var(--radius-md)] border border-line bg-card pl-9 pr-9 text-[13px] text-ink outline-none transition-colors placeholder:text-ink-4 focus:border-line-hi"
           />
-          {q && <button onClick={() => setQ("")} aria-label="Clear" className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-3 hover:text-ink"><X size={13} /></button>}
+          {q && (
+            <button onClick={() => setQ("")} aria-label="Clear" className="absolute right-2.5 top-1/2 -translate-y-1/2 text-ink-3 hover:text-ink">
+              <X size={13} />
+            </button>
+          )}
         </div>
         <FilterChips
           options={[
-            { value: "all", label: "All notes" },
-            { value: "bookmarked", label: "Bookmarked" },
-            { value: "unread", label: "Not yet read" },
+            { value: "all", label: "All" },
+            { value: "bookmarked", label: `Bookmarked · ${bookmarked}` },
+            { value: "unread", label: "Not read yet" },
           ]}
           value={scope}
           onChange={setScope}
         />
-        <span className="nums ml-auto text-[12px] text-ink-3">{total} notes</span>
       </div>
 
-      {total === 0 ? (
-        <EmptyState
-          icon={<FileText size={28} strokeWidth={1.5} />}
-          title={scope === "bookmarked" ? "No bookmarked notes yet" : "No notes match"}
-          description={
-            scope === "bookmarked"
-              ? "Bookmark a note from any lesson and it will collect here for revision."
-              : "Try a different search term, or switch back to all notes."
-          }
-          action={<Button size="sm" variant="secondary" onClick={() => { setQ(""); setScope("all"); }}>Clear filters</Button>}
-        />
-      ) : (
-        <div className="space-y-3">
-          {PHASES.map((phase) => {
-            const visibleModules = phase.modules
-              .map((m) => ({ m, ts: m.topics.filter((t) => matches(t.id, t.title)) }))
-              .filter((x) => x.ts.length > 0);
-            if (visibleModules.length === 0) return null;
-            const isOpen = searching || open.has(phase.id);
-            const noteCount = visibleModules.reduce((a, x) => a + x.ts.length, 0);
+      <div className="grid grid-cols-1 gap-7 lg:grid-cols-[220px_minmax(0,1fr)]">
+        {/* ------------------------------------------------------ phases */}
+        <nav aria-label="Phases" className={cx("min-w-0 lg:sticky lg:top-20 lg:self-start", filtering && "opacity-40")}>
+          <ul className="no-scrollbar -mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1 lg:flex-col lg:gap-0.5 lg:overflow-visible">
+            {PHASES.map((p) => {
+              const count = p.modules.reduce((a, m) => a + m.topics.length, 0);
+              const active = !filtering && p.id === phaseId;
+              return (
+                <li key={p.id} className="shrink-0">
+                  <button
+                    onClick={() => { setPhaseId(p.id); setQ(""); setScope("all"); }}
+                    className={cx(
+                      "flex w-full items-center gap-2.5 rounded-[var(--radius-md)] px-3 py-2 text-left transition-colors",
+                      active ? "bg-card text-ink ring-1 ring-line-hi" : "text-ink-3 hover:bg-card/60 hover:text-ink-2",
+                    )}
+                  >
+                    <span className={cx("mono text-[11px]", active ? "text-notes" : "text-ink-4")}>{p.code}</span>
+                    <span className="truncate text-[13px] lg:flex-1">{p.title}</span>
+                    <span className="nums hidden text-[11px] text-ink-4 lg:inline">{count}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
 
-            return (
-              <section key={phase.id} className="overflow-hidden rounded-xl border border-line bg-card">
-                <button
-                  onClick={() =>
-                    setOpen((s) => {
-                      const n = new Set(s);
-                      if (n.has(phase.id)) n.delete(phase.id);
-                      else n.add(phase.id);
-                      return n;
-                    })
-                  }
-                  aria-expanded={isOpen}
-                  className="flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-card-hi"
-                >
-                  <ChevronDown size={14} className={cx("shrink-0 text-ink-3 transition-transform", isOpen && "rotate-180")} />
-                  <span className="mono shrink-0 text-[11px] tracking-[0.1em] text-ink-3">PHASE {phase.code}</span>
-                  <span className="display truncate text-[15px] text-ink">{phase.title}</span>
-                  <span className="nums ml-auto shrink-0 text-[11px] text-ink-3">{noteCount} notes</span>
-                </button>
+        {/* ------------------------------------------------------ notes */}
+        <div className="min-w-0">
+          {shown === 0 ? (
+            <EmptyState
+              icon={<FileText size={28} strokeWidth={1.5} />}
+              title={scope === "bookmarked" ? "No bookmarked notes yet" : "No notes match"}
+              description={
+                scope === "bookmarked"
+                  ? "Bookmark a note from any lesson and it will collect here for revision."
+                  : "Try a different search term, or switch back to all notes."
+              }
+              action={<Button size="sm" variant="secondary" onClick={() => { setQ(""); setScope("all"); }}>Clear filters</Button>}
+            />
+          ) : (
+            <div className="space-y-9">
+              {filtering && <p className="nums text-[13px] text-ink-3">{shown} notes found across all phases</p>}
+              {groups.map(({ p, modules }) => (
+                <div key={p.id} className="space-y-7">
+                  {filtering ? (
+                    <h2 className="display text-[18px] text-ink">
+                      <span className="mono mr-2 text-[12px] text-notes">P{p.code}</span>
+                      {p.title}
+                    </h2>
+                  ) : (
+                    <div>
+                      <p className="mono text-[11px] uppercase tracking-[0.12em] text-notes">Phase {p.code}</p>
+                      <h2 className="display mt-1.5 text-[24px] font-light leading-tight text-ink">{p.title}</h2>
+                    </div>
+                  )}
 
-                {isOpen && (
-                  <div className="animate-fade border-t border-line">
-                    {visibleModules.map(({ m, ts }) => (
-                      <div key={m.id} className="border-b border-line-soft last:border-0">
-                        <div className="flex items-baseline gap-2.5 bg-bg-sub px-4 py-2.5">
-                          <span className="mono text-[10px] tracking-[0.08em] text-ink-4">{m.code}</span>
-                          <span className="text-[12px] font-medium text-ink-2">{m.title}</span>
-                          <span className="nums ml-auto text-[10px] text-ink-4">{ts.length}</span>
-                        </div>
-                        <ul className="p-1.5">
-                          {ts.map((t) => (
+                  {modules.map(({ m, ts }) => (
+                    <section key={m.id}>
+                      <div className="mb-3 flex items-baseline gap-2.5 border-b border-line pb-2.5">
+                        <span className="mono text-[11px] text-ink-4">{m.code}</span>
+                        <h3 className="text-[14px] font-medium text-ink-2">{m.title}</h3>
+                        <span className="nums ml-auto text-[11px] text-ink-4">{ts.length} notes</span>
+                      </div>
+                      <ul className="grid gap-2.5 sm:grid-cols-2 xl:grid-cols-3">
+                        {ts.map((t) => {
+                          const read = topics[t.id]?.status === "completed";
+                          const saved = topics[t.id]?.bookmarked;
+                          return (
                             <li key={t.id}>
-                              <Link href={`/notes/${t.id}`} className="group flex items-center gap-3 rounded-md px-2.5 py-2 transition-colors hover:bg-card-hi">
-                                <StatusDot status={topics[t.id]?.status ?? "not-started"} size={13} />
-                                <span className="min-w-0 flex-1 truncate text-[13px] text-ink-2 transition-colors group-hover:text-ink">{t.title}</span>
-                                {topics[t.id]?.bookmarked && <Bookmark size={11} fill="currentColor" className="shrink-0 text-brand-ink" />}
-                                <span className="nums shrink-0 text-[10px] text-ink-4">{4 + (hash(t.id) % 7)} min read</span>
+                              <Link
+                                href={`/notes/${t.id}`}
+                                className="group flex h-full items-start gap-3 rounded-[var(--radius-md)] border border-line bg-card p-3.5 transition-colors hover:border-notes/40 hover:bg-card-hi"
+                              >
+                                <span className="flex size-9 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-notes/12 text-notes">
+                                  <FileText size={16} />
+                                </span>
+                                <span className="min-w-0 flex-1">
+                                  <span className="line-clamp-2 text-[13.5px] leading-snug text-ink transition-colors group-hover:text-notes">{t.title}</span>
+                                  <span className="mt-1.5 flex items-center gap-2 text-[11.5px] text-ink-3">
+                                    <span className="nums">{readMinutes(t.id)} min read</span>
+                                    {read && (
+                                      <span className="inline-flex items-center gap-1 text-done">
+                                        <Check size={11} strokeWidth={3} /> Read
+                                      </span>
+                                    )}
+                                  </span>
+                                </span>
+                                {saved && <Bookmark size={13} fill="currentColor" className="mt-0.5 shrink-0 text-brand-ink" />}
                               </Link>
                             </li>
-                          ))}
-                        </ul>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </section>
-            );
-          })}
+                          );
+                        })}
+                      </ul>
+                    </section>
+                  ))}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </Page>
   );
 }

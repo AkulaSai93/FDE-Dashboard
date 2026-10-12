@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import {
-  ArrowLeft, ArrowRight, Bookmark, Check, Download, ExternalLink, FileText,
+  ArrowLeft, ArrowRight, Bookmark, Download, ExternalLink, FileText,
   BookOpen, Link2, ClipboardList,
 } from "lucide-react";
 import {
@@ -26,8 +26,8 @@ const RESOURCE_ICON = { doc: FileText, repo: Link2, paper: BookOpen, tool: Exter
 export function LearnView({ topic }: { topic: Topic }) {
   const mod = MODULE_BY_ID.get(topic.moduleId)!;
   const phase = PHASE_BY_ID.get(topic.phaseId)!;
-  const { prev, next } = topicNeighbours(topic.id);
-  const { topics, setVideoPosition, setTopicStatus, toggleBookmark } = useProgress();
+  const { next } = topicNeighbours(topic.id);
+  const { topics, setVideoPosition, toggleBookmark } = useProgress();
   const { byModule, byPhase } = useRollups();
   const tp = useTopicProgress(topic.id);
   const { push } = useToast();
@@ -42,20 +42,6 @@ export function LearnView({ topic }: { topic: Topic }) {
   const phaseRollup = byPhase.get(phase.id)!;
   const note = React.useMemo(() => buildNote(topic), [topic]);
   const done = tp.status === "completed";
-
-  const complete = () => {
-    if (done) {
-      setTopicStatus(topic.id, "in-progress");
-      return;
-    }
-    setTopicStatus(topic.id, "completed");
-    push({
-      tone: "success",
-      title: `${topic.title} completed`,
-      description: next ? `Up next: ${next.title}` : "That's the last topic in the programme.",
-      action: next ? { label: "Go to next lesson", href: `/learn/${next.id}` } : undefined,
-    });
-  };
 
   const tabs: Array<{ value: Tab; label: string; icon: React.ReactNode }> = [
     { value: "overview", label: "Overview", icon: <BookOpen size={13} /> },
@@ -83,6 +69,7 @@ export function LearnView({ topic }: { topic: Topic }) {
           </div>
 
           <VideoPlayer
+            id={topic.id}
             title={topic.title}
             durationSeconds={topic.videoSeconds}
             position={tp.videoPosition}
@@ -120,10 +107,6 @@ export function LearnView({ topic }: { topic: Topic }) {
               >
                 <Bookmark size={14} fill={tp.bookmarked ? "currentColor" : "none"} className={tp.bookmarked ? "text-brand-ink" : undefined} />
                 {tp.bookmarked ? "Saved" : "Save"}
-              </Button>
-              <Button variant={done ? "secondary" : "primary"} size="sm" onClick={complete}>
-                <Check size={14} strokeWidth={3} />
-                {done ? "Completed" : "Mark as complete"}
               </Button>
             </div>
           </div>
@@ -218,7 +201,7 @@ export function LearnView({ topic }: { topic: Topic }) {
             )}
 
             {tab === "resources" && (
-              <div className="animate-fade max-w-2xl">
+              <div className="animate-fade">
                 <h2 className="eyebrow mb-3">Resources for this topic</h2>
                 <ul className="space-y-2">
                   {topic.resources.map((r, i) => {
@@ -246,7 +229,7 @@ export function LearnView({ topic }: { topic: Topic }) {
             )}
 
             {tab === "assignment" && topic.assignment && (
-              <div className="animate-fade max-w-2xl">
+              <div className="animate-fade">
                 <Card className="overflow-hidden">
                   <div className="border-b border-line px-5 py-4">
                     <div className="flex flex-wrap items-center gap-2.5">
@@ -266,27 +249,6 @@ export function LearnView({ topic }: { topic: Topic }) {
             )}
           </div>
 
-          {/* --------------------------------------------- prev / next */}
-          <nav className="flex items-center justify-between gap-3 border-t border-line pt-5">
-            {prev ? (
-              <Link href={`/learn/${prev.id}`} className="group flex min-w-0 items-center gap-3 rounded-lg border border-line bg-card px-4 py-3 transition-colors hover:border-line-hi hover:bg-card-hi">
-                <ArrowLeft size={14} className="shrink-0 text-ink-3 transition-colors group-hover:text-ink" />
-                <span className="min-w-0 text-left">
-                  <span className="eyebrow block">Previous</span>
-                  <span className="mt-1 block truncate text-[13px] text-ink">{prev.title}</span>
-                </span>
-              </Link>
-            ) : <span />}
-            {next ? (
-              <Link href={`/learn/${next.id}`} className="group flex min-w-0 items-center gap-3 rounded-lg border border-line bg-card px-4 py-3 text-right transition-colors hover:border-brand/30 hover:bg-card-hi">
-                <span className="min-w-0">
-                  <span className="eyebrow block">Next lesson</span>
-                  <span className="mt-1 block truncate text-[13px] text-ink">{next.title}</span>
-                </span>
-                <ArrowRight size={14} className="shrink-0 text-ink-3 transition-colors group-hover:text-brand-ink" />
-              </Link>
-            ) : <span />}
-          </nav>
         </div>
 
         {/* ============================================ course navigation */}

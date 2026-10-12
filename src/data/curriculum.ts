@@ -271,10 +271,14 @@ function buildQuestions(id: string, topic: string, moduleTitle: string, phaseTit
 
 const ALL_MODULE_TITLES = RAW.flatMap((p) => p[2].map((m) => m[1]));
 
+/** Modules that end with a quiz: four the seeded learner has finished
+ *  (1.2, 2.5, 3.4, 6.1) and three still ahead (7.2 is the 60-question exam). */
+const QUIZ_MODULES = new Set(["1.2", "2.5", "3.4", "6.1", "7.2", "8.1", "9.4"]);
+
 function deriveAssets(id: string, title: string, moduleTitle: string, phaseTitle: string, lastInModule: boolean) {
   const videoSeconds = range(id + "v", 7, 34) * 60 + range(id + "s", 0, 59);
-  // One quiz per module, on its final topic.
-  const hasAssignment = lastInModule;
+  // Seven module quizzes in total, each on its module's final topic.
+  const hasAssignment = lastInModule && QUIZ_MODULES.has(id.slice(2, id.lastIndexOf(".")));
   const resourceCount = range(id + "r", 1, 3);
   const resources: Resource[] = Array.from({ length: resourceCount }, (_, i) => {
     const [label, kind] = pick(id + "rs" + i, RESOURCE_SHAPES);

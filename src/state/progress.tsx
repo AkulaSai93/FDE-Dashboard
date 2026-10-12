@@ -139,7 +139,7 @@ interface Store extends ProgressState {
 }
 
 const Ctx = createContext<Store | null>(null);
-const STORAGE_KEY = "fde-lms:progress:v3";
+const STORAGE_KEY = "fde-lms:progress:v4";
 
 export function ProgressProvider({ children }: { children: React.ReactNode }) {
   // Always render the seed first so server and client markup match, then

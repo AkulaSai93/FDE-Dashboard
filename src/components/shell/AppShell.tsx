@@ -47,7 +47,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <div className="lg:pl-[260px]">
         <Topbar onOpenMenu={() => setMenuOpen(true)} />
-        <main className="pb-20 lg:pb-0">{children}</main>
+        {/* Content sheet: a rounded #121212 panel on the black canvas, exactly like the
+            landing page's hero section (rounded-[32px] bg-ink-deep mx-4/6/8). */}
+        <main className="mx-2 mb-20 min-h-[calc(100dvh-4rem)] rounded-[24px] bg-panel sm:mx-3 lg:mb-3 lg:ml-0 lg:mr-3 lg:rounded-[32px]">
+          {children}
+        </main>
       </div>
 
       {/* Mobile bottom bar — the four destinations that carry the journey */}

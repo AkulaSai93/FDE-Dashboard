@@ -59,7 +59,7 @@ export function JobsView() {
               <ButtonLink href="/curriculum" variant="primary" size="lg">
                 Continue learning <ArrowRight size={15} />
               </ButtonLink>
-              <ButtonLink href="/journey" variant="outline" size="lg">
+              <ButtonLink href="/curriculum" variant="outline" size="lg">
                 See what&apos;s left
               </ButtonLink>
             </div>
@@ -130,8 +130,8 @@ export function JobsView() {
                 </li>
               ))}
             </ul>
-            <ButtonLink href="/journey" size="sm" variant="outline" className="mt-4 w-full">
-              <Briefcase size={13} /> Open My Journey
+            <ButtonLink href="/curriculum" size="sm" variant="outline" className="mt-4 w-full">
+              <Briefcase size={13} /> Open curriculum
             </ButtonLink>
           </Card>
         </div>

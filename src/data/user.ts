@@ -7,4 +7,6 @@ export const USER = {
   enrolledOn: "12 Jun 2026",
   plan: "FDE Program · Unlocked for ₹99",
   streakDays: 11,
+  /** Longest run of consecutive study days. */
+  bestStreakDays: 18,
 };

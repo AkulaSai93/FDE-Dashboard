@@ -1,11 +1,10 @@
 "use client";
 
 import * as React from "react";
-import { ArrowRight, ClipboardList, ListChecks, Search, X } from "lucide-react";
+import { ArrowRight, Check, ClipboardList, Search, X } from "lucide-react";
 import { Page } from "@/components/shell/AppShell";
 import {
-  Badge, Button, Dropdown, EmptyState, FilterChips, Modal, ProgressBar,
-  SectionHeading, StatTile, StatusBadge, cx,
+  Button, Dropdown, EmptyState, FilterChips, Modal, ProgressBar, SectionHeading, cx,
 } from "@/components/ui";
 import { ALL_TOPICS, MODULE_BY_ID, PHASES, PHASE_BY_ID, TOPIC_BY_ID } from "@/data/curriculum";
 import { useProgress, type AssignmentStatus } from "@/state/progress";
@@ -21,10 +20,10 @@ const FILTERS: Array<{ value: Filter; label: string }> = [
   { value: "completed", label: "Completed" },
 ];
 
-const DIFFICULTY_TONE = {
-  Beginner: "quiet",
-  Intermediate: "neutral",
-  Advanced: "brand",
+const DIFFICULTY_DOT = {
+  Beginner: "bg-done",
+  Intermediate: "bg-quiz",
+  Advanced: "bg-brand",
 } as const;
 
 export function AssignmentsView() {
@@ -61,16 +60,22 @@ export function AssignmentsView() {
       <SectionHeading
         eyebrow="Assignments"
         title="Quick MCQ checks"
-        description="Each assignment is a short multiple-choice quiz on one topic. Answer every question, submit, and see your score straight away."
+        description="One short multiple-choice quiz at the end of each module. Answer, submit, see your score."
       />
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        <StatTile value={`${doneCount}`} label="Completed" accent sub={<ProgressBar value={(doneCount / withAssignments.length) * 100} size="xs" />} />
-        <StatTile value={`${avg}%`} label="Average score" />
-        <StatTile value={`${count("not-started")}`} label="Not started" sub={<span className="nums text-[11px] text-ink-3">of {withAssignments.length} quizzes</span>} />
+      <div className="flex flex-wrap items-center gap-x-8 gap-y-3 border-y border-line py-4">
+        <div className="min-w-[200px] flex-1">
+          <div className="flex items-baseline justify-between text-[13px]">
+            <span className="text-ink-2"><span className="display nums text-[22px] font-light text-ink">{doneCount}</span> / {withAssignments.length} completed</span>
+            <span className="nums text-ink-3">{Math.round((doneCount / withAssignments.length) * 100)}%</span>
+          </div>
+          <ProgressBar value={(doneCount / withAssignments.length) * 100} size="sm" tone="done" className="mt-2" />
+        </div>
+        <div className="text-[13px] text-ink-3"><span className="display nums mr-1.5 text-[22px] font-light text-ink">{avg}%</span>average score</div>
+        <div className="text-[13px] text-ink-3"><span className="display nums mr-1.5 text-[22px] font-light text-ink">{count("not-started")}</span>to do</div>
       </div>
 
-      <div className="sticky top-14 z-20 -mx-4 flex flex-wrap items-center gap-2.5 border-y border-line bg-bg/92 px-4 py-3 backdrop-blur-xl sm:-mx-6 sm:px-6">
+      <div className="sticky top-14 z-20 -mx-4 flex flex-wrap items-center gap-2.5 border-y border-line bg-panel/92 px-4 py-3 backdrop-blur-xl sm:-mx-6 sm:px-6">
         <div className="relative min-w-[200px] flex-1">
           <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" />
           <input
@@ -94,50 +99,59 @@ export function AssignmentsView() {
           action={<Button size="sm" variant="secondary" onClick={() => { setQ(""); setFilter("all"); setPhase("all"); }}>Clear filters</Button>}
         />
       ) : (
-        <div className="grid gap-3 lg:grid-cols-2">
-          {rows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE).map((t) => {
-            const a = t.assignment!;
-            const s = (topics[t.id]?.assignment ?? "not-started") as AssignmentStatus;
-            const m = MODULE_BY_ID.get(t.moduleId)!;
-            const p = PHASE_BY_ID.get(t.phaseId)!;
-            const quiz = topics[t.id]?.quiz;
-            return (
-              <article
-                key={t.id}
-                className={cx(
-                  "flex flex-col rounded-xl border bg-card p-5 transition-colors hover:border-line-hi hover:bg-card-hi",
-                  "border-line",
-                )}
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="mono truncate text-[10px] uppercase tracking-[0.1em] text-ink-3">
-                      Phase {p.code} · {m.title}
-                    </p>
-                    <h2 className="display mt-2 text-[16px] leading-snug text-ink">{a.title}</h2>
+        <div className="overflow-hidden rounded-[var(--radius-lg)] border border-line">
+          {/* column headings (desktop) */}
+          <div className="hidden grid-cols-[minmax(0,1fr)_110px_80px_120px_130px] items-center gap-4 border-b border-line bg-bg-sub px-4 py-2.5 text-[11px] text-ink-3 md:grid">
+            <span>Quiz</span><span>Difficulty</span><span>Questions</span><span>Result</span><span className="text-right">Action</span>
+          </div>
+          <ul className="divide-y divide-line">
+            {rows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE).map((t) => {
+              const a = t.assignment!;
+              const m = MODULE_BY_ID.get(t.moduleId)!;
+              const p = PHASE_BY_ID.get(t.phaseId)!;
+              const quiz = topics[t.id]?.quiz;
+              const pct = quiz ? Math.round((quiz.correct / quiz.total) * 100) : 0;
+              return (
+                <li
+                  key={t.id}
+                  className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 px-4 py-3.5 transition-colors hover:bg-card md:grid-cols-[minmax(0,1fr)_110px_80px_120px_130px]"
+                >
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span className={cx("flex size-9 shrink-0 items-center justify-center rounded-[var(--radius-md)]", quiz ? "bg-done/12 text-done" : "bg-quiz/12 text-quiz")}>
+                      {quiz ? <Check size={16} strokeWidth={2.5} /> : <ClipboardList size={16} />}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-[14px] text-ink">{m.title}</p>
+                      <p className="truncate text-[12px] text-ink-3">Phase {p.code} · Module {m.code}</p>
+                    </div>
                   </div>
-                  <StatusBadge status={s} />
-                </div>
-
-                <p className="mt-2.5 line-clamp-3 flex-1 text-[13px] leading-relaxed text-ink-2">{a.brief}</p>
-
-                <div className="mt-4 flex flex-wrap items-center gap-2">
-                  <Badge tone={DIFFICULTY_TONE[a.difficulty]}>{a.difficulty}</Badge>
-                  <Badge tone="quiet">
-                    <ListChecks size={10} /> {a.questions.length} MCQs
-                  </Badge>
-                  {quiz && <Badge tone="brand">Score {quiz.correct}/{quiz.total}</Badge>}
-                  <button
-                    onClick={() => setOpenId(t.id)}
-                    className="ml-auto inline-flex items-center gap-1.5 text-[12px] font-medium text-brand-ink transition-colors hover:text-brand-hi"
-                  >
-                    {quiz ? "View results" : "Start quiz"}
-                    <ArrowRight size={12} />
-                  </button>
-                </div>
-              </article>
-            );
-          })}
+                  <span className="hidden items-center gap-1.5 text-[12px] text-ink-2 md:flex">
+                    <span className={cx("size-1.5 rounded-full", DIFFICULTY_DOT[a.difficulty])} />
+                    {a.difficulty}
+                  </span>
+                  <span className="nums hidden text-[13px] text-ink-2 md:block">{a.questions.length}</span>
+                  <span className="hidden md:block">
+                    {quiz ? (
+                      <span className="flex items-center gap-2">
+                        <span className="nums text-[13px] text-ink">{quiz.correct}/{quiz.total}</span>
+                        <span className="h-1 flex-1 overflow-hidden rounded-full bg-card-hi2">
+                          <span className={cx("block h-full rounded-full", pct >= 80 ? "bg-done" : "bg-quiz")} style={{ width: `${pct}%` }} />
+                        </span>
+                      </span>
+                    ) : (
+                      <span className="text-[12px] text-ink-4">—</span>
+                    )}
+                  </span>
+                  <span className="justify-self-end">
+                    <Button size="sm" variant={quiz ? "ghost" : "primary"} onClick={() => setOpenId(t.id)}>
+                      {quiz ? "View results" : "Start quiz"}
+                      <ArrowRight size={12} />
+                    </Button>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
         </div>
       )}
       {pages > 1 && (

@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Bookmark, Check, Download, PlayCircle } from "lucide-react";
+import { ArrowLeft, Bookmark, Download, PlayCircle } from "lucide-react";
 import { Page } from "@/components/shell/AppShell";
-import { Button, ButtonLink, Card, StatusBadge } from "@/components/ui";
+import { Button, Card, StatusBadge } from "@/components/ui";
 import { useToast } from "@/components/ui/toast";
 import { NoteReader } from "./NoteReader";
 import { buildNote } from "@/lib/notes";
@@ -14,12 +14,8 @@ export function NotePageView({ topic }: { topic: Topic }) {
   const note = buildNote(topic);
   const mod = MODULE_BY_ID.get(topic.moduleId)!;
   const tp = useTopicProgress(topic.id);
-  const { toggleBookmark, setTopicStatus } = useProgress();
+  const { toggleBookmark } = useProgress();
   const { push } = useToast();
-
-  const idx = mod.topics.findIndex((t) => t.id === topic.id);
-  const prev = mod.topics[idx - 1];
-  const next = mod.topics[idx + 1];
 
   return (
     <Page className="max-w-[1000px]">
@@ -43,17 +39,6 @@ export function NotePageView({ topic }: { topic: Topic }) {
             </Button>
             <Button size="sm" variant="outline" onClick={() => push({ title: "Notes downloaded", description: `${note.title}.md saved to your device.` })}>
               <Download size={13} /> Download
-            </Button>
-            <Button
-              size="sm"
-              variant={tp.status === "completed" ? "secondary" : "primary"}
-              onClick={() => {
-                const done = tp.status === "completed";
-                setTopicStatus(topic.id, done ? "in-progress" : "completed");
-                if (!done) push({ tone: "success", title: `${topic.title} marked complete` });
-              }}
-            >
-              <Check size={13} strokeWidth={3} /> {tp.status === "completed" ? "Completed" : "Mark complete"}
             </Button>
           </div>
         </div>
@@ -81,7 +66,7 @@ export function NotePageView({ topic }: { topic: Topic }) {
                 <li key={t.id}>
                   <Link
                     href={`/notes/${t.id}`}
-                    className={`block truncate rounded px-2 py-1.5 text-[12px] transition-colors ${t.id === topic.id ? "bg-card-hi font-medium text-ink" : "text-ink-3 hover:bg-card-hi hover:text-ink-2"}`}
+                    className={`block truncate rounded px-2 py-1.5 text-[12px] transition-colors ${t.id === topic.id ? "bg-notes/12 font-medium text-notes" : "text-ink-3 hover:bg-card-hi hover:text-ink-2"}`}
                   >
                     {t.title}
                   </Link>
@@ -92,14 +77,6 @@ export function NotePageView({ topic }: { topic: Topic }) {
         </aside>
       </div>
 
-      <nav className="flex items-center justify-between gap-3 border-t border-line pt-5">
-        {prev ? (
-          <ButtonLink href={`/notes/${prev.id}`} variant="outline" size="sm"><ArrowLeft size={13} /> {prev.title}</ButtonLink>
-        ) : <span />}
-        {next ? (
-          <ButtonLink href={`/notes/${next.id}`} variant="outline" size="sm">{next.title} <ArrowRight size={13} /></ButtonLink>
-        ) : <span />}
-      </nav>
     </Page>
   );
 }

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en" class="urbanist_aa1e523d-module__9MgY1W__variable inter_fe8b9d92-module__LINzvG__variable">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Unlock access — FDE Program</title>
+<link rel="stylesheet" href="profile-assets/site.css" />
+<style>
+.co{--r:#E6161F;--r2:#FF4D5E}
+.co-steps{display:flex;align-items:center;gap:.75rem;font-size:.8rem;color:#777}
+.co-steps span{display:inline-flex;align-items:center;gap:.5rem}
+.co-steps i{display:grid;place-items:center;width:1.5rem;height:1.5rem;border-radius:99px;border:1px solid #333;font-style:normal;font-size:.7rem}
+.co-steps .done i{background:#1f1f1f;color:#22c55e;border-color:#2a2a2a}.co-steps .done i svg{width:.75rem}
+.co-steps .now{color:#fff}.co-steps .now i{background:var(--r);border-color:var(--r);color:#fff;box-shadow:0 0 16px rgba(230,22,31,.6)}
+.co-steps u{flex:0 0 2.5rem;height:1px;background:#2a2a2a}
+.co-grid{display:grid;gap:1.25rem;margin-top:2rem;align-items:stretch}
+@media(min-width:1024px){.co-grid{grid-template-columns:minmax(0,1.35fr) minmax(0,1fr)}}
+.co-card{border-radius:1.5rem;background:#121212;padding:1.75rem;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.co-k{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#999}
+/* hero ticket */
+.co-ticket{position:relative;margin-top:1rem;border-radius:1.25rem;padding:1.5rem;border:1.5px solid transparent;
+  background:linear-gradient(#0b0b0b,#0b0b0b) padding-box,linear-gradient(210deg,var(--r2),#2a2a2a 55%) border-box}
+.co-ticket h2{font-family:var(--font-urbanist);font-weight:300;font-size:clamp(1.6rem,2.6vw,2.2rem);line-height:1.1;letter-spacing:-.01em}
+.co-ticket h2 span{color:var(--r2);font-weight:400}
+.co-price{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;margin-top:1.25rem;padding-top:1.25rem;border-top:1px dashed #2e2e2e}
+.co-price b{font-family:var(--font-urbanist);font-weight:300;font-size:3.25rem;line-height:1;color:var(--r)}
+.co-badge{border-radius:99px;border:1px solid #333;padding:.2rem .65rem;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#999}
+.co-for{display:flex;align-items:center;gap:.75rem;margin-top:1.25rem;padding:.8rem 1rem;border-radius:1rem;background:#0b0b0b;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+.co-av{display:grid;place-items:center;width:2.4rem;height:2.4rem;border-radius:99px;background:var(--r);font-weight:600;font-size:.85rem}
+.co-for small{display:block;color:#777;font-size:.75rem}
+.co-incl{display:grid;gap:.65rem;margin-top:1rem}@media(min-width:640px){.co-incl{grid-template-columns:1fr 1fr}}@media(min-width:1024px){.co-incl{grid-template-columns:repeat(3,1fr)}}
+.co-included{margin-top:1.25rem}
+.co-incl li{display:flex;align-items:center;gap:.75rem;padding:.75rem .85rem;border-radius:.9rem;background:#0b0b0b;box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}
+.co-incl b{display:block;font-weight:500;font-size:.9rem}.co-incl small{color:#777;font-size:.75rem}
+.co-ck{display:grid;place-items:center;width:1.4rem;height:1.4rem;flex:none;border-radius:99px;background:var(--r)}.co-ck svg{width:.75rem;color:#fff}
+/* pay card */
+.co-pay{position:relative}
+.co-pay{display:flex;flex-direction:column}
+.co-pay .co-btn{margin-top:auto;padding-top:1.5rem}
+.co-lines{display:grid;gap:.6rem;margin-top:1rem;font-size:.9rem;color:#bbb}
+.co-lines p{display:flex;justify-content:space-between}
+.co-total{display:flex;justify-content:space-between;align-items:baseline;margin-top:1rem;padding-top:1rem;border-top:1px solid #262626}
+.co-total span{font-family:var(--font-urbanist);font-size:1.25rem}.co-total b{font-family:var(--font-urbanist);font-size:1.75rem;font-weight:500}
+.co-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;margin-top:1.5rem;padding:.3rem;border-radius:1rem;background:#0b0b0b}
+.co-tabs button{padding:.55rem 0;border-radius:.75rem;font-size:.78rem;color:#999;transition:all .2s}
+.co-tabs button[aria-selected=true]{background:#232323;color:#fff;box-shadow:inset 0 0 0 1px rgba(230,22,31,.45)}
+.co-panel{margin-top:1rem}.co-panel[hidden]{display:none}
+.co-field{display:block;width:100%;margin-top:.5rem;padding:.8rem 1rem;border-radius:.85rem;background:#0b0b0b;border:1px solid #2a2a2a;color:#fff;font-size:.9rem;outline:none}
+.co-field:focus{border-color:var(--r)}
+.co-row{display:grid;grid-template-columns:1fr 1fr;gap:.5rem}
+.co-label{font-size:.75rem;color:#888}
+.co-apps{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.75rem}
+.co-opt{padding:.45rem .8rem;border-radius:99px;background:#0b0b0b;border:1px solid #2a2a2a;font-size:.78rem;color:#ccc;transition:all .2s}
+.co-opt:hover,.co-opt.on{border-color:var(--r);color:#fff}
+.co-or{display:flex;align-items:center;gap:.75rem;margin:1rem 0 .25rem;font-size:.7rem;color:#666;text-transform:uppercase;letter-spacing:.12em}.co-or::before,.co-or::after{content:"";flex:1;height:1px;background:#262626}
+.co-btn{display:flex;width:100%;margin-top:1.5rem;font-weight:500}
+.co-btn span{display:flex;align-items:center;justify-content:center;height:3rem;border-radius:1rem;background:var(--r);transition:background .3s}
+.co-btn span:first-child{width:3rem;margin-right:.15rem}.co-btn span:last-child{flex:1}
+.co-btn:hover span{background:#ff2a33}
+.co-safe{display:flex;align-items:center;justify-content:center;gap:.4rem;margin-top:.9rem;font-size:.75rem;color:#777}
+.co-test{margin-top:.9rem;text-align:center;font-size:.72rem;color:#a3862b}
+.co-notes{display:grid;gap:.6rem;margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid #262626;font-size:.85rem;color:#aaa}
+.co-notes li{display:flex;align-items:center;gap:.6rem}.co-notes svg{width:.9rem;flex:none;color:#22c55e}
+</style>
+</head>
+<body class="min-h-screen">
+<header class="sticky top-0 z-30 border-b border-ink-line bg-ink-deep/90 backdrop-blur-xl">
+  <div class="mx-auto flex h-16 max-w-[1600px] items-center justify-between px-5 sm:px-8 lg:px-12">
+    <img src="http://13.233.246.242:3000/_next/image?url=%2Fassets%2Fusotlogo.png&amp;w=384&amp;q=75" alt="upGrad School of Technology" class="h-9 w-auto" />
+    <nav class="flex items-center gap-3 text-sm">
+      <span class="grid size-9 place-items-center rounded-full bg-accent text-[13px] font-semibold text-on-accent">AS</span>
+      <a href="#" class="inline-flex items-center gap-1.5 px-2 text-dim transition-colors hover:text-paper"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="size-4"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="m16 17 5-5-5-5"/><path d="M21 12H9"/></svg>Log out</a>
+    </nav>
+  </div>
+</header>
+<main class="co mx-auto max-w-6xl px-5 pt-10 pb-20 sm:px-8 lg:pt-14">
+  <nav class="co-steps" aria-label="Progress">
+    <span class="done"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></i>Account</span><u></u><span class="now"><i>2</i>Payment</span><u></u><span><i>3</i>Access</span>
+  </nav>
+  <h1 class="mt-6 font-display text-[clamp(2.25rem,4.2vw,3.5rem)] leading-[1.05] font-light tracking-[-0.01em]">Unlock your <span class="text-accent">access.</span></h1>
+  <p class="mt-3 text-base text-dim sm:text-lg">One-time payment — lifetime access to the AI Forward Deployed Engineer platform.</p>
+
+  <div class="co-grid">
+    <!-- what you get -->
+    <section class="co-card">
+      <p class="co-k">You're unlocking</p>
+      <div class="co-ticket">
+        <h2>AI Forward Deployed Engineer <span>— full platform</span></h2>
+        <div class="co-price"><div><b>₹99</b><p class="co-k" style="margin-top:.5rem">One-time · lifetime access</p></div><span class="co-badge">Lessons free</span></div>
+      </div>
+      <div class="co-for"><span class="co-av">AS</span><p><b>Akula Sai</b><small>akula.sai5@upgradsot.com</small></p></div>
+    </section>
+
+    <!-- pay -->
+    <aside class="co-card co-pay">
+      <p class="co-k">Order summary</p>
+      <div class="co-lines"><p><span>Platform access (lifetime)</span><span>₹99</span></p><p><span>Taxes</span><span>Included</span></p></div>
+      <div class="co-total"><span>Total</span><b>₹99</b></div>
+
+      <ul class="co-notes"><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Instant access right after payment</li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Pay once — no subscription</li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Receipt sent to akula.sai5@upgradsot.com</li></ul>
+      <a href="success-preview.html" class="co-btn"><span><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="size-4"><path d="M12 0c.6 6.4 5.6 11.4 12 12-6.4.6-11.4 5.6-12 12-.6-6.4-5.6-11.4-12-12C6.4 11.4 11.4 6.4 12 0Z"/></svg></span><span>Pay ₹99</span></a>
+    </aside>
+  </div>
+
+  <section class="co-card co-included">
+    <p class="co-k">What's included</p>
+    <ul class="co-incl"><li><span class="co-ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><p><b>Structured notes</b><small>Module-by-module</small></p></li><li><span class="co-ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><p><b>Practice projects</b><small>Every module</small></p></li><li><span class="co-ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><p><b>Learning platform</b><small>Lessons + progress</small></p></li><li><span class="co-ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><p><b>Community</b><small>Peers & mentors</small></p></li><li><span class="co-ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><p><b>Job opportunities</b><small>FDE & applied-AI</small></p></li><li><span class="co-ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span><p><b>Certificate</b><small>For LinkedIn</small></p></li></ul>
+  </section>
+</main>
+</body>
+</html>

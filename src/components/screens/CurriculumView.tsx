@@ -290,7 +290,7 @@ export function CurriculumView() {
       />
 
       {/* ------------------------------------------------------------ toolbar */}
-      <div className="sticky top-14 z-20 -mx-4 border-y border-line bg-bg/92 px-4 py-3 backdrop-blur-xl sm:-mx-6 sm:px-6">
+      <div className="sticky top-14 z-20 -mx-4 border-y border-line bg-panel/92 px-4 py-3 backdrop-blur-xl sm:-mx-6 sm:px-6">
         <div className="flex flex-wrap items-center gap-2.5">
           <div className="relative min-w-[200px] flex-1">
             <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-3" />

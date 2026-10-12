@@ -132,7 +132,6 @@ function ProfileMenu() {
           </div>
           <div className="p-1.5">
             {[
-              { href: "/settings", label: "Settings" },
               { href: "/certification", label: "Certificate" },
               { href: "/help", label: "Help & support" },
             ].map((i) => (
@@ -155,7 +154,7 @@ function ProfileMenu() {
 export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
   const crumbs = useBreadcrumbs();
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-line bg-surface/85 px-4 backdrop-blur-xl sm:px-6">
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-3 bg-surface px-4 sm:px-6">
       <button
         onClick={onOpenMenu}
         aria-label="Open navigation"

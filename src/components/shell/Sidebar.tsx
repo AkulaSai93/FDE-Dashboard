@@ -14,7 +14,7 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
   return (
     <div className="flex h-full flex-col bg-surface">
-      <div className="flex h-14 shrink-0 items-center border-b border-line px-4">
+      <div className="flex h-14 shrink-0 items-center px-4">
         <Link href="/dashboard" onClick={onNavigate} className="min-w-0 rounded-md">
           <Wordmark />
         </Link>
@@ -72,7 +72,7 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       {/* Persistent programme progress — the one number always on screen */}
       <div className="shrink-0 border-t border-line p-3">
         <Link
-          href="/journey"
+          href="/curriculum"
           onClick={onNavigate}
           className="block rounded-lg border border-line bg-card p-3 transition-colors hover:border-line-hi hover:bg-card-hi"
         >
@@ -92,7 +92,7 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
 export function Sidebar() {
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 hidden w-[260px] border-r border-line lg:block">
+    <aside className="fixed inset-y-0 left-0 z-40 hidden w-[260px] lg:block">
       <SidebarContent />
     </aside>
   );

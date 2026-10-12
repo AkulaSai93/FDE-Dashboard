@@ -6,17 +6,18 @@ import {
 } from "lucide-react";
 import { cx } from "@/components/ui";
 import { formatDuration } from "@/data/curriculum";
+import { lessonVideo } from "@/lib/media";
 
 /**
  * Dark video player.
  *
- * The programme's lessons live on YouTube, so this prototype ships the full
- * player chrome and progress model against a simulated clock rather than a
- * real media file. Swapping the clock for a <video> element means replacing
- * `tick` with `timeupdate` — the controls, progress reporting and completion
- * behaviour above it are unchanged.
+ * The programme's lessons live on YouTube. Until each topic has its own
+ * recording, the stage plays a looping placeholder clip (see lib/media.ts)
+ * while lesson progress runs on a simulated clock. Wiring real footage means
+ * driving `onPosition` from the video's `timeupdate` instead of the clock.
  */
 export function VideoPlayer({
+  id,
   title,
   durationSeconds,
   position,
@@ -24,6 +25,8 @@ export function VideoPlayer({
   onEnded,
   completed,
 }: {
+  /** Topic/project id — picks the footage shown in the stage. */
+  id?: string;
   title: string;
   durationSeconds: number;
   position: number;
@@ -39,6 +42,23 @@ export function VideoPlayer({
   const [scrub, setScrub] = React.useState<number | null>(null);
   const [chromeVisible, setChromeVisible] = React.useState(true);
   const shellRef = React.useRef<HTMLDivElement>(null);
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+
+  // The footage is a looping stand-in clip, so it follows play/pause and the
+  // audio controls; lesson progress still comes from the clock above it.
+  React.useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    if (playing) v.play().catch(() => {});
+    else v.pause();
+  }, [playing]);
+  React.useEffect(() => {
+    const v = videoRef.current;
+    if (!v) return;
+    v.muted = muted;
+    v.volume = volume;
+    v.playbackRate = speed;
+  }, [muted, volume, speed]);
   const hideTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const shown = scrub ?? position;
@@ -102,20 +122,21 @@ export function VideoPlayer({
       aria-label={`Video player: ${title}`}
       className="group/player relative aspect-video w-full overflow-hidden rounded-xl border border-line bg-black outline-none"
     >
-      {/* Stage. A real deployment renders the <video>/embed here. */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="grid-field absolute inset-0 opacity-40" />
-        <div className="absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_45%,rgba(230,22,31,0.07),transparent_70%)]" />
-        <div className="relative px-8 text-center">
-          <p className="mono text-[10px] uppercase tracking-[0.18em] text-ink-4">FDE Program · Lesson</p>
-          <p className="display mt-3 max-w-xl text-[20px] leading-snug text-ink-2 sm:text-[24px]">{title}</p>
-          {completed && (
-            <p className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-brand/30 bg-brand/10 px-3 py-1.5 text-[11px] text-brand-ink">
-              <Check size={11} strokeWidth={3} /> Watched
-            </p>
-          )}
-        </div>
-      </div>
+      {/* Stage: lesson footage (placeholder clip until real recordings are wired in) */}
+      <video
+        ref={videoRef}
+        src={`${lessonVideo(id ?? title)}#t=3`}
+        loop
+        playsInline
+        preload="metadata"
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+      {!playing && <div className="absolute inset-0 bg-black/45" />}
+      {completed && !playing && (
+        <p className="absolute left-4 top-4 z-10 inline-flex items-center gap-1.5 rounded-full bg-black/70 px-3 py-1.5 text-[11px] text-done">
+          <Check size={11} strokeWidth={3} /> Watched
+        </p>
+      )}
 
       {/* Big centre affordance when paused */}
       {!playing && (

@@ -113,7 +113,6 @@ export function CommandSearch() {
           <Search size={14} />
           <span className="hidden md:inline">Search the programme…</span>
         </span>
-        <kbd className="mono hidden rounded border border-line-hi bg-bg-sub px-1.5 py-0.5 text-[10px] text-ink-3 md:inline">⌘K</kbd>
       </button>
 
       {open && (

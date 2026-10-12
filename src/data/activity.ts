@@ -16,7 +16,7 @@ export const RECENT_ACTIVITY: ActivityItem[] = [
   { id: "ac2", kind: "completed", title: "Read replicas", context: "Phase 07 · Database Scaling", when: "41 min ago", href: "/learn/t-7.2.1" },
   { id: "ac3", kind: "submitted", title: "Caching — Lab", context: "Phase 07 · System Design", when: "2 hr ago", href: "/assignments" },
   { id: "ac4", kind: "completed", title: "Architecture Trade-offs", context: "Phase 07 · System Design", when: "Yesterday", href: "/learn/t-7.1.9" },
-  { id: "ac5", kind: "unlocked", title: "Phase 07 · System Design at Scale", context: "Phase 06 completed", when: "2 days ago", href: "/journey" },
+  { id: "ac5", kind: "unlocked", title: "Phase 07 · System Design at Scale", context: "Phase 06 completed", when: "2 days ago", href: "/curriculum?phase=p-07" },
   { id: "ac6", kind: "started", title: "Payroll Processing Engine", context: "Project · Phase 06", when: "3 days ago", href: "/projects/pr-payroll" },
 ];
 
@@ -31,7 +31,7 @@ export interface Notification {
 
 export const NOTIFICATIONS: Notification[] = [
   { id: "n1", title: "Assignment evaluated", body: "Caching — Lab scored 92/100. Reviewer left two notes on your invalidation strategy.", when: "2 hr ago", unread: true, href: "/assignments" },
-  { id: "n2", title: "Phase 07 unlocked", body: "You finished Cloud, DevOps & LLMOps. System Design at Scale is now open.", when: "2 days ago", unread: true, href: "/journey" },
+  { id: "n2", title: "Phase 07 unlocked", body: "You finished Cloud, DevOps & LLMOps. System Design at Scale is now open.", when: "2 days ago", unread: true, href: "/curriculum?phase=p-07" },
   { id: "n3", title: "New in the community", body: "23 replies on “Best resources for MCP?” — your question was answered.", when: "3 days ago", unread: false, href: "/community" },
   { id: "n4", title: "Office hours on Thursday", body: "Vishwa is taking live questions on enterprise RAG evaluation, 7:00 PM IST.", when: "5 days ago", unread: false, href: "/community" },
 ];
@@ -73,6 +73,9 @@ export const ANNOUNCEMENTS = [
   { id: "an1", title: "Phase 07 notes refreshed", body: "Database Scaling notes now include the partition-migration runbook from the live session.", when: "1 day ago" },
   { id: "an2", title: "New lab added to Phase 03", body: "Secure tool execution now ships with a sandboxed MCP server you can break safely.", when: "6 days ago" },
 ];
+
+/** Invite link for the FDE WhatsApp community — replace with the real one. */
+export const WHATSAPP_COMMUNITY_URL = "https://chat.whatsapp.com/your-invite-code";
 
 export const COMMUNITY_STATS = {
   members: 1240,
