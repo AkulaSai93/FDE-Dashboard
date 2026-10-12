@@ -4,147 +4,76 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Profile — FDE Program</title>
-<!-- The landing page's own stylesheet and font files (Urbanist 300/400/500/700/800, Inter 100–900),
-     copied locally so every class, font and weight renders exactly as on the site. -->
 <link rel="stylesheet" href="profile-assets/site.css" />
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap" rel="stylesheet" />
 <style>
+:root{--r:#E6161F;--r2:#ff4d5e}
+.pv-wrap{max-width:1320px;margin:0 auto;padding:2.5rem 1.25rem 4rem}
+@media(min-width:640px){.pv-wrap{padding:3rem 2rem 4rem}}
+/* top */
+.pv-top{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:1.5rem}
+.pv-acct{display:flex;align-items:center;gap:.9rem;padding:.75rem 1rem .75rem .75rem;border-radius:1.25rem;background:#121212;box-shadow:inset 0 0 0 1px #1e1e22}
+.pv-av{display:grid;place-items:center;width:2.75rem;height:2.75rem;flex:none;border-radius:99px;background:var(--r);font-weight:600;color:#fff}
+.pv-acct b{display:flex;align-items:center;font-weight:500;color:#f3efef;font-size:.95rem}
+.pv-acct small{display:block;color:#999;font-size:.78rem}
+.pv-meta{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.4rem}
+.pv-meta span{border-radius:99px;background:#1a1a1d;padding:.15rem .55rem;font-size:.68rem;color:#bbb}
+.pv-lock{display:inline-flex;align-items:center;gap:.3rem;margin-left:.5rem;border-radius:99px;padding:.2rem .55rem;font-size:.62rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--r2);box-shadow:inset 0 0 0 1px rgba(230,22,31,.4)}
+/* explorer */
+.pv-x{display:grid;gap:1.25rem;margin-top:2.5rem}
+@media(min-width:1024px){.pv-x{grid-template-columns:340px minmax(0,1fr);align-items:stretch}}
+.pv-k{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#999}
+.pv-h{margin-top:.6rem;font-family:var(--font-urbanist);font-weight:300;font-size:clamp(1.6rem,2.4vw,2.1rem);line-height:1.1;letter-spacing:-.01em;color:#f3efef}
+.pv-h span{color:var(--r)}
+.pv-list{display:grid;gap:.4rem;margin-top:1.4rem}
+.pv-item{display:flex;width:100%;align-items:center;gap:.85rem;padding:.8rem .9rem;border-radius:1rem;text-align:left;transition:background .2s,box-shadow .2s}
+.pv-item:hover{background:#121212}
+.pv-item.on{background:#121212;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--c) 45%,transparent)}
+.pv-ic{display:grid;place-items:center;width:2.4rem;height:2.4rem;flex:none;border-radius:.75rem;color:var(--c);background:color-mix(in srgb,var(--c) 13%,transparent)}
+.pv-ic svg{width:1.15rem;height:1.15rem}
+.pv-tx{flex:1;min-width:0}
+.pv-tx b{display:block;font-weight:500;font-size:.95rem;color:#f3efef}
+.pv-tx small{display:block;margin-top:.1rem;font-size:.78rem;line-height:1.4;color:#8a8a8a}
+.pv-arrow{display:flex;color:#555;transition:transform .2s,color .2s}
+.pv-item.on .pv-arrow{color:var(--c);transform:translateX(3px)}
+/* auto tour cursor */
+.pv-col{position:relative}
+.pv-cursor{position:absolute;left:0;top:0;z-index:5;pointer-events:none;opacity:0;filter:drop-shadow(0 4px 10px rgba(0,0,0,.6));
+  transition:transform .35s cubic-bezier(.65,0,.35,1),opacity .2s}
+.pv-cursor.show{opacity:1}
+.pv-cursor svg{display:block;transition:transform .15s}
+.pv-cursor.press svg{transform:scale(.82)}
+.pv-ripple{position:absolute;left:2px;top:2px;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:99px;border:2px solid #fff;opacity:0}
+.pv-cursor.press .pv-ripple{animation:pvr .55s ease-out}
+@keyframes pvr{from{opacity:.9;transform:scale(.4)}to{opacity:0;transform:scale(4)}}
+.pv-auto{display:flex;align-items:center;gap:.5rem;margin-top:.7rem;font-size:.75rem;color:#777}
+.pv-auto i{width:.45rem;height:.45rem;border-radius:99px;background:#22c55e;box-shadow:0 0 0 0 rgba(34,197,94,.6);animation:pvp 1.6s infinite}
+.pv-auto.paused i{background:#555;animation:none}
+@keyframes pvp{70%{box-shadow:0 0 0 6px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+.pv-item{position:relative;overflow:hidden}
+@media (prefers-reduced-motion:reduce){.pv-cursor,.pv-auto{display:none}}
+/* browser frame */
+.pv-win{position:relative;display:flex;flex-direction:column;min-height:26rem;border-radius:1.25rem;overflow:hidden;background:#0a0a0c;box-shadow:inset 0 0 0 1px #26262b,0 30px 80px -30px rgba(230,22,31,.35)}
+.pv-bar{display:flex;align-items:center;gap:.75rem;padding:.7rem .9rem;background:#121212;border-bottom:1px solid #1e1e22}
+.pv-dots{display:flex;gap:.35rem}.pv-dots i{width:.62rem;height:.62rem;border-radius:99px;background:#333}
+.pv-dots i:first-child{background:#ff5f57}.pv-dots i:nth-child(2){background:#febc2e}.pv-dots i:nth-child(3){background:#28c840}
+.pv-url{flex:1;display:flex;align-items:center;gap:.45rem;max-width:26rem;margin:0 auto;padding:.3rem .8rem;border-radius:.6rem;background:#0a0a0c;font-size:.75rem;color:#999}
+.pv-url svg{width:.75rem;color:#22c55e}
+.pv-stage{position:relative;flex:1;min-height:22rem;overflow:hidden}
+.pv-stage iframe{position:absolute;left:0;top:0;width:1280px;height:1100px;border:0;transform-origin:0 0;pointer-events:none;opacity:0;transition:opacity .2s}
+.pv-stage iframe.show{opacity:1}
+.pv-fade{position:absolute;inset:auto 0 0 0;height:45%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:.6rem;padding-bottom:1.5rem;background:linear-gradient(to top,#0a0a0c 25%,rgba(10,10,12,.8) 55%,transparent)}
+.pv-fade p{font-size:.85rem;color:#ddd}
+.pv-fade span{display:grid;place-items:center;width:2.6rem;height:2.6rem;border-radius:99px;background:rgba(230,22,31,.15);color:var(--r2);box-shadow:inset 0 0 0 1px rgba(230,22,31,.45)}
+/* unlock bar */
+.pv-buy{display:flex;flex-wrap:wrap;align-items:center;gap:1.25rem 2rem;margin-top:1.25rem;padding:1.25rem 1.5rem;border-radius:1.25rem;background:#121212;box-shadow:inset 0 0 0 1px #1e1e22}
+.pv-price{display:flex;align-items:baseline;gap:.75rem}
+.pv-price b{font-family:var(--font-urbanist);font-weight:300;font-size:2.75rem;line-height:1;color:var(--r)}
+.pv-price small{font-family:ui-monospace,Menlo,monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#999}
+.pv-free{border-radius:99px;padding:.2rem .65rem;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#999;box-shadow:inset 0 0 0 1px #3a3a3a}
+.pv-cta{display:flex;align-items:center;gap:1rem;margin-left:auto;flex-wrap:wrap}
+.pv-yt{font-size:.85rem;color:#999}.pv-yt:hover{color:#f3efef}
 .wave{display:inline-block;transform-origin:70% 70%;animation:wave 2.2s ease-in-out 1}
 @keyframes wave{0%,60%,100%{transform:rotate(0)}10%,30%{transform:rotate(14deg)}20%,40%{transform:rotate(-8deg)}}
-/* ---------- six features: dark device mockups, red glow (ref: crypto feature grid) ---------- */
-.dv{--r:#E6161F;--r2:#FF4D5E;--card:#141414;--dev:#0a0a0a}
-.dv-grid{display:grid;gap:1rem;grid-template-columns:1fr}
-/* sketch layout: [ wide ][ sm ][ sm ] / [ sm ][ sm ][ wide ]
-   Below 1536px (sticky profile card leaves less room) it becomes 2 columns:
-   [ wide ] / [ sm ][ sm ] / [ sm ][ sm ] / [ wide ] — same order, same rhythm. */
-@media(min-width:768px){.dv-grid{grid-template-columns:repeat(2,1fr)}.dv-card{grid-column:span 1}
-  .dv-grid > .dv-card:nth-child(1),.dv-grid > .dv-card:nth-child(6){grid-column:span 2}
-  .dv-grid > .dv-card:nth-child(1){order:1}.dv-grid > .dv-card:nth-child(3){order:2}.dv-grid > .dv-card:nth-child(2){order:3}
-  .dv-grid > .dv-card:nth-child(4){order:4}.dv-grid > .dv-card:nth-child(5){order:5}.dv-grid > .dv-card:nth-child(6){order:6}
-  .dv-notch::before{display:none}}
-@media(min-width:1280px){.dv-grid{grid-template-columns:repeat(4,1fr)}
-  /* equal row heights: photos fill the space so wide and small cards line up */
-  .dv-grid{grid-auto-rows:1fr}.dv-card .dv-photo{aspect-ratio:auto!important;flex:1;min-height:11rem}}
-.dv-card{position:relative;overflow:hidden;border-radius:1.5rem;background:var(--card);padding:0 1.75rem 1.75rem;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);transition:transform .35s}
-.dv-card:hover{transform:translateY(-4px)}
-.dv-notch::before{content:"";position:absolute;left:50%;top:0;width:42%;height:2.25rem;transform:translateX(-50%);background:#0a0a0a;border-radius:0 0 1rem 1rem}
-.dv-scene{position:relative;height:15rem;margin:0 -1.75rem 1.25rem;overflow:hidden}
-.dv-full .dv-scene{height:14rem}
-.dv-title{font-family:var(--font-urbanist);font-size:1.4rem;font-weight:600;letter-spacing:-.01em;color:#fff}
-.dv-title span{color:#8a8a8a;font-weight:500}.dv-title span.w{color:#fff;font-weight:600}
-.dv-body{margin-top:.6rem;max-width:30rem;font-size:.9rem;line-height:1.6;color:#8f8f8f}
-/* device with red gradient edge + glow */
-.dv-dev{position:absolute;z-index:2;border-radius:1.4rem;border:2px solid transparent;
-  background:linear-gradient(var(--dev),var(--dev)) padding-box,linear-gradient(200deg,var(--r2),var(--r) 30%,#2a2a2a 60%,#1c1c1c) border-box;
-  box-shadow:0 0 0 6px #050505,0 0 40px -6px rgba(230,22,31,.55);color:#ddd;font-size:.62rem;transition:transform .5s,box-shadow .5s}
-.dv-card:hover .dv-dev{box-shadow:0 0 0 6px #050505,0 0 60px -4px rgba(230,22,31,.75)}
-.dv-ghost{position:absolute;z-index:1;top:22%;width:30%;height:62%;border-radius:1.2rem;background:#0c0c0c;box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}
-.dv-gl{left:8%;transform:perspective(500px) rotateY(25deg)}.dv-gr{right:8%;transform:perspective(500px) rotateY(-25deg)}
-.dv-sm{width:22%;height:46%;top:24%}.dv-wide{width:22%}
-small{font-size:inherit}
-.dv b{color:#fff;font-weight:600}
-.dv small{display:block;color:#777;font-size:.55rem}
-/* notes tablet */
-.dv-tablet{left:50%;top:1.75rem;width:74%;height:11.5rem;transform:translateX(-50%);display:flex;padding:.6rem}
-.dv-rail{display:flex;flex-direction:column;align-items:center;justify-content:space-between;width:1.9rem;margin-right:.6rem;padding:.3rem 0}
-.dv-rail i{width:.7rem;height:.7rem;border-radius:.2rem;border:1.5px solid #555}
-.dv-rail b{display:grid;place-items:center;width:1.5rem;height:2.6rem;border-radius:99px;background:var(--r);color:#fff;font-size:.7rem}
-.dv-screen{flex:1;border-radius:.9rem;background:#000;padding:.75rem .9rem;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
-.dv-row{display:flex;align-items:center;gap:.55rem;margin-bottom:.55rem}.dv-row p{flex:1}
-.dv-row em{font-style:normal;text-align:right;color:#fff}.dv-row em.red{color:var(--r2)}
-.dv-ring{width:1rem;height:1rem;border-radius:99px;border:2.5px solid #333;border-top-color:var(--r2);border-right-color:var(--r2)}
-.dv-ring.on{border-color:var(--r2)}
-.dv-check{margin-top:.6rem;display:grid;gap:.35rem}
-.dv-check li{display:flex;align-items:center;gap:.45rem;color:#aaa}
-.dv-check svg{width:.75rem;height:.75rem;padding:1.5px;border-radius:99px;background:var(--r);color:#fff}
-.dv-check li.hl{color:#fff;background:rgba(230,22,31,.15);border-radius:.3rem;padding:.15rem .3rem;margin:0 -.3rem}
-/* platform */
-.dv-dash{left:50%;top:4.25rem;width:56%;height:9.75rem;transform:translateX(-50%);padding:.75rem .9rem;font-size:.6rem}
-.dv-dash > b{display:block;font-size:1.25rem;margin-top:.15rem}
-.dv-pill{position:absolute;right:.8rem;top:.8rem;width:2.6rem;height:.9rem;border-radius:99px;background:#3a3a3a}
-.dv-dash svg{width:100%;height:3.6rem;margin-top:.3rem}
-.dv-axis{display:flex;justify-content:space-between;color:#555;font-size:.5rem}
-.dv-mini{left:50%;top:.9rem;width:44%;height:2.9rem;transform:translateX(-50%);display:flex;align-items:center;justify-content:space-between;padding:0 .8rem;border-radius:.9rem;box-shadow:0 0 0 4px #050505}
-.dv-mini b{font-size:.95rem}
-.dv-bar{width:40%;height:.35rem;border-radius:99px;background:#333}.dv-bar i{display:block;width:64%;height:100%;border-radius:inherit;background:var(--r)}
-.dv-chip{position:absolute;z-index:3;display:flex;align-items:center;gap:.45rem;padding:.45rem .7rem;border-radius:.8rem;background:#0a0a0a;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12),0 10px 24px rgba(0,0,0,.5);font-size:.6rem;transform:rotate(var(--rot,0))}
-.dv-chip i{width:.45rem;height:.45rem;border-radius:99px;background:var(--r2);box-shadow:0 0 8px var(--r)}
-.dv-c1{left:-1%;top:3rem;--rot:-12deg}.dv-c2{right:-1%;top:3.5rem;--rot:10deg}.dv-c3{right:2%;bottom:1.5rem;--rot:6deg}
-.dv-c4{left:9%;bottom:2rem;--rot:-8deg}.dv-c5{right:9%;top:2.5rem;--rot:8deg}
-/* projects */
-.dv-watch{left:50%;top:2.25rem;width:44%;height:8.5rem;transform:translateX(-50%);padding:.7rem;border-radius:1.2rem}
-.dv-watch code{display:block;margin-top:.4rem;font-family:ui-monospace,Menlo,monospace;font-size:.55rem;line-height:1.6;color:#ccc}.dv-watch code b{color:var(--r2)}
-.dv-lines{display:grid;gap:.25rem;margin-top:.5rem}.dv-lines i{display:block;height:.18rem;border-radius:99px;background:#444}.dv-lines i+i{width:70%}
-.dv-status{position:absolute;z-index:3;left:50%;bottom:.6rem;transform:translateX(-50%);display:grid;gap:.4rem;width:70%}
-.dv-status p{display:flex;align-items:center;gap:.4rem;padding:.35rem .55rem;border-radius:.55rem;background:#0a0a0a;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);font-size:.55rem;color:#ddd}
-.dv-status p+p{width:84%;margin-left:8%}
-.dv-status i{width:.4rem;height:.4rem;border-radius:99px;background:var(--r2)}.dv-status i.ok{background:#22c55e}
-.dv-status u{flex:1;height:.15rem;margin-left:.4rem;border-radius:99px;background:#333;text-decoration:none}
-/* community */
-.dv-phone{left:50%;top:2.6rem;width:34%;height:11rem;transform:translateX(-50%);padding:.55rem;border-radius:1.3rem;display:flex;flex-direction:column}
-.dv-tile{display:grid;place-items:center;height:4.2rem;border-radius:.8rem;background:linear-gradient(140deg,var(--r2),var(--r));color:#fff;font-weight:700;font-size:.62rem;text-align:center;letter-spacing:.06em}
-.dv-phone .dv-lines{margin-top:.6rem}
-.dv-phone button{margin-top:auto;border-radius:99px;background:var(--r);color:#fff;font-size:.55rem;font-weight:600;padding:.35rem 0}
-.dv-tag{position:absolute;z-index:1;display:flex;align-items:center;gap:.35rem;padding:.35rem .55rem;border-radius:.55rem;background:#0a0a0a;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1);font-size:.52rem;color:#999;white-space:nowrap}
-.dv-tag i{width:.7rem;height:.7rem;border-radius:.2rem;background:#2a2a2a;box-shadow:inset 0 0 0 1px var(--r)}
-.dv-t1{left:-6%;top:4.2rem}.dv-t2{left:-2%;top:6.8rem}.dv-t3{left:-6%;top:9.4rem}
-.dv-t4{right:-14%;top:4.2rem;color:#fff}.dv-t5{right:-4%;top:6.8rem}.dv-t6{right:-8%;top:9.4rem}
-/* jobs */
-.dv-win{left:12%;top:2.6rem;width:52%;height:10.5rem;padding:.55rem .65rem;border-radius:1.1rem}
-.dv-dots{display:flex;gap:.25rem}.dv-dots i{width:.4rem;height:.4rem;border-radius:99px;background:var(--r)}.dv-dots i:nth-child(2){background:#f59e0b}.dv-dots i:nth-child(3){background:#22c55e}
-.dv-msg{display:flex;align-items:center;gap:.4rem;margin-top:.55rem}
-.dv-msg span{display:grid;place-items:center;width:1.1rem;height:1.1rem;border-radius:99px;background:#2a2a2a;font-size:.45rem}.dv-msg span.c{background:var(--r);color:#fff}
-.dv-msg u{flex:1;height:.2rem;border-radius:99px;background:#3a3a3a}
-.dv-msg em{font-style:normal;padding:.1rem .3rem;border-radius:.3rem;background:rgba(230,22,31,.18);color:var(--r2);font-size:.45rem}
-.dv-ctrls{position:absolute;left:50%;bottom:.55rem;transform:translateX(-50%);display:flex;gap:.35rem}
-.dv-ctrls i{width:1rem;height:1rem;border-radius:99px;background:#2a2a2a}.dv-ctrls b{display:grid;place-items:center;width:1rem;height:1rem;border-radius:99px;background:var(--r);font-size:.5rem}
-.dv-list{position:absolute;z-index:1;right:4%;top:2.4rem;width:36%;padding:.5rem;border-radius:1rem;background:#0c0c0c;box-shadow:inset 0 0 0 1px rgba(255,255,255,.07);display:grid;gap:.25rem}
-.dv-list p{display:flex;align-items:center;gap:.4rem;padding:.25rem .3rem;border-radius:.45rem;font-size:.5rem;color:#ccc}
-.dv-list p.on{background:#2b2b2b}
-.dv-list b{display:grid;place-items:center;width:1rem;height:1rem;border-radius:99px;background:#1f1f1f;box-shadow:inset 0 0 0 1px #444;font-size:.45rem}
-.dv-list p.on b{background:var(--r)}
-/* certificate */
-.dv-cert{left:50%;top:1.5rem;width:46%;max-width:26rem;height:11rem;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;border-radius:1.2rem}
-.dv-k{font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;color:var(--r2);font-weight:700}
-.dv-cert > b{margin-top:.4rem;font-family:var(--font-urbanist);font-size:1.05rem}
-.dv-cert small{margin-top:.6rem}
-.dv-cert em{font-family:Georgia,serif;font-size:1.05rem;color:#fff;border-bottom:1px solid #333;padding:0 1.5rem .2rem}
-.dv-seal{position:absolute;right:-.9rem;bottom:-.9rem;display:grid;place-items:center;width:2.6rem;height:2.6rem;border-radius:99px;background:var(--r);color:#fff;font-weight:700;box-shadow:0 0 0 5px #141414,0 0 22px rgba(230,22,31,.8)}
-@media(max-width:767px){.dv-t1,.dv-t3,.dv-t4,.dv-t6{display:none}.dv-c1,.dv-c2,.dv-c4,.dv-c5{display:none}.dv-tablet{width:88%}.dv-dash{width:80%}.dv-mini{width:70%}.dv-watch{width:70%}.dv-phone{width:50%}.dv-win{left:5%;width:56%}.dv-list{width:38%;right:2%}.dv-cert{width:80%}}
-
-/* ---- feature cards: project-card style (photo on top, tag, title, line) ---- */
-.dv-card{padding:0!important;display:flex;flex-direction:column;border-radius:1.25rem!important;background:#121212!important;box-shadow:inset 0 0 0 1px #1e1e22!important}
-.dv-card::before{display:none!important}
-.dv-photo{position:relative;aspect-ratio:16/10;overflow:hidden;background:#0a0a0c}
-.dv-grid > .dv-card:nth-child(1) .dv-photo,.dv-grid > .dv-card:nth-child(6) .dv-photo{aspect-ratio:16/8}
-.dv-photo img{width:100%;height:100%;object-fit:cover;transition:transform .6s cubic-bezier(.16,1,.3,1)}
-.dv-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(18,18,18,.55),transparent 45%)}
-.dv-card:hover .dv-photo img{transform:scale(1.04)}
-.dv-text{padding:1.1rem 1.25rem 1.35rem}
-.dv-chiplabel{display:inline-flex;align-items:center;gap:.4rem;padding:.25rem .65rem;border-radius:99px;font-size:.72rem;font-weight:500;color:var(--c);background:color-mix(in srgb,var(--c) 14%,transparent)}
-.dv-chiplabel::before{content:"";width:.4rem;height:.4rem;border-radius:99px;background:var(--c)}
-.dv-title{margin-top:.7rem!important;font-size:1.25rem!important;font-weight:500!important;color:#f3efef!important}
-.dv-body{margin-top:.4rem!important;font-size:.88rem!important;color:#999!important}
-
-/* ---- feature cards v11: glass-node illustrations, compact even grid ---- */
-.dv-grid{grid-template-columns:1fr!important;grid-auto-rows:auto!important;gap:.875rem!important}
-@media(min-width:640px){.dv-grid{grid-template-columns:repeat(2,1fr)!important}}
-@media(min-width:1280px){.dv-grid{grid-template-columns:repeat(3,1fr)!important}}
-.dv-grid > .dv-card{grid-column:auto!important;order:0!important}
-.dv-gx{aspect-ratio:auto!important;flex:none!important;height:9.25rem!important;min-height:0!important;
-  background:radial-gradient(80% 90% at 50% 40%,#17171b,#0a0a0c 70%) !important;border-bottom:1px solid #1e1e22}
-.dv-gx::after{display:none}
-.gx{display:block;width:100%;height:100%}
-.dv-text{padding:.95rem 1.1rem 1.1rem!important}
-.dv-title{margin-top:.55rem!important;font-size:1.1rem!important}
-.dv-body{font-size:.83rem!important;line-height:1.5!important}
-.gx-chip{transform-box:fill-box;transform-origin:center;transition:transform .5s cubic-bezier(.16,1,.3,1)}
-.dv-card:hover .gx-chip{transform:scale(1.06)}
-.gx-orb{animation:gxf 4s ease-in-out infinite}
-@keyframes gxf{50%{transform:translateY(-2px)}}
-.gx-wire{stroke-dasharray:4 0}
-.dv-card:hover .gx-wire{stroke-opacity:.7;transition:stroke-opacity .3s}
-@media (prefers-reduced-motion:reduce){.gx-orb{animation:none}}
 </style>
 </head>
 <body class="min-h-screen">
@@ -157,107 +86,147 @@ small{font-size:inherit}
     </nav>
   </div>
 </header>
-<div class="mx-auto max-w-[1600px] px-5 pt-12 sm:px-8 lg:px-12 lg:pt-16">
-  <h1 class="font-display text-[clamp(2.25rem,4.2vw,3.5rem)] leading-[1.05] font-light tracking-[-0.01em]">Welcome back, <span class="text-accent">Akula</span> <span class="wave" aria-hidden="true">👋</span></h1>
-  <p class="mt-3 text-base leading-relaxed text-dim sm:text-lg">Here's your hub for the AI Forward Deployed Engineer program.</p>
-</div>
-<section id="why-paid" class="w-full pt-8 pb-16 lg:pt-10 lg:pb-24"><div class="mx-auto grid max-w-[1600px] gap-12 px-5 sm:px-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:gap-10 lg:px-12 xl:grid-cols-[minmax(0,1fr)_420px] xl:gap-14"><div class="min-w-0">
-<!-- ===== Six features: dark device-mockup cards with red glow ===== -->
-<div class="dv">
-  <div class="dv-grid">
-    <article class="dv-card dv-half">
-      <div class="dv-photo dv-gx"><svg class="gx" viewBox="0 0 360 180" aria-hidden="true"><defs>
-<radialGradient id="on" cx="40%" cy="30%" r="75%"><stop offset="0" stop-color="#3a3a3f"/><stop offset=".6" stop-color="#1b1b1f"/><stop offset="1" stop-color="#0d0d10"/></radialGradient>
-<linearGradient id="cn" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a2a2f"/><stop offset=".5" stop-color="#141417"/><stop offset="1" stop-color="#0a0a0c"/></linearGradient>
-<linearGradient id="en" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".9"/><stop offset=".45" stop-color="#ffffff" stop-opacity=".12"/><stop offset="1" stop-color="#E6161F" stop-opacity=".9"/></linearGradient>
-<linearGradient id="ln" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
-<radialGradient id="gn"><stop offset="0" stop-color="#E6161F" stop-opacity=".28"/><stop offset="1" stop-color="#E6161F" stop-opacity="0"/></radialGradient>
-</defs>
-<ellipse cx="180" cy="96" rx="90" ry="44" fill="url(#gn)"/>
-<line x1="70" y1="90" x2="290" y2="90" stroke="url(#ln)" stroke-width="1"/>
-<g fill="none" stroke="#fff" stroke-opacity=".38" stroke-width="1.1"><path class="gx-wire" d="M76,46 H101.0 Q111.0,46 111.0,56 V66 Q111.0,76 121.0,76 H146"/><path class="gx-wire" d="M90,138 H108.0 Q118.0,138 118.0,128 V114 Q118.0,104 128.0,104 H146"/><path class="gx-wire" d="M284,46 H239.0 Q249.0,46 249.0,56 V66 Q249.0,76 239.0,76 H214"/><path class="gx-wire" d="M270,138 H232.0 Q242.0,138 242.0,128 V114 Q242.0,104 232.0,104 H214"/></g><g class="gx-orb" style="animation-delay:0.0s"><circle cx="52" cy="46" r="22" fill="url(#on)" stroke="#fff" stroke-opacity=".14"/><circle cx="52" cy="46" r="22" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="3" transform="translate(1.5 2)" opacity=".4"/><g transform="translate(44.5 38.5) scale(0.625)" fill="none" stroke="#bdbdc2" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/></g></g><g class="gx-orb" style="animation-delay:0.5s"><circle cx="66" cy="138" r="22" fill="url(#on)" stroke="#fff" stroke-opacity=".14"/><circle cx="66" cy="138" r="22" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="3" transform="translate(1.5 2)" opacity=".4"/><g transform="translate(58.5 130.5) scale(0.625)" fill="none" stroke="#bdbdc2" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></g></g><g class="gx-orb" style="animation-delay:1.0s"><circle cx="308" cy="46" r="22" fill="url(#on)" stroke="#fff" stroke-opacity=".14"/><circle cx="308" cy="46" r="22" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="3" transform="translate(1.5 2)" opacity=".4"/><g transform="translate(300.5 38.5) scale(0.625)" fill="none" stroke="#bdbdc2" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></g></g><g class="gx-orb" style="animation-delay:1.5s"><circle cx="294" cy="138" r="22" fill="url(#on)" stroke="#fff" stroke-opacity=".14"/><circle cx="294" cy="138" r="22" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="3" transform="translate(1.5 2)" opacity=".4"/><g transform="translate(286.5 130.5) scale(0.625)" fill="none" stroke="#bdbdc2" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></g></g><g class="gx-chip"><rect x="146" y="56" width="68" height="68" rx="14" fill="url(#cn)" stroke="url(#en)" stroke-width="1.4"/><g transform="translate(166.0 76.0) scale(1.167)" fill="none" stroke="#ffffff" stroke-width="1.71" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></g></g><path class="gx-cursor" d="M224,130 l15,6 -6,2 -2,6z" fill="#2a2a2e" stroke="#fff" stroke-opacity=".35"/></svg></div>
-      <div class="dv-text"><span class="dv-chiplabel" style="--c:#2dd4bf">Notes</span>
-      <h3 class="dv-title">Structured notes</h3>
-      <p class="dv-body">Module-by-module notes that follow the videos, so you revise in minutes instead of rewatching hours.</p></div>
-    </article>
-    <article class="dv-card dv-half">
-      <div class="dv-photo dv-gx"><svg class="gx" viewBox="0 0 360 180" aria-hidden="true"><defs>
-<radialGradient id="ob" cx="40%" cy="30%" r="75%"><stop offset="0" stop-color="#3a3a3f"/><stop offset=".6" stop-color="#1b1b1f"/><stop offset="1" stop-color="#0d0d10"/></radialGradient>
-<linearGradient id="cb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a2a2f"/><stop offset=".5" stop-color="#141417"/><stop offset="1" stop-color="#0a0a0c"/></linearGradient>
-<linearGradient id="eb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".9"/><stop offset=".45" stop-color="#ffffff" stop-opacity=".12"/><stop offset="1" stop-color="#E6161F" stop-opacity=".9"/></linearGradient>
-<linearGradient id="lb" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
-<radialGradient id="gb"><stop offset="0" stop-color="#E6161F" stop-opacity=".28"/><stop offset="1" stop-color="#E6161F" stop-opacity="0"/></radialGradient>
-</defs>
-<ellipse cx="180" cy="96" rx="90" ry="44" fill="url(#gb)"/>
-<line x1="70" y1="90" x2="290" y2="90" stroke="url(#lb)" stroke-width="1"/>
-<g fill="none" stroke="#fff" stroke-opacity=".38" stroke-width="1.1"><path class="gx-wire" d="M76,46 H101.0 Q111.0,46 111.0,56 V66 Q111.0,76 121.0,76 H146"/><path class="gx-wire" d="M90,138 H108.0 Q118.0,138 118.0,128 V114 Q118.0,104 128.0,104 H146"/><path class="gx-wire" d="M284,46 H239.0 Q249.0,46 249.0,56 V66 Q249.0,76 239.0,76 H214"/><path class="gx-wire" d="M270,138 H232.0 Q242.0,138 242.0,128 V114 Q242.0,104 232.0,104 H214"/></g><g class="gx-orb" style="animation-delay:0.0s"><circle cx="52" cy="46" r="22" fill="url(#ob)" stroke="#fff" stroke-opacity=".14"/><circle cx="52" cy="46" r="22" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="3" transform="translate(1.5 2)" opacity=".4"/><g transform="translate(44.5 38.5) scale(0.625)" fill="none" stroke="#bdbdc2" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"><path d="m7 4 13 8-13 8z"/></g></g><g class="gx-orb" style="animation-delay:0.5s"><circle cx="66" cy="138" r="22" fill="url(#ob)" stroke="#fff" stroke-opacity=".14"/><circle cx="66" cy="138" r="22" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="3" transform="translate(1.5 2)" opacity=".4"/><g transform="translate(58.5 130.5) scale(0.625)" fill="none" stroke="#bdbdc2" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></g></g><g class="gx-orb" style="animation-delay:1.0s"><circle cx="308" cy="46" r="22" fill="url(#ob)" stroke="#fff" stroke-opacity=".14"/><circle cx="308" cy="46" r="22" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="3" transform="translate(1.5 2)" opacity=".4"/><g transform="translate(300.5 38.5) scale(0.625)" fill="none" stroke="#bdbdc2" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></g></g><g class="gx-orb" style="animation-delay:1.5s"><circle cx="294" cy="138" r="22" fill="url(#ob)" stroke="#fff" stroke-opacity=".14"/><circle cx="294" cy="138" r="22" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="3" transform="translate(1.5 2)" opacity=".4"/><g transform="translate(286.5 130.5) scale(0.625)" fill="none" stroke="#bdbdc2" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"><path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></g></g><g class="gx-chip"><rect x="146" y="56" width="68" height="68" rx="14" fill="url(#cb)" stroke="url(#eb)" stroke-width="1.4"/><g transform="translate(166.0 76.0) scale(1.167)" fill="none" stroke="#ffffff" stroke-width="1.71" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M8 17V10M13 17V6M18 17v-4"/></g></g><path class="gx-cursor" d="M224,130 l15,6 -6,2 -2,6z" fill="#2a2a2e" stroke="#fff" stroke-opacity=".35"/></svg></div>
-      <div class="dv-text"><span class="dv-chiplabel" style="--c:#5b8cff">Platform</span>
-      <h3 class="dv-title">Learning platform</h3>
-      <p class="dv-body">One place for the whole course: lessons, notes, projects and your progress.</p></div>
-    </article>
-    <article class="dv-card dv-third dv-notch">
-      <div class="dv-photo dv-gx"><svg class="gx" viewBox="0 0 360 180" aria-hidden="true"><defs>
-<radialGradient id="op" cx="40%" cy="30%" r="75%"><stop offset="0" stop-color="#3a3a3f"/><stop offset=".6" stop-color="#1b1b1f"/><stop offset="1" stop-color="#0d0d10"/></radialGradient>
-<linearGradient id="cp" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a2a2f"/><stop offset=".5" stop-color="#141417"/><stop offset="1" stop-color="#0a0a0c"/></linearGradient>
-<linearGradient id="ep" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".9"/><stop offset=".45" stop-color="#ffffff" stop-opacity=".12"/><stop offset="1" stop-color="#E6161F" stop-opacity=".9"/></linearGradient>
-<linearGradient id="lp" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
-<radialGradient id="gp"><stop offset="0" stop-color="#E6161F" stop-opacity=".28"/><stop offset="1" stop-color="#E6161F" stop-opacity="0"/></radialGradient>
-</defs>
-<ellipse cx="180" cy="96" rx="90" ry="44" fill="url(#gp)"/>
-<line x1="70" y1="90" x2="290" y2="90" stroke="url(#lp)" stroke-width="1"/>
-<g fill="none" stroke="#fff" stroke-opacity=".38" stroke-width="1.1"><path class="gx-wire" d="M76,46 H101.0 Q111.0,46 111.0,56 V66 Q111.0,76 121.0,76 H146"/><path class="gx-wire" d="M90,138 H108.0 Q118.0,138 118.0,128 V114 Q118.0,104 128.0,104 H146"/><path class="gx-wire" d="M284,46 H239.0 Q249.0,46 249.0,56 V66 Q249.0,76 239.0,76 H214"/><path class="gx-wire" d="M270,138 H232.0 Q242.0,138 242.0,128 V114 Q242.0,104 232.0,104 H214"/></g><g class="gx-orb" style="animation-delay:0.0s"><circle cx="52" cy="46" r="22" fill="url(#op)" stroke="#fff" stroke-opacity=".14"/><circle cx="52" cy="46" r="22" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="3" transform="translate(1.5 2)" opacity=".4"/><g transform="translate(44.5 38.5) scale(0.625)" fill="none" stroke="#bdbdc2" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"><path d="m4 17 6-6-6-6M12 19h8"/></g></g><g class="gx-orb" style="animation-delay:0.5s"><circle cx="66" cy="138" r="22" fill="url(#op)" stroke="#fff" stroke-opacity=".14"/><circle cx="66" cy="138" r="22" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="3" transform="translate(1.5 2)" opacity=".4"/><g transform="translate(58.5 130.5) scale(0.625)" fill="none" stroke="#bdbdc2" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="9" r="3"/><path d="M6 9v6M18 12c0 3-3 4-9 4"/></g></g><g class="gx-orb" style="animation-delay:1.0s"><circle cx="308" cy="46" r="22" fill="url(#op)" stroke="#fff" stroke-opacity=".14"/><circle cx="308" cy="46" r="22" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="3" transform="translate(1.5 2)" opacity=".4"/><g transform="translate(300.5 38.5) scale(0.625)" fill="none" stroke="#bdbdc2" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></g></g><g class="gx-orb" style="animation-delay:1.5s"><circle cx="294" cy="138" r="22" fill="url(#op)" stroke="#fff" stroke-opacity=".14"/><circle cx="294" cy="138" r="22" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="3" transform="translate(1.5 2)" opacity=".4"/><g transform="translate(286.5 130.5) scale(0.625)" fill="none" stroke="#bdbdc2" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8l-9-5-9 5v8l9 5z"/><path d="M3.3 7 12 12l8.7-5M12 22V12"/></g></g><g class="gx-chip"><rect x="146" y="56" width="68" height="68" rx="14" fill="url(#cp)" stroke="url(#ep)" stroke-width="1.4"/><g transform="translate(166.0 76.0) scale(1.167)" fill="none" stroke="#ffffff" stroke-width="1.71" stroke-linecap="round" stroke-linejoin="round"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></g></g><path class="gx-cursor" d="M224,130 l15,6 -6,2 -2,6z" fill="#2a2a2e" stroke="#fff" stroke-opacity=".35"/></svg></div>
-      <div class="dv-text"><span class="dv-chiplabel" style="--c:#a78bfa">Projects</span>
-      <h3 class="dv-title">Practice projects</h3>
-      <p class="dv-body">Hands-on projects for every module, so you build the systems yourself instead of only watching them being built.</p></div>
-    </article>
-    <article class="dv-card dv-third dv-notch">
-      <div class="dv-photo dv-gx"><svg class="gx" viewBox="0 0 360 180" aria-hidden="true"><defs>
-<radialGradient id="ov" cx="40%" cy="30%" r="75%"><stop offset="0" stop-color="#3a3a3f"/><stop offset=".6" stop-color="#1b1b1f"/><stop offset="1" stop-color="#0d0d10"/></radialGradient>
-<linearGradient id="cv" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a2a2f"/><stop offset=".5" stop-color="#141417"/><stop offset="1" stop-color="#0a0a0c"/></linearGradient>
-<linearGradient id="ev" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".9"/><stop offset=".45" stop-color="#ffffff" stop-opacity=".12"/><stop offset="1" stop-color="#E6161F" stop-opacity=".9"/></linearGradient>
-<linearGradient id="lv" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
-<radialGradient id="gv"><stop offset="0" stop-color="#E6161F" stop-opacity=".28"/><stop offset="1" stop-color="#E6161F" stop-opacity="0"/></radialGradient>
-</defs>
-<ellipse cx="180" cy="96" rx="90" ry="44" fill="url(#gv)"/>
-<line x1="70" y1="90" x2="290" y2="90" stroke="url(#lv)" stroke-width="1"/>
-<g fill="none" stroke="#fff" stroke-opacity=".38" stroke-width="1.1"><path class="gx-wire" d="M76,46 H101.0 Q111.0,46 111.0,56 V66 Q111.0,76 121.0,76 H146"/><path class="gx-wire" d="M90,138 H108.0 Q118.0,138 118.0,128 V114 Q118.0,104 128.0,104 H146"/><path class="gx-wire" d="M284,46 H239.0 Q249.0,46 249.0,56 V66 Q249.0,76 239.0,76 H214"/><path class="gx-wire" d="M270,138 H232.0 Q242.0,138 242.0,128 V114 Q242.0,104 232.0,104 H214"/></g><g class="gx-orb" style="animation-delay:0.0s"><circle cx="52" cy="46" r="22" fill="url(#ov)" stroke="#fff" stroke-opacity=".14"/><circle cx="52" cy="46" r="22" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="3" transform="translate(1.5 2)" opacity=".4"/><g transform="translate(44.5 38.5) scale(0.625)" fill="none" stroke="#bdbdc2" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></g></g><g class="gx-orb" style="animation-delay:0.5s"><circle cx="66" cy="138" r="22" fill="url(#ov)" stroke="#fff" stroke-opacity=".14"/><circle cx="66" cy="138" r="22" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="3" transform="translate(1.5 2)" opacity=".4"/><g transform="translate(58.5 130.5) scale(0.625)" fill="none" stroke="#bdbdc2" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></g></g><g class="gx-orb" style="animation-delay:1.0s"><circle cx="308" cy="46" r="22" fill="url(#ov)" stroke="#fff" stroke-opacity=".14"/><circle cx="308" cy="46" r="22" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="3" transform="translate(1.5 2)" opacity=".4"/><g transform="translate(300.5 38.5) scale(0.625)" fill="none" stroke="#bdbdc2" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></g></g><g class="gx-orb" style="animation-delay:1.5s"><circle cx="294" cy="138" r="22" fill="url(#ov)" stroke="#fff" stroke-opacity=".14"/><circle cx="294" cy="138" r="22" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="3" transform="translate(1.5 2)" opacity=".4"/><g transform="translate(286.5 130.5) scale(0.625)" fill="none" stroke="#bdbdc2" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></g></g><g class="gx-chip"><rect x="146" y="56" width="68" height="68" rx="14" fill="url(#cv)" stroke="url(#ev)" stroke-width="1.4"/><g transform="translate(166.0 76.0) scale(1.167)" fill="none" stroke="#ffffff" stroke-width="1.71" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></g></g><path class="gx-cursor" d="M224,130 l15,6 -6,2 -2,6z" fill="#2a2a2e" stroke="#fff" stroke-opacity=".35"/></svg></div>
-      <div class="dv-text"><span class="dv-chiplabel" style="--c:#25D366">Community</span>
-      <h3 class="dv-title">Community</h3>
-      <p class="dv-body">Learn alongside other engineers on the same path. Ask questions, share what you build and get unstuck faster.</p></div>
-    </article>
-    <article class="dv-card dv-third dv-notch">
-      <div class="dv-photo dv-gx"><svg class="gx" viewBox="0 0 360 180" aria-hidden="true"><defs>
-<radialGradient id="oj" cx="40%" cy="30%" r="75%"><stop offset="0" stop-color="#3a3a3f"/><stop offset=".6" stop-color="#1b1b1f"/><stop offset="1" stop-color="#0d0d10"/></radialGradient>
-<linearGradient id="cj" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a2a2f"/><stop offset=".5" stop-color="#141417"/><stop offset="1" stop-color="#0a0a0c"/></linearGradient>
-<linearGradient id="ej" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".9"/><stop offset=".45" stop-color="#ffffff" stop-opacity=".12"/><stop offset="1" stop-color="#E6161F" stop-opacity=".9"/></linearGradient>
-<linearGradient id="lj" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
-<radialGradient id="gj"><stop offset="0" stop-color="#E6161F" stop-opacity=".28"/><stop offset="1" stop-color="#E6161F" stop-opacity="0"/></radialGradient>
-</defs>
-<ellipse cx="180" cy="96" rx="90" ry="44" fill="url(#gj)"/>
-<line x1="70" y1="90" x2="290" y2="90" stroke="url(#lj)" stroke-width="1"/>
-<g fill="none" stroke="#fff" stroke-opacity=".38" stroke-width="1.1"><path class="gx-wire" d="M76,46 H101.0 Q111.0,46 111.0,56 V66 Q111.0,76 121.0,76 H146"/><path class="gx-wire" d="M90,138 H108.0 Q118.0,138 118.0,128 V114 Q118.0,104 128.0,104 H146"/><path class="gx-wire" d="M284,46 H239.0 Q249.0,46 249.0,56 V66 Q249.0,76 239.0,76 H214"/><path class="gx-wire" d="M270,138 H232.0 Q242.0,138 242.0,128 V114 Q242.0,104 232.0,104 H214"/></g><g class="gx-orb" style="animation-delay:0.0s"><circle cx="52" cy="46" r="22" fill="url(#oj)" stroke="#fff" stroke-opacity=".14"/><circle cx="52" cy="46" r="22" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="3" transform="translate(1.5 2)" opacity=".4"/><g transform="translate(44.5 38.5) scale(0.625)" fill="none" stroke="#bdbdc2" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M8 10h.01M16 10h.01M8 14h.01M12 14h.01M16 14h.01"/></g></g><g class="gx-orb" style="animation-delay:0.5s"><circle cx="66" cy="138" r="22" fill="url(#oj)" stroke="#fff" stroke-opacity=".14"/><circle cx="66" cy="138" r="22" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="3" transform="translate(1.5 2)" opacity=".4"/><g transform="translate(58.5 130.5) scale(0.625)" fill="none" stroke="#bdbdc2" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></g></g><g class="gx-orb" style="animation-delay:1.0s"><circle cx="308" cy="46" r="22" fill="url(#oj)" stroke="#fff" stroke-opacity=".14"/><circle cx="308" cy="46" r="22" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="3" transform="translate(1.5 2)" opacity=".4"/><g transform="translate(300.5 38.5) scale(0.625)" fill="none" stroke="#bdbdc2" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.3-2 5-2 5s3.7-.5 5-2c.7-.8.7-2.1-.1-2.9a2.2 2.2 0 0 0-2.9-.1z"/><path d="m12 15-3-3a22 22 0 0 1 2-4A12.9 12.9 0 0 1 22 2c0 2.7-.8 7.5-6 11a22.4 22.4 0 0 1-4 2z"/></g></g><g class="gx-orb" style="animation-delay:1.5s"><circle cx="294" cy="138" r="22" fill="url(#oj)" stroke="#fff" stroke-opacity=".14"/><circle cx="294" cy="138" r="22" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="3" transform="translate(1.5 2)" opacity=".4"/><g transform="translate(286.5 130.5) scale(0.625)" fill="none" stroke="#bdbdc2" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"><path d="m22 7-8.5 8.5-5-5L2 17"/><path d="M16 7h6v6"/></g></g><g class="gx-chip"><rect x="146" y="56" width="68" height="68" rx="14" fill="url(#cj)" stroke="url(#ej)" stroke-width="1.4"/><g transform="translate(166.0 76.0) scale(1.167)" fill="none" stroke="#ffffff" stroke-width="1.71" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2M2 13h20"/></g></g><path class="gx-cursor" d="M224,130 l15,6 -6,2 -2,6z" fill="#2a2a2e" stroke="#fff" stroke-opacity=".35"/></svg></div>
-      <div class="dv-text"><span class="dv-chiplabel" style="--c:#f5a524">Careers</span>
-      <h3 class="dv-title">Job opportunities</h3>
-      <p class="dv-body">Hear about FDE and applied-AI roles as you work through the program.</p></div>
-    </article>
-    <article class="dv-card dv-full">
-      <div class="dv-photo dv-gx"><svg class="gx" viewBox="0 0 360 180" aria-hidden="true"><defs>
-<radialGradient id="oa" cx="40%" cy="30%" r="75%"><stop offset="0" stop-color="#3a3a3f"/><stop offset=".6" stop-color="#1b1b1f"/><stop offset="1" stop-color="#0d0d10"/></radialGradient>
-<linearGradient id="ca" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a2a2f"/><stop offset=".5" stop-color="#141417"/><stop offset="1" stop-color="#0a0a0c"/></linearGradient>
-<linearGradient id="ea" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".9"/><stop offset=".45" stop-color="#ffffff" stop-opacity=".12"/><stop offset="1" stop-color="#E6161F" stop-opacity=".9"/></linearGradient>
-<linearGradient id="la" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
-<radialGradient id="ga"><stop offset="0" stop-color="#E6161F" stop-opacity=".28"/><stop offset="1" stop-color="#E6161F" stop-opacity="0"/></radialGradient>
-</defs>
-<ellipse cx="180" cy="96" rx="90" ry="44" fill="url(#ga)"/>
-<line x1="70" y1="90" x2="290" y2="90" stroke="url(#la)" stroke-width="1"/>
-<g fill="none" stroke="#fff" stroke-opacity=".38" stroke-width="1.1"><path class="gx-wire" d="M76,46 H101.0 Q111.0,46 111.0,56 V66 Q111.0,76 121.0,76 H146"/><path class="gx-wire" d="M90,138 H108.0 Q118.0,138 118.0,128 V114 Q118.0,104 128.0,104 H146"/><path class="gx-wire" d="M284,46 H239.0 Q249.0,46 249.0,56 V66 Q249.0,76 239.0,76 H214"/><path class="gx-wire" d="M270,138 H232.0 Q242.0,138 242.0,128 V114 Q242.0,104 232.0,104 H214"/></g><g class="gx-orb" style="animation-delay:0.0s"><circle cx="52" cy="46" r="22" fill="url(#oa)" stroke="#fff" stroke-opacity=".14"/><circle cx="52" cy="46" r="22" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="3" transform="translate(1.5 2)" opacity=".4"/><g transform="translate(44.5 38.5) scale(0.625)" fill="none" stroke="#bdbdc2" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"><path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/></g></g><g class="gx-orb" style="animation-delay:0.5s"><circle cx="66" cy="138" r="22" fill="url(#oa)" stroke="#fff" stroke-opacity=".14"/><circle cx="66" cy="138" r="22" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="3" transform="translate(1.5 2)" opacity=".4"/><g transform="translate(58.5 130.5) scale(0.625)" fill="none" stroke="#bdbdc2" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></g></g><g class="gx-orb" style="animation-delay:1.0s"><circle cx="308" cy="46" r="22" fill="url(#oa)" stroke="#fff" stroke-opacity=".14"/><circle cx="308" cy="46" r="22" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="3" transform="translate(1.5 2)" opacity=".4"/><g transform="translate(300.5 38.5) scale(0.625)" fill="none" stroke="#bdbdc2" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></g></g><g class="gx-orb" style="animation-delay:1.5s"><circle cx="294" cy="138" r="22" fill="url(#oa)" stroke="#fff" stroke-opacity=".14"/><circle cx="294" cy="138" r="22" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="3" transform="translate(1.5 2)" opacity=".4"/><g transform="translate(286.5 130.5) scale(0.625)" fill="none" stroke="#bdbdc2" stroke-width="2.88" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></g></g><g class="gx-chip"><rect x="146" y="56" width="68" height="68" rx="14" fill="url(#ca)" stroke="url(#ea)" stroke-width="1.4"/><g transform="translate(166.0 76.0) scale(1.167)" fill="none" stroke="#ffffff" stroke-width="1.71" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.5 12.9 17 22l-5-3-5 3 1.5-9.1"/></g></g><path class="gx-cursor" d="M224,130 l15,6 -6,2 -2,6z" fill="#2a2a2e" stroke="#fff" stroke-opacity=".35"/></svg></div>
-      <div class="dv-text"><span class="dv-chiplabel" style="--c:#ff4d5e">Certificate</span>
-      <h3 class="dv-title">Certificate</h3>
-      <p class="dv-body">Finish the program and earn a certificate you can add to your resume and LinkedIn profile.</p></div>
-    </article>
-  </div>
-</div>
-</div>
-<aside class="pt-14 sm:pt-16 lg:sticky lg:top-20 lg:self-start"><div class="relative rounded-[32px] rounded-tl-none bg-ink-deep px-6 pt-6 pb-7 sm:px-8 sm:pb-8"><div class="absolute bottom-full left-0 flex items-center rounded-t-3xl bg-ink-deep font-display font-extrabold tracking-tight h-14 gap-3 px-5 text-lg sm:h-16 sm:px-6 sm:text-2xl"><span aria-hidden="true" class="pointer-events-none absolute size-6 -right-6 bottom-0" style="background:radial-gradient(circle at 100% 0, transparent 23.5px, var(--color-ink-deep) 24px)"></span><span class="shrink-0 rounded-full size-2.5 bg-accent" aria-hidden="true"></span><span class="whitespace-nowrap">Your profile</span></div><div class="flex justify-end font-mono text-[11px] tracking-[0.04em] text-mist uppercase" aria-hidden="true">/profile</div><div class="mt-2 flex items-center gap-4"><span class="grid size-14 shrink-0 place-items-center rounded-full bg-accent font-display text-xl font-semibold text-on-accent">AS</span><div class="min-w-0"><h3 class="font-display text-[clamp(1.6rem,2.2vw,2rem)] leading-[1.05] font-light tracking-[-0.01em]">Akula <span class="font-normal text-accent">Sai.</span></h3><p class="mt-1 truncate text-sm text-mist">akula.sai5@upgradsot.com</p></div></div><dl class="mt-5 divide-y divide-ink-line border-t border-ink-line"><div class="flex items-center justify-between gap-4 py-3"><dt class="text-sm text-dim">Phone</dt><dd class="text-sm text-paper">+91 98765 43210</dd></div><div class="flex items-center justify-between gap-4 py-3"><dt class="text-sm text-dim">City</dt><dd class="text-sm text-paper">Bengaluru</dd></div><div class="flex items-center justify-between gap-4 py-3"><dt class="text-sm text-dim">You are a</dt><dd class="text-sm text-paper">Student</dd></div><div class="flex items-center justify-between gap-4 py-3"><dt class="text-sm text-dim">Member since</dt><dd class="text-sm text-paper">Oct 2026</dd></div><div class="flex items-center justify-between gap-4 py-3"><dt class="text-sm text-dim">Access</dt><dd><span class="inline-flex items-center gap-1.5 rounded-full border border-ink-line px-2.5 py-0.5 text-[11px] font-semibold tracking-[0.12em] text-accent uppercase"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="size-3"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Locked</span></dd></div></dl><div class="mt-2 flex items-end justify-between gap-4 border-y border-ink-line py-5"><div><p class="font-display text-5xl leading-none font-light text-accent sm:text-6xl">₹99</p><p class="mt-2 font-mono text-[11px] tracking-[0.12em] text-dim uppercase">Full platform access</p></div><span class="mb-1 rounded-full border border-ink-line px-2.5 py-0.5 text-[11px] font-semibold tracking-[0.12em] text-dim uppercase">Lessons free</span></div><div class="mt-7 flex flex-col items-start gap-3"><a href="checkout-preview.html" class="group inline-flex items-center rounded-2xl text-base font-medium outline-offset-4 focus-visible:outline-2 focus-visible:outline-accent-light  " data-offer-popup="true"><span class="flex h-12 rounded-2xl items-center justify-center transition-all duration-300 bg-accent text-on-accent group-hover:bg-accent-light mr-0.5 w-12 overflow-hidden group-hover:mr-0 group-hover:w-0"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="size-4"><path d="M12 0c.6 6.4 5.6 11.4 12 12-6.4.6-11.4 5.6-12 12-.6-6.4-5.6-11.4-12-12C6.4 11.4 11.4 6.4 12 0Z"></path></svg></span><span class="flex h-12 rounded-2xl items-center justify-center transition-all duration-300 bg-accent text-on-accent group-hover:bg-accent-light  px-5 pb-0.5">Unlock it for <!-- -->₹99</span><span class="flex h-12 rounded-2xl items-center justify-center transition-all duration-300 bg-accent text-on-accent group-hover:bg-accent-light w-0 overflow-hidden group-hover:ml-0.5 group-hover:w-12"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="size-4"><path d="M12 0c.6 6.4 5.6 11.4 12 12-6.4.6-11.4 5.6-12 12-.6-6.4-5.6-11.4-12-12C6.4 11.4 11.4 6.4 12 0Z"></path></svg></span></a><a href="https://www.youtube.com/@upGrad_edu" target="_blank" rel="noopener noreferrer" class="group inline-flex items-center gap-2 text-sm text-dim transition-colors hover:text-paper"><svg viewBox="0 0 24 24" class="size-3.5 fill-[#ff0033]" aria-hidden="true"><path d="M8 5.5v13l11-6.5-11-6.5Z"></path></svg>Or keep watching free on YouTube</a></div></div></aside></div></section>
+<main class="pv-wrap">
+  <!-- ======================================================== top -->
+  <section class="pv-top">
+    <div>
+      <h1 class="font-display text-[clamp(2.25rem,4.2vw,3.5rem)] leading-[1.05] font-light tracking-[-0.01em]">Welcome back, <span class="text-accent">Akula</span> <span class="wave" aria-hidden="true">👋</span></h1>
+      <p class="mt-3 text-base leading-relaxed text-dim sm:text-lg">Here's your hub for the AI Forward Deployed Engineer program.</p>
+    </div>
+    <div class="pv-acct">
+      <span class="pv-av">AS</span>
+      <div>
+        <b>Akula Sai <span class="pv-lock"><svg viewBox="0 0 24 24" width="10" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Locked</span></b>
+        <small>akula.sai5@upgradsot.com</small>
+        <div class="pv-meta"><span>+91 98765 43210</span><span>Bengaluru</span><span>Student</span><span>Since Oct 2026</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================== explorer -->
+  <section class="pv-x">
+    <div class="pv-col">
+      <span class="pv-cursor" id="pv-cursor" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="22" height="22"><path d="M4 2.5 19.5 12l-6.6 1.6 3.9 7.2-2.6 1.4-3.9-7.2L5.6 19z" fill="#fff" stroke="#0a0a0c" stroke-width="1.4" stroke-linejoin="round"/></svg>
+        <i class="pv-ripple"></i>
+      </span>
+      <p class="pv-k">What ₹99 unlocks</p>
+      <h2 class="pv-h">Take a look <span>inside.</span></h2>
+      <p class="pv-auto" id="pv-auto"><i></i>Auto tour · click any feature to explore yourself</p>
+      <ul class="pv-list" role="tablist"><li><button type="button" class="pv-item on" data-route="/notes" data-label="Structured notes" style="--c:#2dd4bf"><span class="pv-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg></span><span class="pv-tx"><b>Structured notes</b><small>Module-by-module notes that follow every video.</small></span><span class="pv-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button></li><li><button type="button" class="pv-item" data-route="/projects" data-label="Practice projects" style="--c:#a78bfa"><span class="pv-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m16 18 6-6-6-6M8 6l-6 6 6 6"/></svg></span><span class="pv-tx"><b>Practice projects</b><small>Build real systems, module by module.</small></span><span class="pv-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button></li><li><button type="button" class="pv-item" data-route="/dashboard" data-label="Learning platform" style="--c:#5b8cff"><span class="pv-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></span><span class="pv-tx"><b>Learning platform</b><small>Lessons, notes, quizzes and progress in one place.</small></span><span class="pv-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button></li><li><button type="button" class="pv-item" data-route="/community" data-label="Community" style="--c:#25D366"><span class="pv-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg></span><span class="pv-tx"><b>Community</b><small>Learn with peers on the same path.</small></span><span class="pv-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button></li><li><button type="button" class="pv-item" data-route="/jobs" data-label="Job opportunities" style="--c:#f5a524"><span class="pv-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2M2 13h20"/></svg></span><span class="pv-tx"><b>Job opportunities</b><small>FDE and applied-AI roles as you progress.</small></span><span class="pv-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button></li><li><button type="button" class="pv-item" data-route="/certification" data-label="Certificate" style="--c:#ff4d5e"><span class="pv-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.5 12.9 17 22l-5-3-5 3 1.5-9.1"/></svg></span><span class="pv-tx"><b>Certificate</b><small>Finish and add it to your resume and LinkedIn.</small></span><span class="pv-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></span></button></li></ul>
+    </div>
+    <div class="pv-win">
+      <div class="pv-bar">
+        <span class="pv-dots"><i></i><i></i><i></i></span>
+        <span class="pv-url"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span id="pv-path">learn.upgradsot.com/notes</span></span>
+        <span style="width:3.1rem"></span>
+      </div>
+      <div class="pv-stage loading" id="pv-stage">
+        
+        <div class="pv-fade">
+          <span><svg viewBox="0 0 24 24" width="16" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></span>
+          <p>Unlock to explore <b id="pv-name" style="font-weight:500">Structured notes</b></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================== unlock -->
+  <section class="pv-buy">
+    <div class="pv-price"><b>₹99</b><small>One-time · lifetime access</small></div>
+    <span class="pv-free">Lessons free</span>
+    <div class="pv-cta">
+      <a href="checkout-preview.html" class="group inline-flex items-center rounded-2xl text-base font-medium">
+        <span class="mr-0.5 flex h-12 w-12 items-center justify-center rounded-2xl bg-accent text-on-accent"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class="size-4"><path d="M12 0c.6 6.4 5.6 11.4 12 12-6.4.6-11.4 5.6-12 12-.6-6.4-5.6-11.4-12-12C6.4 11.4 11.4 6.4 12 0Z"/></svg></span>
+        <span class="flex h-12 items-center justify-center rounded-2xl bg-accent px-6 text-on-accent transition-colors group-hover:bg-accent-light">Unlock it for ₹99</span>
+      </a>
+      <a href="https://www.youtube.com/@upGrad_edu" target="_blank" rel="noopener noreferrer" class="pv-yt">▶ Or keep watching free on YouTube</a>
+    </div>
+  </section>
+</main>
+<script>
+  // Live preview: shows the real LMS page for the selected feature, scaled to fit the window frame.
+  const stage = document.getElementById("pv-stage");
+  const fade = stage.querySelector(".pv-fade");
+  // Preload every feature's page once so switching is instant.
+  const frames = {};
+  document.querySelectorAll(".pv-item").forEach((b, i) => {
+    const f = document.createElement("iframe");
+    f.src = b.dataset.route; f.title = b.dataset.label + " preview";
+    f.tabIndex = -1; f.setAttribute("aria-hidden", "true");
+    if (i === 0) f.classList.add("show");
+    stage.insertBefore(f, fade);
+    frames[b.dataset.route] = f;
+  });
+  const fit = () => { const sc = "scale(" + stage.clientWidth / 1280 + ")"; Object.values(frames).forEach((f) => (f.style.transform = sc)); };
+  new ResizeObserver(fit).observe(stage);
+  fit();
+  stage.classList.remove("loading");
+  const items = [...document.querySelectorAll(".pv-item")];
+  const col = document.querySelector(".pv-col");
+  const cursor = document.getElementById("pv-cursor");
+  const badge = document.getElementById("pv-auto");
+  const DWELL = 2500;            // time on each feature during the tour
+  const RESUME_AFTER = 6000;     // idle time after a manual click before the tour restarts
+  col.style.setProperty("--dwell", DWELL + "ms");
+
+  const select = (b) => {
+    if (b.classList.contains("on")) return;
+    items.forEach((x) => x.classList.toggle("on", x === b));
+    Object.entries(frames).forEach(([r, f]) => f.classList.toggle("show", r === b.dataset.route));
+    document.getElementById("pv-path").textContent = "learn.upgradsot.com" + b.dataset.route;
+    document.getElementById("pv-name").textContent = b.dataset.label;
+  };
+
+  // ---- automatic tour: a cursor glides to the next feature and "clicks" it
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let timer = null, resumeTimer = null, touring = false, hovering = false;
+
+  const moveCursorTo = (b) => {
+    const c = col.getBoundingClientRect(), r = b.getBoundingClientRect();
+    const x = r.right - c.left - 46, y = r.top - c.top + r.height / 2 - 4;
+    cursor.style.transform = "translate(" + x + "px," + y + "px)";
+  };
+  const step = () => {
+    if (!touring || hovering) return;
+    const next = items[(items.findIndex((x) => x.classList.contains("on")) + 1) % items.length];
+    cursor.classList.add("show");
+    moveCursorTo(next);
+    setTimeout(() => {                       // after the glide, press
+      if (!touring || hovering) return;
+      cursor.classList.add("press");
+      select(next);
+      setTimeout(() => cursor.classList.remove("press"), 260);
+    }, 380);
+    timer = setTimeout(step, DWELL);
+  };
+  const startTour = () => {
+    if (reduce) return;
+    touring = true; col.classList.add("pv-touring"); badge.classList.remove("paused");
+    badge.lastChild.textContent = "Auto tour · click any feature to explore yourself";
+    const cur = items.find((x) => x.classList.contains("on"));
+    cursor.classList.add("show"); moveCursorTo(cur);
+    // restart the active item's progress bar
+    cur.classList.remove("on"); void cur.offsetWidth; cur.classList.add("on");
+    clearTimeout(timer); timer = setTimeout(step, DWELL);
+  };
+  const stopTour = (resume) => {
+    touring = false; clearTimeout(timer); clearTimeout(resumeTimer);
+    col.classList.remove("pv-touring"); cursor.classList.remove("show"); badge.classList.add("paused");
+    badge.lastChild.textContent = "Exploring manually · tour resumes shortly";
+    if (resume) resumeTimer = setTimeout(startTour, RESUME_AFTER);
+  };
+
+  // ---- manual: real clicks always win and pause the tour for a while
+  items.forEach((b) => b.addEventListener("click", (e) => {
+    if (e.isTrusted) stopTour(true);
+    select(b);
+  }));
+  col.addEventListener("mouseenter", () => { hovering = true; if (touring) { clearTimeout(timer); cursor.classList.remove("show"); col.classList.remove("pv-touring"); } });
+  col.addEventListener("mouseleave", () => { hovering = false; if (touring) startTour(); });
+  addEventListener("resize", () => { const cur = items.find((x) => x.classList.contains("on")); if (touring) moveCursorTo(cur); });
+
+  startTour();
+</script>
 </body>
 </html>

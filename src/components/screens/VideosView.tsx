@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Check, Play, Search, X } from "lucide-react";
+import { Check, LayoutGrid, List, Play, Search, X } from "lucide-react";
 import { Page } from "@/components/shell/AppShell";
 import {
   Button, Dropdown, EmptyState, FilterChips, ProgressBar, SectionHeading, StatTile,
@@ -10,12 +10,14 @@ import {
 import { ALL_TOPICS, MODULE_BY_ID, PHASES, PHASE_BY_ID, formatDuration } from "@/data/curriculum";
 import { useProgress } from "@/state/progress";
 import { lessonThumbnail } from "@/lib/media";
+import { cx } from "@/components/ui";
 
 type Filter = "all" | "completed" | "in-progress" | "not-started";
 
 /** One hue per phase, so a lesson's thumbnail tells you where it sits. */
 const PHASE_HUE = ["#E6161F", "#5b8cff", "#a78bfa", "#2dd4bf", "#f5a524", "#22c55e", "#ff6b9a", "#38bdf8", "#f97316"];
 const PAGE = 24;
+const VIEW_KEY = "fde-lms:videos-view";
 
 export function VideosView() {
   const { topics } = useProgress();
@@ -23,6 +25,20 @@ export function VideosView() {
   const [filter, setFilter] = React.useState<Filter>("all");
   const [phase, setPhase] = React.useState("all");
   const [shown, setShown] = React.useState(PAGE);
+  // Grid or list — remembered per browser; storage may be unavailable, so it's best-effort.
+  const [view, setView] = React.useState<"grid" | "list">("grid");
+  React.useEffect(() => {
+    try {
+      const v = localStorage.getItem(VIEW_KEY);
+      // localStorage is an external store read once after mount, so it can't break hydration.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      if (v === "grid" || v === "list") setView(v);
+    } catch { /* storage unavailable — default to grid */ }
+  }, []);
+  const changeView = (v: "grid" | "list") => {
+    setView(v);
+    try { localStorage.setItem(VIEW_KEY, v); } catch { /* not persisted */ }
+  };
 
   const needle = q.trim().toLowerCase();
 
@@ -86,6 +102,23 @@ export function VideosView() {
           onChange={(v) => { setFilter(v); setShown(PAGE); }}
         />
         <span className="nums ml-auto text-[12px] text-ink-3">{rows.length} lessons</span>
+        <div role="group" aria-label="Layout" className="flex rounded-[var(--radius-md)] bg-card p-0.5 ring-1 ring-line">
+          {([["grid", LayoutGrid, "Grid view"], ["list", List, "List view"]] as const).map(([v, Icon, label]) => (
+            <button
+              key={v}
+              onClick={() => changeView(v)}
+              aria-pressed={view === v}
+              aria-label={label}
+              title={label}
+              className={cx(
+                "flex size-8 items-center justify-center rounded-[var(--radius-sm)] transition-colors",
+                view === v ? "bg-card-hi2 text-ink" : "text-ink-3 hover:text-ink",
+              )}
+            >
+              <Icon size={15} />
+            </button>
+          ))}
+        </div>
       </div>
 
       {rows.length === 0 ? (
@@ -96,6 +129,50 @@ export function VideosView() {
           action={<Button size="sm" variant="secondary" onClick={() => { setQ(""); setFilter("all"); setPhase("all"); }}>Clear filters</Button>}
         />
       ) : (
+        view === "list" ? (
+        <ul className="divide-y divide-line overflow-hidden rounded-[var(--radius-lg)] border border-line">
+          {rows.slice(0, shown).map((t) => {
+            const s = topics[t.id]?.status ?? "not-started";
+            const pos = topics[t.id]?.videoPosition ?? 0;
+            const m = MODULE_BY_ID.get(t.moduleId)!;
+            const p = PHASE_BY_ID.get(t.phaseId)!;
+            return (
+              <li key={t.id}>
+                <Link href={`/learn/${t.id}`} className="group flex items-center gap-4 px-3 py-2.5 transition-colors hover:bg-card sm:px-4">
+                  <span className="relative aspect-video w-28 shrink-0 overflow-hidden rounded-[var(--radius-sm)] bg-card sm:w-36">
+                    {/* eslint-disable-next-line @next/next/no-img-element -- remote placeholder thumbnails */}
+                    <img src={lessonThumbnail(t.id)} alt="" loading="lazy" className="h-full w-full object-cover" />
+                    <span className="nums absolute bottom-1 right-1 rounded bg-black/80 px-1 text-[10px] text-white">{formatDuration(t.videoSeconds)}</span>
+                    {s !== "completed" && pos > 0 && (
+                      <span className="absolute inset-x-0 bottom-0 h-0.5 bg-white/25">
+                        <span className="block h-full bg-brand" style={{ width: `${(pos / t.videoSeconds) * 100}%` }} />
+                      </span>
+                    )}
+                    <span className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                      <Play size={16} fill="currentColor" strokeWidth={0} className="text-white" />
+                    </span>
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-[14px] text-ink transition-colors group-hover:text-brand-ink">{t.title}</span>
+                    <span className="mt-0.5 block truncate text-[12px] text-ink-3">
+                      <span style={{ color: PHASE_HUE[(p.number - 1) % PHASE_HUE.length] }}>P{p.code}</span> · {m.code} {m.title}
+                    </span>
+                  </span>
+                  <span className="nums hidden w-14 shrink-0 text-right text-[12px] text-ink-3 sm:block">{formatDuration(t.videoSeconds)}</span>
+                  <span
+                    className={cx(
+                      "hidden w-24 shrink-0 justify-center rounded-full px-2 py-1 text-[11px] font-medium md:flex",
+                      s === "completed" ? "bg-done/12 text-done" : s === "in-progress" ? "bg-brand/12 text-brand-ink" : "bg-card-hi text-ink-3",
+                    )}
+                  >
+                    {s === "completed" ? "Watched" : s === "in-progress" ? "In progress" : "Not started"}
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+        ) : (
         <ul className="grid gap-x-4 gap-y-6 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
           {rows.slice(0, shown).map((t) => {
             const s = topics[t.id]?.status ?? "not-started";
@@ -145,6 +222,7 @@ export function VideosView() {
             );
           })}
         </ul>
+        )
       )}
       {rows.length > shown && (
         <div className="flex justify-center">
