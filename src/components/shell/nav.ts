@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import {
   LayoutDashboard, ListTree, PlayCircle, ClipboardList, FileText,
-  Boxes, Award, Users, Briefcase, LifeBuoy,
+  Boxes, Award, Users, Briefcase, LifeBuoy, LogOut,
 } from "lucide-react";
 
 export interface NavItem {
@@ -42,6 +42,7 @@ export const NAV: NavGroup[] = [
     label: null,
     items: [
       { href: "/help", label: "Help", icon: LifeBuoy },
+      { href: "/login", label: "Log out", icon: LogOut },
     ],
   },
 ];

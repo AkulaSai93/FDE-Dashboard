@@ -134,6 +134,7 @@ function ProfileMenu() {
             {[
               { href: "/certification", label: "Certificate" },
               { href: "/help", label: "Help & support" },
+              { href: "/login", label: "Log out" },
             ].map((i) => (
               <Link
                 key={i.href}
