@@ -44,13 +44,13 @@ export function LessonPoster({
   return (
     <span
       aria-hidden="true"
-      className={cx("relative block h-full w-full overflow-hidden bg-[#0e1116]", className)}
+      className={cx("relative block h-full w-full overflow-hidden bg-card-hi2", className)}
     >
       {/* directional wash — the only thing that differs between lessons */}
       <span
         className="absolute inset-0"
         style={{
-          backgroundImage: `linear-gradient(${angle}deg, rgba(255,255,255,${lift / 100}) 0%, rgba(255,255,255,0.015) 46%, rgba(0,0,0,0.3) 100%)`,
+          backgroundImage: `linear-gradient(${angle}deg, color-mix(in srgb, var(--c-ink) ${lift}%, transparent) 0%, transparent 46%, color-mix(in srgb, var(--c-bg) 28%, transparent) 100%)`,
         }}
       />
       {/* hairline grid, as on the hero surfaces */}
@@ -58,7 +58,7 @@ export function LessonPoster({
         className="absolute inset-0 opacity-[0.5]"
         style={{
           backgroundImage:
-            "linear-gradient(to right, rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.045) 1px, transparent 1px)",
+            "linear-gradient(to right, var(--c-tint-grid) 1px, transparent 1px), linear-gradient(to bottom, var(--c-tint-grid) 1px, transparent 1px)",
           backgroundSize: compact ? "14px 14px" : "28px 28px",
         }}
       />
@@ -66,7 +66,7 @@ export function LessonPoster({
       <span
         className="absolute inset-0"
         style={{
-          backgroundImage: `radial-gradient(60% 70% at ${originX}% ${originY}%, rgba(255,255,255,0.07), transparent 70%)`,
+          backgroundImage: `radial-gradient(60% 70% at ${originX}% ${originY}%, var(--c-tint-2), transparent 70%)`,
         }}
       />
 
@@ -85,7 +85,7 @@ export function LessonPoster({
             </span>
             <span className="mono text-[10px] uppercase tracking-[0.16em] text-ink-4">FDE</span>
           </span>
-          <span className="display block text-[44px] font-light leading-none text-white/[0.16]">
+          <span className="display block text-[44px] font-light leading-none text-ink/[0.14]">
             {mod?.code}
           </span>
         </span>

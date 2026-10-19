@@ -1,51 +1,146 @@
 @import "tailwindcss";
 
 /* ============================================================================
-   FDE LMS — DARK DESIGN SYSTEM
-   Dark theme only. No light mode, no theme switcher, no system preference.
-   Palette, type and radii match the FDE landing page (13.233.246.242:3000):
-   black canvas, #121212 cards, #3a3a3a edges, paper/mist/dim text, #E6161F red.
+   FDE LMS — DESIGN SYSTEM
+
+   Dark is the default and the brand's native mode; light is available through
+   the toggle in the topbar. The palette lives as plain custom properties on
+   :root and is redeclared under [data-theme="light"]; `@theme inline` then maps
+   it into Tailwind so every `bg-card` / `text-ink-2` utility resolves through
+   the variable instead of baking a hex at build time. One declaration per
+   token, both themes.
+
+   `[data-theme]` is set on <html> by ThemeProvider before paint, so there is no
+   flash of the wrong theme. Nothing here reads prefers-color-scheme: the
+   choice is explicit and remembered.
+
+   Dark values match the FDE landing page: black canvas, #121212 sheet, #3a3a3a
+   edges, paper/mist/dim text, #E6161F red. Red is the brand in both themes.
    ========================================================================= */
 
-@theme {
+:root {
   /* ---- Surfaces (near-black → charcoal elevation ladder) ---- */
-  --color-bg: #000000;          /* app canvas — site body (--color-ink #000) */
-  --color-bg-sub: #0a0a0c;      /* secondary panels — site --color-panel */
-  --color-surface: #000000;     /* sidebar, topbar — black chrome, like the site header */
-  --color-panel: #121212;       /* the rounded content sheet — site hero section (bg-ink-deep) */
-  --color-card: #1a1a1d;        /* card on the #121212 panel */
-  --color-card-hi: #222226;     /* raised / hovered card */
-  --color-card-hi2: #2a2a2a;    /* pressed / nested — site --color-ink-raised */
+  --c-bg: #000000;          /* app canvas — site body */
+  --c-bg-sub: #0a0a0c;      /* insets inside a card (code blocks, nested rows) */
+  --c-surface: #000000;     /* sidebar, topbar — black chrome, like the site header */
+  --c-panel: #121212;       /* the rounded content sheet — site hero section */
+  --c-card: #1a1a1d;        /* card on the sheet */
+  --c-card-hi: #222226;     /* raised / hovered card */
+  --c-card-hi2: #2a2a2a;    /* pressed / nested */
 
   /* ---- Borders ---- */
-  --color-line: #212126;        /* default hairline — felt, not seen */
-  --color-line-hi: #3a3a3a;     /* emphasised hairline — site --color-ink-line */
-  --color-line-soft: #1a1a1e;   /* quiet divider — site --color-edge */
+  --c-line: #212126;        /* default hairline — felt, not seen */
+  --c-line-hi: #3a3a3a;     /* emphasised hairline */
+  --c-line-soft: #1a1a1e;   /* quiet divider */
 
   /* ---- Text ---- */
-  --color-ink: #f3efef;         /* primary — site --color-paper */
-  --color-ink-2: #d9d9d9;       /* secondary — site --color-mist */
-  --color-ink-3: #999999;       /* muted — site --color-dim */
-  --color-ink-4: #5c5c5c;       /* disabled / locked */
+  --c-ink: #f3efef;         /* primary — site --color-paper */
+  --c-ink-2: #d9d9d9;       /* secondary — site --color-mist */
+  --c-ink-3: #999999;       /* muted — site --color-dim */
+  --c-ink-4: #5c5c5c;       /* disabled / locked */
 
   /* ---- Brand (FDE red) ---- */
-  --color-brand: #e6161f;
-  --color-brand-hi: #f23a42;    /* hover */
-  --color-brand-lo: #b81118;    /* pressed */
-  --color-brand-ink: #ff6b71;   /* red text on dark, legible */
-  --color-brand-dim: #4a0a0e;   /* red-tinted surface */
+  --c-brand: #e6161f;
+  --c-brand-hi: #f23a42;    /* hover */
+  --c-brand-lo: #b81118;    /* pressed */
+  --c-brand-ink: #ff6b71;   /* red text, legible on this theme's surfaces */
+  --c-brand-dim: #4a0a0e;   /* red-tinted surface */
 
-  /* ---- Accent ------------------------------------------------------------
-     One accent, deliberately. An earlier revision hue-coded each content type
-     (blue video, teal notes, amber quiz, violet project, green done); across a
-     dashboard that reads as decoration rather than information. The product
-     now says everything with two values: white for finished, FDE red for the
-     thing in flight. Colour that matters comes from lesson thumbnails. ---- */
+  /* ---- Tints -------------------------------------------------------------
+     Low-alpha overlays used for raised rows and hairline highlights. They were
+     literal white alphas, which invert wrong, so they are tokens now: light
+     over dark, dark over light. ------------------------------------------ */
+  --c-tint-1: rgba(255, 255, 255, 0.05);
+  --c-tint-2: rgba(255, 255, 255, 0.07);
+  --c-tint-3: rgba(255, 255, 255, 0.12);
+  --c-tint-line: rgba(255, 255, 255, 0.10);
+  --c-tint-edge: rgba(255, 255, 255, 0.14);  /* the edge-lit hairline */
+  --c-tint-grid: rgba(255, 255, 255, 0.035); /* grid-field texture */
+  --c-track: #2a2a2a;                        /* progress / scrollbar track */
 
   /* ---- Functional (used sparingly, desaturated to stay in-system) ---- */
-  --color-ok: #3fb950;
-  --color-warn: #d29922;
-  --color-info: #58a6ff;
+  --c-ok: #3fb950;
+  --c-warn: #d29922;
+  --c-info: #58a6ff;
+}
+
+[data-theme="light"] {
+  /* The same six-step ladder inverted: a tinted canvas so the white sheet and
+     the cards on it stay distinguishable. A pure-white canvas would collapse
+     the sheet, the card and the page into one plane — the exact failure the
+     dark theme had before it was layered. */
+  --c-bg: #e9ebef;
+  --c-bg-sub: #f1f3f6;
+  --c-surface: #ffffff;
+  --c-panel: #ffffff;
+  --c-card: #f7f8fa;
+  --c-card-hi: #eef0f4;
+  --c-card-hi2: #e2e5ea;
+
+  --c-line: #e4e6eb;
+  --c-line-hi: #ccd0d7;
+  --c-line-soft: #eef0f3;
+
+  --c-ink: #14161b;
+  --c-ink-2: #434852;
+  --c-ink-3: #6a707b;
+  --c-ink-4: #9aa0aa;
+
+  --c-brand: #e6161f;
+  --c-brand-hi: #c2101a;    /* hover goes darker on light, not brighter */
+  --c-brand-lo: #9c0d15;
+  --c-brand-ink: #c2101a;   /* #ff6b71 fails contrast on white */
+  --c-brand-dim: #fde8e9;
+
+  --c-tint-1: rgba(0, 0, 0, 0.04);
+  --c-tint-2: rgba(0, 0, 0, 0.06);
+  --c-tint-3: rgba(0, 0, 0, 0.10);
+  --c-tint-line: rgba(0, 0, 0, 0.10);
+  --c-tint-edge: rgba(0, 0, 0, 0.08);
+  --c-tint-grid: rgba(0, 0, 0, 0.045);
+  --c-track: #dfe2e7;
+
+  --c-ok: #1a7f37;
+  --c-warn: #9a6700;
+  --c-info: #0969da;
+}
+
+/* `inline` keeps the generated utilities pointing at the variables above, so
+   flipping [data-theme] re-themes the whole product with no rebuild. */
+@theme inline {
+  --color-bg: var(--c-bg);
+  --color-bg-sub: var(--c-bg-sub);
+  --color-surface: var(--c-surface);
+  --color-panel: var(--c-panel);
+  --color-card: var(--c-card);
+  --color-card-hi: var(--c-card-hi);
+  --color-card-hi2: var(--c-card-hi2);
+
+  --color-line: var(--c-line);
+  --color-line-hi: var(--c-line-hi);
+  --color-line-soft: var(--c-line-soft);
+
+  --color-ink: var(--c-ink);
+  --color-ink-2: var(--c-ink-2);
+  --color-ink-3: var(--c-ink-3);
+  --color-ink-4: var(--c-ink-4);
+
+  --color-brand: var(--c-brand);
+  --color-brand-hi: var(--c-brand-hi);
+  --color-brand-lo: var(--c-brand-lo);
+  --color-brand-ink: var(--c-brand-ink);
+  --color-brand-dim: var(--c-brand-dim);
+
+  --color-tint-1: var(--c-tint-1);
+  --color-tint-2: var(--c-tint-2);
+  --color-tint-3: var(--c-tint-3);
+  --color-tint-line: var(--c-tint-line);
+  --color-tint-edge: var(--c-tint-edge);
+  --color-track: var(--c-track);
+
+  --color-ok: var(--c-ok);
+  --color-warn: var(--c-warn);
+  --color-info: var(--c-info);
 
   /* ---- Type ---- */
   --font-display: var(--font-urbanist), ui-sans-serif, system-ui, sans-serif;
@@ -71,7 +166,8 @@
 
 * { border-color: var(--color-line); }
 
-html { color-scheme: dark; background: var(--color-bg); }
+html { color-scheme: dark; background: var(--c-bg); }
+[data-theme="light"] { color-scheme: light; }
 
 body {
   background: var(--color-bg);
@@ -88,7 +184,7 @@ body {
 * { scrollbar-width: thin; scrollbar-color: #2a2a2a transparent; }
 *::-webkit-scrollbar { width: 9px; height: 9px; }
 *::-webkit-scrollbar-track { background: transparent; }
-*::-webkit-scrollbar-thumb { background: #242424; border-radius: 99px; border: 2px solid transparent; background-clip: content-box; }
+*::-webkit-scrollbar-thumb { background: var(--c-track); border-radius: 99px; border: 2px solid transparent; background-clip: content-box; }
 *::-webkit-scrollbar-thumb:hover { background: #333; background-clip: content-box; }
 
 :focus-visible {
@@ -136,8 +232,8 @@ body {
 /* Hairline grid texture used behind hero areas — very low contrast */
 @utility grid-field {
   background-image:
-    linear-gradient(to right, rgba(255,255,255,0.025) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255,255,255,0.025) 1px, transparent 1px);
+    linear-gradient(to right, var(--c-tint-grid) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--c-tint-grid) 1px, transparent 1px);
   background-size: 48px 48px;
 }
 
@@ -168,8 +264,8 @@ body {
     z-index: -1;
     pointer-events: none;
     background:
-      radial-gradient(42% 100% at 50% -6%, rgba(255,255,255,0.09) 0%, rgba(255,255,255,0.035) 34%, transparent 72%),
-      radial-gradient(18% 70% at 50% -2%, rgba(255,255,255,0.07) 0%, transparent 70%);
+      radial-gradient(42% 100% at 50% -6%, var(--c-tint-2) 0%, var(--c-tint-1) 34%, transparent 72%),
+      radial-gradient(18% 70% at 50% -2%, var(--c-tint-2) 0%, transparent 70%);
   }
 }
 
@@ -198,7 +294,7 @@ body {
     top: 0;
     height: 1px;
     pointer-events: none;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.14), transparent);
+    background: linear-gradient(90deg, transparent, var(--c-tint-edge), transparent);
   }
 }
 
@@ -223,7 +319,7 @@ body {
     position: absolute;
     inset: 0;
     width: 33%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
+    background: linear-gradient(90deg, transparent, var(--c-tint-edge), transparent);
     animation: fde-sweep 2.4s var(--ease-out-fde) infinite;
   }
 }

@@ -40,9 +40,9 @@ export function NoteReader({ note, className }: { note: Note; className?: string
                 <div className="flex items-center justify-between border-b border-line px-3.5 py-2">
                   <span className="mono text-[10px] uppercase tracking-[0.1em] text-ink-3">{b.lang}</span>
                   <span className="flex gap-1">
-                    <span className="size-1.5 rounded-full bg-[#242424]" />
-                    <span className="size-1.5 rounded-full bg-[#242424]" />
-                    <span className="size-1.5 rounded-full bg-[#242424]" />
+                    <span className="size-1.5 rounded-full bg-line-hi" />
+                    <span className="size-1.5 rounded-full bg-line-hi" />
+                    <span className="size-1.5 rounded-full bg-line-hi" />
                   </span>
                 </div>
                 <pre className="overflow-x-auto px-3.5 py-3.5">
