@@ -3,17 +3,17 @@
 import * as React from "react";
 import Link from "next/link";
 import {
-  ArrowRight, ArrowUpRight, Boxes, Check, ClipboardList, Flame, Play, Sparkles,
+  ArrowRight, ArrowUpRight, Check, Flame, Play,
 } from "lucide-react";
 import { Page } from "@/components/shell/AppShell";
-import { WhatsAppIcon, cx } from "@/components/ui";
+import { LessonPoster, WhatsAppIcon, cx } from "@/components/ui";
+import { lessonThumbnail } from "@/lib/media";
 import {
   ALL_TOPICS, MODULE_BY_ID, PHASES, PHASE_BY_ID, formatDuration, formatMinutes, hash,
 } from "@/data/curriculum";
-import { COMMUNITY_STATS, RECENT_ACTIVITY, WHATSAPP_COMMUNITY_URL } from "@/data/activity";
+import { COMMUNITY_STATS, WHATSAPP_COMMUNITY_URL } from "@/data/activity";
 import { USER } from "@/data/user";
 import { useCurrentTopic, useProgress, useRollups, useUpNext } from "@/state/progress";
-import { lessonThumbnail } from "@/lib/media";
 
 /* ============================================================================
  * DASHBOARD
@@ -23,8 +23,8 @@ import { lessonThumbnail } from "@/lib/media";
  *   1. DO       — the one lesson to resume, given the most space on the page
  *   2. NEXT     — the three after it, so the queue is visible without clicking
  *   3. WHERE    — one strip for all nine phases plus the current phase's modules
- *   4. MOMENTUM — streak and this week, the reason to come back tomorrow
- *   5. CONTEXT  — recent activity and the community
+ *   4. MOMENTUM — streak, this week and the community: the reasons to come
+ *                 back tomorrow
  *
  * Two colours throughout: white means finished, red means in flight, grey means
  * untouched. Colour that isn't one of those comes from lesson thumbnails.
@@ -43,14 +43,6 @@ function useGreeting() {
   }, []);
   return greeting;
 }
-
-const ACTIVITY_ICON = {
-  completed: Check,
-  watched: Play,
-  submitted: ClipboardList,
-  started: Boxes,
-  unlocked: Sparkles,
-} as const;
 
 /** Placeholder week position until study sessions are tracked: today is
  *  Friday and the learner hasn't studied yet, so the streak is "at risk". */
@@ -90,25 +82,33 @@ function Thumb({
   watched = 0,
   className,
   big,
+  /** `aspect-video` sizes from width — correct for a card, wrong for a side
+   *  panel, where the grid sets the height and the aspect ratio then forces a
+   *  width that overflows the track. Pass `aspect-auto` there. */
+  aspect = "aspect-video",
 }: {
   topicId: string;
   seconds: number;
   watched?: number;
   className?: string;
   big?: boolean;
+  aspect?: string;
 }) {
   const pct = seconds ? (watched / seconds) * 100 : 0;
   return (
-    <span className={cx("relative block aspect-video overflow-hidden bg-black ring-1 ring-line", className)}>
+    <span className={cx("relative block overflow-hidden bg-black ring-1 ring-line", aspect, className)}>
+      {/* Poster sits behind as the fallback, so a thumbnail that fails to
+          load degrades to the lesson's plate rather than a black rectangle. */}
+      <LessonPoster topicId={topicId} />
       {/* eslint-disable-next-line @next/next/no-img-element -- remote placeholder thumbnail */}
       <img
         src={lessonThumbnail(topicId)}
         alt=""
         aria-hidden="true"
         loading="lazy"
-        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
       />
-      <span className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+      <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
       <span
         className={cx(
           "absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-brand text-white transition-transform duration-200 group-hover:scale-110",
@@ -190,40 +190,51 @@ export function DashboardView() {
         />
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
           {/* the lesson */}
+          {/* Thumbnail sits beside the copy rather than above it: stacked, a
+              full-width 16:9 pushed this card past 900px tall on a desktop. */}
           <Link
             href={`/learn/${topic.id}`}
-            className="group edge-lit overflow-hidden rounded-[var(--radius-xl)] border border-line bg-card transition-colors hover:border-line-hi"
+            className="group edge-lit grid overflow-hidden rounded-[var(--radius-xl)] border border-line bg-card transition-colors hover:border-line-hi sm:grid-cols-[minmax(0,300px)_minmax(0,1fr)]"
           >
-            <Thumb topicId={topic.id} seconds={topic.videoSeconds} watched={tp?.videoPosition ?? 0} big />
-            <div className="p-5">
-              <p className="eyebrow">
-                Phase {phase.code} · {mod.code} {mod.title}
-              </p>
-              <h3 className="display mt-2 text-[22px] leading-tight text-ink sm:text-[26px]">{topic.title}</h3>
-              <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] text-ink-3">
-                <span className="nums">
-                  <span className="text-ink-2">{formatDuration(tp?.videoPosition ?? 0)}</span> / {formatDuration(topic.videoSeconds)}
-                </span>
-                <span className="size-0.5 rounded-full bg-ink-4" aria-hidden="true" />
-                <span>Topic {topic.index} of {mod.topics.length}</span>
-                <span className="size-0.5 rounded-full bg-ink-4" aria-hidden="true" />
-                <span>Last watched {lastSeen}</span>
+            <Thumb
+              topicId={topic.id}
+              seconds={topic.videoSeconds}
+              watched={tp?.videoPosition ?? 0}
+              aspect="aspect-video sm:aspect-auto"
+              className="min-w-0 sm:h-full"
+              big
+            />
+            <div className="flex flex-col justify-center gap-4 p-5">
+              <div>
+                <p className="eyebrow">
+                  Phase {phase.code} · {mod.code} {mod.title}
+                </p>
+                <h3 className="display mt-2 text-[22px] leading-tight text-ink sm:text-[26px]">{topic.title}</h3>
+                <div className="mt-3 flex flex-wrap items-center gap-x-3.5 gap-y-1.5 text-[12px] text-ink-3">
+                  <span className="nums">
+                    <span className="text-ink-2">{formatDuration(tp?.videoPosition ?? 0)}</span> / {formatDuration(topic.videoSeconds)}
+                  </span>
+                  <span className="size-0.5 rounded-full bg-ink-4" aria-hidden="true" />
+                  <span>Topic {topic.index} of {mod.topics.length}</span>
+                  <span className="size-0.5 rounded-full bg-ink-4" aria-hidden="true" />
+                  <span>{lastSeen}</span>
+                </div>
               </div>
-              <span className="mt-5 inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-brand px-4 py-2.5 text-[13px] font-medium text-white transition-colors group-hover:bg-brand-hi">
+              <span className="inline-flex w-fit items-center gap-2 rounded-[var(--radius-md)] bg-brand px-4 py-2.5 text-[13px] font-medium text-white transition-colors group-hover:bg-brand-hi">
                 Resume lesson <ArrowRight size={14} />
               </span>
             </div>
           </Link>
 
           {/* the number */}
-          <div className="plume flex flex-col justify-between overflow-hidden rounded-[var(--radius-xl)] border border-line bg-card p-5">
+          <div className="plume flex flex-col overflow-hidden rounded-[var(--radius-xl)] border border-line bg-card p-5">
             <div>
               <p className="eyebrow">Your progress</p>
-              <p className="display nums mt-3 text-[52px] font-light leading-none text-ink">
-                {program.percent}<span className="text-[24px] text-ink-3">%</span>
+              <p className="display nums mt-2 text-[44px] font-light leading-none text-ink">
+                {program.percent}<span className="text-[22px] text-ink-3">%</span>
               </p>
               {/* One notch per phase: the whole programme at a glance. */}
-              <div className="mt-5 flex gap-1" aria-hidden="true">
+              <div className="mt-4 flex gap-1" aria-hidden="true">
                 {PHASES.map((p) => {
                   const r = byPhase.get(p.id)!;
                   return (
@@ -239,11 +250,11 @@ export function DashboardView() {
               <p className="eyebrow mt-2.5">Phase 01 → 09</p>
             </div>
 
-            <dl className="mt-6 grid grid-cols-2 gap-x-5 gap-y-5 border-t border-line pt-5">
+            <dl className="mt-5 grid grid-cols-2 gap-x-5 gap-y-4 border-t border-line pt-4">
               {STATS.map((s) => (
                 <div key={s.label}>
                   <dt className="eyebrow">{s.label}</dt>
-                  <dd className="nums mt-2 text-[17px] text-ink">
+                  <dd className="nums mt-1.5 text-[16px] text-ink">
                     {s.done}
                     <span className="text-[12px] text-ink-4"> / {s.total}</span>
                   </dd>
@@ -256,7 +267,7 @@ export function DashboardView() {
                 keep going rather than on a statistic. */}
             <Link
               href="/certification"
-              className="group mt-6 flex items-center gap-3 border-t border-line pt-5"
+              className="group mt-auto flex items-center gap-3 border-t border-line pt-4"
             >
               <span className="min-w-0 flex-1">
                 <span className="block text-[13px] text-ink transition-colors group-hover:text-brand-ink">
@@ -372,7 +383,7 @@ export function DashboardView() {
       {/* ================================================= 4 · momentum */}
       <section>
         <Band label="Momentum" />
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {/* streak */}
           <div className="plume edge-lit overflow-hidden rounded-[var(--radius-lg)] border border-line bg-card p-5">
             <div className="flex items-center gap-4">
@@ -434,81 +445,37 @@ export function DashboardView() {
               ))}
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* =============================================== 5 · context */}
-      <section className="grid gap-x-10 gap-y-8 lg:grid-cols-[minmax(0,1fr)_300px]">
-        {/* recent activity */}
-        <div className="min-w-0">
-          <Band label="Recent activity" />
-          <ol className="space-y-1">
-            {RECENT_ACTIVITY.map((a) => {
-              const Icon = ACTIVITY_ICON[a.kind];
-              const topicId = a.href.startsWith("/learn/") ? a.href.slice("/learn/".length) : null;
-              return (
-                <li key={a.id}>
-                  <Link
-                    href={a.href}
-                    className="group flex items-center gap-3.5 rounded-[var(--radius-md)] p-2 transition-colors hover:bg-card"
-                  >
-                    {topicId ? (
-                      <span className="relative aspect-video w-[84px] shrink-0 overflow-hidden rounded-[var(--radius-sm)] bg-black ring-1 ring-line">
-                        {/* eslint-disable-next-line @next/next/no-img-element -- remote placeholder thumbnail */}
-                        <img
-                          src={lessonThumbnail(topicId)}
-                          alt=""
-                          aria-hidden="true"
-                          loading="lazy"
-                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        />
-                      </span>
-                    ) : (
-                      <span className="flex aspect-video w-[84px] shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-card-hi text-ink-3 ring-1 ring-line">
-                        <Icon size={15} strokeWidth={1.75} />
-                      </span>
-                    )}
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-[14px] text-ink transition-colors group-hover:text-brand-ink">
-                        {a.title}
-                      </span>
-                      <span className="mt-0.5 block truncate text-[12px] text-ink-3">
-                        {a.context} · {a.when}
-                      </span>
-                    </span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ol>
-        </div>
-
-        {/* community */}
-        <div>
-          <Band label="Community" />
-          <div className="rounded-[var(--radius-lg)] bg-[#25D366]/[0.07] p-4 ring-1 ring-[#25D366]/20">
-            <div className="flex items-center gap-3">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#25D366]/15 text-[#25D366]">
-                <WhatsAppIcon size={18} />
-              </span>
-              <div className="min-w-0">
-                <p className="text-[14px] font-medium text-ink">FDE community</p>
-                <p className="nums text-[12px] text-ink-3">
-                  {COMMUNITY_STATS.members.toLocaleString("en-IN")}+ members · {COMMUNITY_STATS.online} online
-                </p>
+          {/* community */}
+          <div className="flex flex-col justify-between rounded-[var(--radius-lg)] bg-[#25D366]/[0.07] p-5 ring-1 ring-[#25D366]/20 sm:col-span-2 lg:col-span-1">
+            <div>
+              <div className="flex items-center gap-3">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#25D366]/15 text-[#25D366]">
+                  <WhatsAppIcon size={18} />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-[14px] font-medium text-ink">FDE community</p>
+                  <p className="nums text-[12px] text-ink-3">
+                    {COMMUNITY_STATS.members.toLocaleString("en-IN")}+ members · {COMMUNITY_STATS.online} online
+                  </p>
+                </div>
               </div>
+              <p className="mt-4 text-[12.5px] leading-relaxed text-ink-3">
+                Ask questions, share what you build and get unstuck faster than you would alone.
+              </p>
             </div>
             <a
               href={WHATSAPP_COMMUNITY_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-3.5 flex items-center justify-center gap-1.5 rounded-[var(--radius-md)] bg-[#25D366] py-2 text-[13px] font-medium text-black transition-opacity hover:opacity-90"
+              className="mt-5 flex items-center justify-center gap-1.5 rounded-[var(--radius-md)] bg-[#25D366] py-2.5 text-[13px] font-medium text-black transition-opacity hover:opacity-90"
             >
               Join on WhatsApp <ArrowUpRight size={14} />
             </a>
           </div>
         </div>
       </section>
+
     </Page>
   );
 }
