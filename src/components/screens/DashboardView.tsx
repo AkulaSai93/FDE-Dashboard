@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import {
-  ArrowRight, ArrowUpRight, Boxes, Check, ClipboardList, FileText, Flame, Play, Sparkles,
+  ArrowRight, ArrowUpRight, Boxes, Check, ClipboardList, Flame, Play, Sparkles,
 } from "lucide-react";
 import { Page } from "@/components/shell/AppShell";
 import { WhatsAppIcon, cx } from "@/components/ui";
@@ -12,8 +12,23 @@ import {
 } from "@/data/curriculum";
 import { COMMUNITY_STATS, RECENT_ACTIVITY, WHATSAPP_COMMUNITY_URL } from "@/data/activity";
 import { USER } from "@/data/user";
-import { useCurrentTopic, useProgress, useRollups } from "@/state/progress";
+import { useCurrentTopic, useProgress, useRollups, useUpNext } from "@/state/progress";
 import { lessonThumbnail } from "@/lib/media";
+
+/* ============================================================================
+ * DASHBOARD
+ *
+ * Ordered by what the learner needs, not by what data exists:
+ *
+ *   1. DO       — the one lesson to resume, given the most space on the page
+ *   2. NEXT     — the three after it, so the queue is visible without clicking
+ *   3. WHERE    — one strip for all nine phases plus the current phase's modules
+ *   4. MOMENTUM — streak and this week, the reason to come back tomorrow
+ *   5. CONTEXT  — recent activity and the community
+ *
+ * Two colours throughout: white means finished, red means in flight, grey means
+ * untouched. Colour that isn't one of those comes from lesson thumbnails.
+ * ========================================================================= */
 
 function useGreeting() {
   // Rendered time-neutral on the server, then personalised after mount so the
@@ -29,286 +44,350 @@ function useGreeting() {
   return greeting;
 }
 
-/** One hue per kind of learning — see the content-type tokens in globals.css. */
-const KIND = {
-  video: { icon: Play, text: "text-ink-2", bg: "bg-white/[0.06]", bar: "bg-ink-2" },
-  notes: { icon: FileText, text: "text-ink-2", bg: "bg-white/[0.06]", bar: "bg-ink-2" },
-  quiz: { icon: ClipboardList, text: "text-ink-2", bg: "bg-white/[0.06]", bar: "bg-ink-2" },
-  project: { icon: Boxes, text: "text-ink-2", bg: "bg-white/[0.06]", bar: "bg-ink-2" },
-  done: { icon: Check, text: "text-ink", bg: "bg-white/[0.08]", bar: "bg-ink-2" },
-} as const;
-
-const ACTIVITY_KIND = {
-  completed: KIND.done,
-  watched: KIND.video,
-  submitted: KIND.quiz,
-  started: KIND.project,
-  unlocked: { icon: Sparkles, text: "text-brand-ink", bg: "bg-brand/12", bar: "bg-brand" },
+const ACTIVITY_ICON = {
+  completed: Check,
+  watched: Play,
+  submitted: ClipboardList,
+  started: Boxes,
+  unlocked: Sparkles,
 } as const;
 
 /** Placeholder week position until study sessions are tracked: today is
  *  Friday and the learner hasn't studied yet, so the streak is "at risk". */
 const TODAY = 4;
 const STUDIED_TODAY = false;
-/** Minutes studied per weekday — seeded so it is stable across renders;
- *  today (until they study) and the rest of the week are empty. */
 const WEEK = ["M", "T", "W", "T", "F", "S", "S"].map((d, i) => ({
   d,
   min: i < TODAY || (i === TODAY && STUDIED_TODAY) ? 15 + (hash(`wk${i}`) % 70) : 0,
 }));
 
+/* ------------------------------------------------------------- primitives */
+
 function Bar({ value, className, tone = "bg-brand" }: { value: number; className?: string; tone?: string }) {
   return (
     <span className={cx("block h-1.5 overflow-hidden rounded-full bg-card-hi2", className)}>
-      <span className={cx("block h-full rounded-full", tone)} style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
+      <span className={cx("block h-full rounded-full transition-[width] duration-500", tone)} style={{ width: `${Math.max(0, Math.min(100, value))}%` }} />
     </span>
   );
 }
 
-/** Section heading: the site's red-dot label style, an Urbanist title and a
- *  one-line description, with an optional action on the right. */
-function SectionTitle({
-  title, sub, action, small,
-}: { title: string; sub?: React.ReactNode; action?: React.ReactNode; small?: boolean }) {
+/** Quiet band label. Replaces the row of identical red section dots — on a
+ *  dashboard a repeated accent stops being an accent. */
+function Band({ label, action }: { label: string; action?: React.ReactNode }) {
   return (
-    <div className={cx("flex items-end justify-between gap-4", small ? "mb-3.5" : "mb-4")}>
-      <div className="min-w-0">
-        <h2 className={cx("display flex items-center gap-2.5 leading-tight text-ink", small ? "text-[17px]" : "text-[22px]")}>
-          <span className="size-2 shrink-0 rounded-full bg-brand" aria-hidden="true" />
-          {title}
-        </h2>
-        {sub && <p className="mt-1 pl-[18px] text-[13px] text-ink-3">{sub}</p>}
-      </div>
-      {action && <div className="shrink-0">{action}</div>}
+    <div className="mb-4 flex items-center gap-4">
+      <h2 className="eyebrow shrink-0">{label}</h2>
+      <span className="h-px flex-1 bg-line" aria-hidden="true" />
+      {action}
     </div>
   );
 }
 
-const linkCls = "inline-flex items-center gap-1 text-[13px] text-ink-3 transition-colors hover:text-ink";
+/** 16:9 lesson thumbnail with a duration stamp and an optional resume bar. */
+function Thumb({
+  topicId,
+  seconds,
+  watched = 0,
+  className,
+  big,
+}: {
+  topicId: string;
+  seconds: number;
+  watched?: number;
+  className?: string;
+  big?: boolean;
+}) {
+  const pct = seconds ? (watched / seconds) * 100 : 0;
+  return (
+    <span className={cx("relative block aspect-video overflow-hidden bg-black ring-1 ring-line", className)}>
+      {/* eslint-disable-next-line @next/next/no-img-element -- remote placeholder thumbnail */}
+      <img
+        src={lessonThumbnail(topicId)}
+        alt=""
+        aria-hidden="true"
+        loading="lazy"
+        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+      />
+      <span className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+      <span
+        className={cx(
+          "absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-brand text-white transition-transform duration-200 group-hover:scale-110",
+          big ? "size-14" : "size-9",
+        )}
+      >
+        <Play size={big ? 20 : 13} fill="currentColor" strokeWidth={0} className="ml-0.5" />
+      </span>
+      <span className="nums absolute bottom-2 right-2 rounded bg-black/80 px-1.5 py-0.5 text-[11px] text-ink-2 backdrop-blur-sm">
+        {formatDuration(seconds)}
+      </span>
+      {pct > 0 && (
+        <span className="absolute inset-x-0 bottom-0 h-[3px] bg-white/15">
+          <span className="block h-full bg-brand" style={{ width: `${pct}%` }} />
+        </span>
+      )}
+    </span>
+  );
+}
+
+/* ------------------------------------------------------------------- view */
 
 export function DashboardView() {
   const greeting = useGreeting();
   const { program, byModule, modulesCompleted, currentPhase, byPhase, totals } = useRollups();
   const { topics, lastActiveMinutesAgo } = useProgress();
   const topic = useCurrentTopic();
+  const upNext = useUpNext(4).filter((t) => t.id !== topic.id).slice(0, 3);
 
   const mod = MODULE_BY_ID.get(topic.moduleId)!;
   const phase = PHASE_BY_ID.get(topic.phaseId)!;
-  const modRollup = byModule.get(mod.id)!;
   const phaseRollup = byPhase.get(currentPhase.id)!;
   const tp = topics[topic.id];
-  const videoPct = ((tp?.videoPosition ?? 0) / topic.videoSeconds) * 100;
 
   const quizTopics = ALL_TOPICS.filter((t) => t.assignment);
   const quizzesDone = quizTopics.filter((t) => topics[t.id]?.assignment === "completed").length;
+  const phasesDone = PHASES.filter((p) => byPhase.get(p.id)!.percent === 100).length;
   const lastSeen = lastActiveMinutesAgo === 0 ? "just now" : `${lastActiveMinutesAgo} min ago`;
-  const weekMax = Math.max(...WEEK.map((w) => w.min));
+  const weekMax = Math.max(...WEEK.map((w) => w.min), 1);
   const weekTotal = WEEK.reduce((a, w) => a + w.min, 0);
 
+  const STATS = [
+    { label: "Topics", done: program.completed, total: program.total },
+    { label: "Modules", done: modulesCompleted, total: totals.modules },
+    { label: "Quizzes", done: quizzesDone, total: quizTopics.length },
+    { label: "Phases", done: phasesDone, total: totals.phases },
+  ];
 
   return (
-    <Page>
-      <div className="grid gap-x-10 gap-y-8 xl:grid-cols-[minmax(0,1fr)_300px]">
-        {/* =============================================== main column */}
-        <div className="min-w-0 space-y-10">
-          {/* ---------------------------------------------- header */}
-          <header className="flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <h1 className="display text-[32px] font-light leading-[1.05] text-ink sm:text-[40px]">
-                {greeting}, <span className="text-brand-ink">{USER.firstName}</span>
-              </h1>
-              <p className="mt-2 text-[15px] text-ink-3">
-                Here&apos;s your hub for the AI Forward Deployed Engineer program — you&apos;re{" "}
-                <span className="nums text-ink-2">{program.percent}%</span> of the way there.
-              </p>
-            </div>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.06] px-3 py-1.5 text-[12px] font-medium text-ink-2 ring-1 ring-inset ring-white/10">
-              <Flame size={13} /> {USER.streakDays}-day streak
-            </span>
-          </header>
-
-          {/* ---------------------------------------------- continue */}
-          <div>
-          <SectionTitle title="Continue learning" sub="Pick up exactly where you left off" />
-          <section className="edge-lit overflow-hidden rounded-[var(--radius-xl)] border border-line bg-card">
-            <div className="grid sm:grid-cols-[240px_minmax(0,1fr)]">
-              <Link
-                href={`/learn/${topic.id}`}
-                className="group relative flex aspect-video items-center justify-center overflow-hidden bg-black sm:aspect-auto"
-                aria-label={`Resume ${topic.title}`}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element -- remote placeholder thumbnail */}
-                <img src={lessonThumbnail(topic.id)} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-transform duration-500 group-hover:scale-105" />
-                <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/10" />
-                <span className="halo relative flex size-12 items-center justify-center rounded-full bg-brand text-white shadow-[0_0_30px_rgba(230,22,31,.5)] transition-transform group-hover:scale-105">
-                  <Play size={18} fill="currentColor" strokeWidth={0} className="ml-0.5" />
-                </span>
-                <span className="nums absolute bottom-2.5 right-3 rounded bg-black/70 px-1.5 py-0.5 text-[11px] text-ink-2">
-                  {formatDuration(tp?.videoPosition ?? 0)} / {formatDuration(topic.videoSeconds)}
-                </span>
-                <span className="absolute inset-x-0 bottom-0 h-1 bg-white/10">
-                  <span className="block h-full bg-brand" style={{ width: `${videoPct}%` }} />
-                </span>
-              </Link>
-              <div className="flex flex-col justify-between gap-5 p-5 sm:p-6">
-                <div>
-                  <p className="eyebrow">Video lesson · {formatMinutes(topic.videoSeconds)}</p>
-                  <h3 className="display mt-1.5 text-[22px] leading-tight text-ink">{topic.title}</h3>
-                  <p className="mt-1.5 text-[13px] text-ink-3">
-                    {mod.code} {mod.title} · Topic {topic.index} of {mod.topics.length} · Last watched {lastSeen}
-                  </p>
-                </div>
-                <div className="flex flex-wrap items-center gap-3">
-                  <Link
-                    href={`/learn/${topic.id}`}
-                    className="inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-brand px-4 py-2.5 text-[13px] font-medium text-white transition-colors hover:bg-brand-hi"
-                  >
-                    Resume lesson <ArrowRight size={14} />
-                  </Link>
-                  <Link
-                    href={`/curriculum?phase=${phase.id}&module=${mod.id}`}
-                    className="text-[13px] text-ink-3 transition-colors hover:text-ink"
-                  >
-                    View module · {modRollup.percent}% done
-                  </Link>
-                </div>
-              </div>
-            </div>
-          </section>
-          </div>
-
-          {/* ---------------------------------------------- current phase modules */}
-          <section>
-            <SectionTitle
-              title="Current phase"
-              sub={`Phase ${currentPhase.code} · ${currentPhase.title} · ${phaseRollup.percent}% complete`}
-              action={<Link href={`/curriculum?phase=${currentPhase.id}`} className={linkCls}>Open phase <ArrowRight size={13} /></Link>}
-            />
-            <div className="divide-y divide-line border-y border-line">
-              {currentPhase.modules.map((m) => {
-                const r = byModule.get(m.id)!;
-                const done = r.percent === 100;
-                const active = !done && r.completed + r.inProgress > 0;
-                return (
-                  <Link
-                    key={m.id}
-                    href={`/curriculum?phase=${currentPhase.id}&module=${m.id}`}
-                    className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-5 gap-y-2 py-3.5 transition-colors hover:bg-card/60 sm:grid-cols-[minmax(0,1fr)_180px_90px]"
-                  >
-                    <span className="min-w-0">
-                      <span className="mono mr-2 text-[11px] text-ink-4">{m.code}</span>
-                      <span className="text-[14px] text-ink">{m.title}</span>
-                    </span>
-                    <span className="col-span-2 row-start-2 flex items-center gap-3 sm:col-span-1 sm:row-start-auto">
-                      <Bar value={r.percent} tone={done ? "bg-ink-2" : "bg-brand"} className="flex-1" />
-                      <span className="nums w-14 text-right text-[12px] text-ink-3">{r.completed}/{r.total}</span>
-                    </span>
-                    <span
-                      className={cx(
-                        "justify-self-end rounded-full px-2.5 py-1 text-[11px] font-medium",
-                        done ? "bg-white/[0.07] text-ink-2" : active ? "bg-brand/12 text-brand-ink" : "bg-card-hi text-ink-3",
-                      )}
-                    >
-                      {done ? "Completed" : active ? "In progress" : "Not started"}
-                    </span>
-                  </Link>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* ---------------------------------------------- activity */}
-          <section>
-            <SectionTitle title="Recent activity" sub="Your last few sessions on the platform" />
-            {/* Watch-history rows: the lesson's own thumbnail carries the
-                colour, so these need no icon chips or coloured markers. */}
-            <ol className="space-y-1">
-              {RECENT_ACTIVITY.map((a) => {
-                const k = ACTIVITY_KIND[a.kind];
-                const topicId = a.href.startsWith("/learn/") ? a.href.slice("/learn/".length) : null;
-                return (
-                  <li key={a.id}>
-                    <Link
-                      href={a.href}
-                      className="group flex items-center gap-3.5 rounded-[var(--radius-md)] p-2 transition-colors hover:bg-card"
-                    >
-                      {topicId ? (
-                        <span className="relative aspect-video w-[76px] shrink-0 overflow-hidden rounded-[var(--radius-sm)] bg-card ring-1 ring-line">
-                          {/* eslint-disable-next-line @next/next/no-img-element -- remote placeholder thumbnail */}
-                          <img
-                            src={lessonThumbnail(topicId)}
-                            alt=""
-                            aria-hidden="true"
-                            loading="lazy"
-                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                          />
-                        </span>
-                      ) : (
-                        <span className="flex aspect-video w-[76px] shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-card text-ink-3 ring-1 ring-line">
-                          <k.icon size={15} strokeWidth={1.75} />
-                        </span>
-                      )}
-                      <span className="min-w-0 flex-1">
-                        <span className="block truncate text-[14px] text-ink transition-colors group-hover:text-brand-ink">
-                          {a.title}
-                        </span>
-                        <span className="mt-0.5 block truncate text-[12px] text-ink-3">
-                          {a.context} · {a.when}
-                        </span>
-                      </span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ol>
-          </section>
+    <Page className="space-y-10">
+      {/* =============================================== 0 · who and where */}
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div className="min-w-0">
+          <h1 className="display text-[30px] font-light leading-[1.05] text-ink sm:text-[36px]">
+            {greeting}, <span className="text-brand-ink">{USER.firstName}</span>
+          </h1>
+          <p className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[13px] text-ink-3">
+            <span className="nums text-ink-2">{program.percent}% complete</span>
+            <span className="size-0.5 rounded-full bg-ink-4" aria-hidden="true" />
+            <span>Phase {currentPhase.code} · {currentPhase.title}</span>
+            <span className="size-0.5 rounded-full bg-ink-4" aria-hidden="true" />
+            <span className="nums">{program.total - program.completed} topics to go</span>
+          </p>
         </div>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.06] px-3 py-1.5 text-[12px] font-medium text-ink-2 ring-1 ring-inset ring-white/10">
+          <Flame size={13} /> {USER.streakDays}-day streak
+        </span>
+      </header>
 
-        {/* =============================================== right rail */}
-        <aside className="space-y-8 xl:border-l xl:border-line xl:pl-8">
-          {/* ---------------------------------------------- progress */}
-          <section>
-            <SectionTitle small title="Your progress" />
-            <p className="display nums text-[44px] leading-none text-ink">
-              {program.percent}<span className="text-[22px] text-ink-3">%</span>
-            </p>
-            <Bar value={program.percent} className="mt-3 h-2" />
-            <dl className="mt-5 space-y-3.5">
-              {[
-                { label: "Topics", done: program.completed, total: program.total, tone: "bg-ink-2" },
-                { label: "Modules", done: modulesCompleted, total: totals.modules, tone: "bg-ink-2" },
-                { label: "Assignments", done: quizzesDone, total: quizTopics.length, tone: "bg-ink-2" },
-                { label: "Phases", done: PHASES.filter((p) => byPhase.get(p.id)!.percent === 100).length, total: totals.phases, tone: "bg-ink-2" },
-              ].map((s) => (
+      {/* ================================================= 1 · do this now */}
+      <section>
+        <Band
+          label="Continue learning"
+          action={
+            <Link href={`/curriculum?phase=${phase.id}&module=${mod.id}`} className="shrink-0 text-[12px] text-ink-3 transition-colors hover:text-ink">
+              View module
+            </Link>
+          }
+        />
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
+          {/* the lesson */}
+          <Link
+            href={`/learn/${topic.id}`}
+            className="group edge-lit overflow-hidden rounded-[var(--radius-xl)] border border-line bg-card transition-colors hover:border-line-hi"
+          >
+            <Thumb topicId={topic.id} seconds={topic.videoSeconds} watched={tp?.videoPosition ?? 0} big />
+            <div className="p-5">
+              <p className="eyebrow">
+                Phase {phase.code} · {mod.code} {mod.title}
+              </p>
+              <h3 className="display mt-2 text-[22px] leading-tight text-ink sm:text-[26px]">{topic.title}</h3>
+              <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] text-ink-3">
+                <span className="nums">
+                  <span className="text-ink-2">{formatDuration(tp?.videoPosition ?? 0)}</span> / {formatDuration(topic.videoSeconds)}
+                </span>
+                <span className="size-0.5 rounded-full bg-ink-4" aria-hidden="true" />
+                <span>Topic {topic.index} of {mod.topics.length}</span>
+                <span className="size-0.5 rounded-full bg-ink-4" aria-hidden="true" />
+                <span>Last watched {lastSeen}</span>
+              </div>
+              <span className="mt-5 inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-brand px-4 py-2.5 text-[13px] font-medium text-white transition-colors group-hover:bg-brand-hi">
+                Resume lesson <ArrowRight size={14} />
+              </span>
+            </div>
+          </Link>
+
+          {/* the number */}
+          <div className="plume flex flex-col justify-between overflow-hidden rounded-[var(--radius-xl)] border border-line bg-card p-5">
+            <div>
+              <p className="eyebrow">Your progress</p>
+              <p className="display nums mt-3 text-[52px] font-light leading-none text-ink">
+                {program.percent}<span className="text-[24px] text-ink-3">%</span>
+              </p>
+              {/* One notch per phase: the whole programme at a glance. */}
+              <div className="mt-5 flex gap-1" aria-hidden="true">
+                {PHASES.map((p) => {
+                  const r = byPhase.get(p.id)!;
+                  return (
+                    <span key={p.id} className="h-1.5 flex-1 overflow-hidden rounded-full bg-card-hi2" title={`Phase ${p.code} — ${r.percent}%`}>
+                      <span
+                        className={cx("block h-full rounded-full", r.percent === 100 ? "bg-ink-2" : "bg-brand")}
+                        style={{ width: `${r.percent}%` }}
+                      />
+                    </span>
+                  );
+                })}
+              </div>
+              <p className="eyebrow mt-2.5">Phase 01 → 09</p>
+            </div>
+
+            <dl className="mt-6 grid grid-cols-2 gap-x-5 gap-y-5 border-t border-line pt-5">
+              {STATS.map((s) => (
                 <div key={s.label}>
-                  <div className="flex items-baseline justify-between text-[13px]">
-                    <dt className="text-ink-2">{s.label}</dt>
-                    <dd className="nums text-ink-3">
-                      <span className="text-ink">{s.done}</span> / {s.total}
-                    </dd>
-                  </div>
-                  <Bar value={(s.done / s.total) * 100} tone={s.tone} className="mt-1.5 h-1" />
+                  <dt className="eyebrow">{s.label}</dt>
+                  <dd className="nums mt-2 text-[17px] text-ink">
+                    {s.done}
+                    <span className="text-[12px] text-ink-4"> / {s.total}</span>
+                  </dd>
+                  <Bar value={(s.done / s.total) * 100} tone="bg-ink-2" className="mt-2 h-1" />
                 </div>
               ))}
             </dl>
-          </section>
 
-          {/* ---------------------------------------------- streak */}
-          <section className="border-t border-line pt-7">
-            <SectionTitle small title="Streak" sub="Study a little every day to keep it alive" />
-            <div className="plume edge-lit flex items-center gap-4 overflow-hidden rounded-[var(--radius-lg)] bg-white/[0.03] p-4 ring-1 ring-white/10">
+            {/* The payoff for that number, so the panel ends on the reason to
+                keep going rather than on a statistic. */}
+            <Link
+              href="/certification"
+              className="group mt-6 flex items-center gap-3 border-t border-line pt-5"
+            >
+              <span className="min-w-0 flex-1">
+                <span className="block text-[13px] text-ink transition-colors group-hover:text-brand-ink">
+                  Certificate of completion
+                </span>
+                <span className="nums mt-0.5 block text-[12px] text-ink-3">
+                  Unlocks at 100% · {100 - program.percent}% to go
+                </span>
+              </span>
+              <ArrowRight size={14} className="shrink-0 text-ink-4 transition-colors group-hover:text-brand-ink" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* =================================================== 2 · the queue */}
+      {upNext.length > 0 && (
+        <section>
+          <Band
+            label="Up next"
+            action={
+              <Link href="/videos" className="shrink-0 text-[12px] text-ink-3 transition-colors hover:text-ink">
+                All lessons
+              </Link>
+            }
+          />
+          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {upNext.map((t, i) => {
+              const m = MODULE_BY_ID.get(t.moduleId)!;
+              const p = PHASE_BY_ID.get(t.phaseId)!;
+              return (
+                <li key={t.id}>
+                  <Link
+                    href={`/learn/${t.id}`}
+                    className="group block overflow-hidden rounded-[var(--radius-lg)] border border-line bg-card transition-[border-color,transform] duration-300 hover:-translate-y-0.5 hover:border-line-hi"
+                  >
+                    <Thumb topicId={t.id} seconds={t.videoSeconds} />
+                    <div className="p-4">
+                      <p className="eyebrow">
+                        {String(i + 1).padStart(2, "0")} · P{p.code} · {m.code}
+                      </p>
+                      <h3 className="mt-2 line-clamp-2 text-[14px] leading-snug text-ink transition-colors group-hover:text-brand-ink">
+                        {t.title}
+                      </h3>
+                      <p className="nums mt-1.5 truncate text-[12px] text-ink-3">
+                        {m.title} · {formatMinutes(t.videoSeconds)}
+                      </p>
+                    </div>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
+      {/* =============================================== 3 · where am I */}
+      <section>
+        <Band
+          label={`Phase ${currentPhase.code} · ${currentPhase.title}`}
+          action={
+            <Link href={`/curriculum?phase=${currentPhase.id}`} className="shrink-0 text-[12px] text-ink-3 transition-colors hover:text-ink">
+              Open phase
+            </Link>
+          }
+        />
+        <div className="overflow-hidden rounded-[var(--radius-lg)] border border-line bg-card">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-line px-5 py-4">
+            <p className="text-[13px] text-ink-3">
+              <span className="nums text-ink">{phaseRollup.completed}</span> of {phaseRollup.total} topics ·{" "}
+              {currentPhase.modules.length} modules
+            </p>
+            <p className="nums display text-[18px] text-ink">{phaseRollup.percent}%</p>
+          </div>
+          <ul className="divide-y divide-line-soft">
+            {currentPhase.modules.map((m) => {
+              const r = byModule.get(m.id)!;
+              const done = r.percent === 100;
+              const active = m.id === mod.id;
+              return (
+                <li key={m.id}>
+                  <Link
+                    href={`/curriculum?phase=${currentPhase.id}&module=${m.id}`}
+                    className={cx(
+                      "flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-card-hi",
+                      active && "bg-white/[0.02]",
+                    )}
+                  >
+                    <span
+                      className={cx(
+                        "flex size-[18px] shrink-0 items-center justify-center rounded-full",
+                        done ? "bg-ink text-black" : active ? "ring-2 ring-brand" : "ring-1 ring-line-hi",
+                      )}
+                    >
+                      {done && <Check size={10} strokeWidth={3.5} />}
+                    </span>
+                    <span className="mono hidden shrink-0 text-[11px] text-ink-4 sm:block">{m.code}</span>
+                    <span className={cx("min-w-0 flex-1 truncate text-[14px]", done ? "text-ink-2" : "text-ink")}>
+                      {m.title}
+                    </span>
+                    <Bar value={r.percent} tone={done ? "bg-ink-2" : "bg-brand"} className="hidden w-28 shrink-0 md:block" />
+                    <span className="nums w-12 shrink-0 text-right text-[12px] text-ink-3">
+                      {r.completed}/{r.total}
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </section>
+
+      {/* ================================================= 4 · momentum */}
+      <section>
+        <Band label="Momentum" />
+        <div className="grid gap-4 sm:grid-cols-2">
+          {/* streak */}
+          <div className="plume edge-lit overflow-hidden rounded-[var(--radius-lg)] border border-line bg-card p-5">
+            <div className="flex items-center gap-4">
               <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-brand/15 text-brand-ink">
-                <Flame size={24} fill="currentColor" strokeWidth={1.5} />
+                <Flame size={22} fill="currentColor" strokeWidth={1.5} />
               </span>
               <div>
-                <p className="display nums text-[30px] font-light leading-none text-ink">
+                <p className="display nums text-[28px] font-light leading-none text-ink">
                   {USER.streakDays}
                   <span className="ml-1.5 text-[14px] text-ink-3">day streak</span>
                 </p>
                 <p className="nums mt-1.5 text-[12px] text-ink-3">Best: {USER.bestStreakDays} days</p>
               </div>
             </div>
-            <ol className="mt-4 grid grid-cols-7 gap-1.5">
+            <ol className="mt-5 grid grid-cols-7 gap-1.5">
               {WEEK.map((w, i) => {
                 const today = i === TODAY;
                 const done = i < TODAY || (today && STUDIED_TODAY);
@@ -322,39 +401,92 @@ export function DashboardView() {
                     >
                       {done ? <Check size={14} strokeWidth={3} /> : <Flame size={13} />}
                     </span>
-                    <span className={cx("text-[10px]", today ? "font-medium text-ink" : "text-ink-4")}>{w.d}</span>
+                    <span className={cx("text-[10px]", today ? "text-ink" : "text-ink-4")}>{w.d}</span>
                   </li>
                 );
               })}
             </ol>
             {!STUDIED_TODAY && (
-              <p className="mt-3 text-[12px] text-ink-3">
+              <p className="mt-4 text-[12px] text-ink-3">
                 Finish one lesson today to make it <span className="nums text-ink">{USER.streakDays + 1} days</span>.
               </p>
             )}
-          </section>
+          </div>
 
-          {/* ---------------------------------------------- this week */}
-          <section className="border-t border-line pt-7">
-            <SectionTitle small title="This week" sub={`${Math.floor(weekTotal / 60)}h ${weekTotal % 60}m of learning`} />
-            <div className="flex h-24 items-end gap-2">
+          {/* this week */}
+          <div className="rounded-[var(--radius-lg)] border border-line bg-card p-5">
+            <div className="flex items-baseline justify-between gap-3">
+              <p className="eyebrow">This week</p>
+              <p className="nums text-[12px] text-ink-3">
+                <span className="text-ink">{Math.floor(weekTotal / 60)}h {weekTotal % 60}m</span> of learning
+              </p>
+            </div>
+            <div className="mt-5 flex h-[108px] items-end gap-2">
               {WEEK.map((w, i) => (
-                <div key={i} className="flex flex-1 flex-col items-center gap-1.5">
+                <div key={i} className="flex flex-1 flex-col items-center gap-2">
                   <span
-                    className={cx("w-full rounded-t-[4px]", i === TODAY ? "bg-brand/40" : "bg-card-hi2")}
-                    style={{ height: `${Math.max(4, (w.min / weekMax) * 72)}px` }}
+                    className={cx("w-full rounded-t-[4px]", i === TODAY ? "bg-brand/40" : w.min ? "bg-ink-2/70" : "bg-card-hi2")}
+                    style={{ height: `${Math.max(4, (w.min / weekMax) * 84)}px` }}
                     title={`${w.min} min`}
                   />
                   <span className={cx("text-[10px]", i === TODAY ? "text-ink" : "text-ink-4")}>{w.d}</span>
                 </div>
               ))}
             </div>
-          </section>
+          </div>
+        </div>
+      </section>
 
-          {/* ---------------------------------------------- community */}
-          <div className="border-t border-line pt-7">
-          <SectionTitle small title="Community" />
-          <section className="rounded-[var(--radius-lg)] bg-[#25D366]/[0.07] p-4 ring-1 ring-[#25D366]/20">
+      {/* =============================================== 5 · context */}
+      <section className="grid gap-x-10 gap-y-8 lg:grid-cols-[minmax(0,1fr)_300px]">
+        {/* recent activity */}
+        <div className="min-w-0">
+          <Band label="Recent activity" />
+          <ol className="space-y-1">
+            {RECENT_ACTIVITY.map((a) => {
+              const Icon = ACTIVITY_ICON[a.kind];
+              const topicId = a.href.startsWith("/learn/") ? a.href.slice("/learn/".length) : null;
+              return (
+                <li key={a.id}>
+                  <Link
+                    href={a.href}
+                    className="group flex items-center gap-3.5 rounded-[var(--radius-md)] p-2 transition-colors hover:bg-card"
+                  >
+                    {topicId ? (
+                      <span className="relative aspect-video w-[84px] shrink-0 overflow-hidden rounded-[var(--radius-sm)] bg-black ring-1 ring-line">
+                        {/* eslint-disable-next-line @next/next/no-img-element -- remote placeholder thumbnail */}
+                        <img
+                          src={lessonThumbnail(topicId)}
+                          alt=""
+                          aria-hidden="true"
+                          loading="lazy"
+                          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                      </span>
+                    ) : (
+                      <span className="flex aspect-video w-[84px] shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-card-hi text-ink-3 ring-1 ring-line">
+                        <Icon size={15} strokeWidth={1.75} />
+                      </span>
+                    )}
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[14px] text-ink transition-colors group-hover:text-brand-ink">
+                        {a.title}
+                      </span>
+                      <span className="mt-0.5 block truncate text-[12px] text-ink-3">
+                        {a.context} · {a.when}
+                      </span>
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+
+        {/* community */}
+        <div>
+          <Band label="Community" />
+          <div className="rounded-[var(--radius-lg)] bg-[#25D366]/[0.07] p-4 ring-1 ring-[#25D366]/20">
             <div className="flex items-center gap-3">
               <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#25D366]/15 text-[#25D366]">
                 <WhatsAppIcon size={18} />
@@ -374,46 +506,9 @@ export function DashboardView() {
             >
               Join on WhatsApp <ArrowUpRight size={14} />
             </a>
-          </section>
           </div>
-
-          {/* ---------------------------------------------- phases */}
-          <section className="border-t border-line pt-7">
-            <SectionTitle small title="Programme" sub="All nine phases" action={<Link href="/curriculum" className={linkCls}>Curriculum</Link>} />
-            <ul className="space-y-1">
-              {PHASES.map((p) => {
-                const r = byPhase.get(p.id)!;
-                const done = r.percent === 100;
-                const current = p.id === currentPhase.id;
-                return (
-                  <li key={p.id}>
-                    <Link
-                      href={`/curriculum?phase=${p.id}`}
-                      className={cx(
-                        "flex items-center gap-3 rounded-[var(--radius-sm)] px-2 py-1.5 transition-colors hover:bg-card",
-                        current && "bg-card",
-                      )}
-                    >
-                      <span
-                        className={cx(
-                          "flex size-4 shrink-0 items-center justify-center rounded-full",
-                          done ? "bg-ink text-black" : current ? "ring-2 ring-brand" : "ring-1 ring-line-hi",
-                        )}
-                      >
-                        {done && <Check size={10} strokeWidth={3.5} />}
-                      </span>
-                      <span className={cx("min-w-0 flex-1 truncate text-[13px]", current ? "text-ink" : done ? "text-ink-2" : "text-ink-3")}>
-                        {p.title}
-                      </span>
-                      <span className="nums text-[11px] text-ink-4">{r.percent}%</span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
-        </aside>
-      </div>
+        </div>
+      </section>
     </Page>
   );
 }
