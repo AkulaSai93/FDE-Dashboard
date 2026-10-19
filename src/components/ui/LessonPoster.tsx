@@ -1,5 +1,6 @@
 import { MODULE_BY_ID, PHASE_BY_ID, TOPIC_BY_ID, hash } from "@/data/curriculum";
 import { cx } from "@/lib/cx";
+import { lessonThumbnail } from "@/lib/media";
 
 /* ============================================================================
  * LESSON POSTER
@@ -90,5 +91,38 @@ export function LessonPoster({
         </span>
       )}
     </span>
+  );
+}
+
+/**
+ * A lesson's artwork: the real thumbnail where the pool has one about this
+ * subject, otherwise the generated poster. The poster always renders behind,
+ * so a thumbnail that 404s or is slow degrades to the plate rather than to a
+ * black rectangle.
+ */
+export function LessonArt({
+  topicId,
+  className,
+  compact,
+}: {
+  topicId: string;
+  className?: string;
+  compact?: boolean;
+}) {
+  const src = lessonThumbnail(topicId);
+  return (
+    <>
+      <LessonPoster topicId={topicId} compact={compact} />
+      {src && (
+        /* eslint-disable-next-line @next/next/no-img-element -- remote placeholder thumbnail */
+        <img
+          src={src}
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          className={cx("absolute inset-0 h-full w-full object-cover", className)}
+        />
+      )}
+    </>
   );
 }

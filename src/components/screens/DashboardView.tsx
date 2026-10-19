@@ -6,8 +6,7 @@ import {
   ArrowRight, ArrowUpRight, Check, Flame, Play,
 } from "lucide-react";
 import { Page } from "@/components/shell/AppShell";
-import { LessonPoster, WhatsAppIcon, cx } from "@/components/ui";
-import { lessonThumbnail } from "@/lib/media";
+import { LessonArt, WhatsAppIcon, cx } from "@/components/ui";
 import {
   ALL_TOPICS, MODULE_BY_ID, PHASES, PHASE_BY_ID, formatDuration, formatMinutes, hash,
 } from "@/data/curriculum";
@@ -97,17 +96,7 @@ function Thumb({
   const pct = seconds ? (watched / seconds) * 100 : 0;
   return (
     <span className={cx("relative block overflow-hidden bg-black ring-1 ring-line", aspect, className)}>
-      {/* Poster sits behind as the fallback, so a thumbnail that fails to
-          load degrades to the lesson's plate rather than a black rectangle. */}
-      <LessonPoster topicId={topicId} />
-      {/* eslint-disable-next-line @next/next/no-img-element -- remote placeholder thumbnail */}
-      <img
-        src={lessonThumbnail(topicId)}
-        alt=""
-        aria-hidden="true"
-        loading="lazy"
-        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-      />
+      <LessonArt topicId={topicId} className="transition-transform duration-500 group-hover:scale-[1.04]" />
       <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
       <span
         className={cx(
@@ -194,7 +183,7 @@ export function DashboardView() {
               full-width 16:9 pushed this card past 900px tall on a desktop. */}
           <Link
             href={`/learn/${topic.id}`}
-            className="group edge-lit grid overflow-hidden rounded-[var(--radius-xl)] border border-line bg-card transition-colors hover:border-line-hi sm:grid-cols-[minmax(0,300px)_minmax(0,1fr)]"
+            className="group edge-lit grid overflow-hidden rounded-[var(--radius-xl)] border border-line bg-card transition-colors hover:border-line-hi sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]"
           >
             <Thumb
               topicId={topic.id}
@@ -250,13 +239,13 @@ export function DashboardView() {
               <p className="eyebrow mt-2.5">Phase 01 → 09</p>
             </div>
 
-            <dl className="mt-5 grid grid-cols-2 gap-x-5 gap-y-4 border-t border-line pt-4">
+            <dl className="mt-5 grid grid-cols-2 gap-x-5 gap-y-4 border-t border-line pt-4 sm:grid-cols-4">
               {STATS.map((s) => (
                 <div key={s.label}>
                   <dt className="eyebrow">{s.label}</dt>
-                  <dd className="nums mt-1.5 text-[16px] text-ink">
+                  <dd className="nums mt-1.5 text-[15px] text-ink">
                     {s.done}
-                    <span className="text-[12px] text-ink-4"> / {s.total}</span>
+                    <span className="text-[11px] text-ink-4">/{s.total}</span>
                   </dd>
                   <Bar value={(s.done / s.total) * 100} tone="bg-ink-2" className="mt-2 h-1" />
                 </div>

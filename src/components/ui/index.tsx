@@ -14,7 +14,7 @@ import { Check, ChevronRight, Lock, Play, Circle, Loader2, X, ChevronDown } from
 
 export { cx } from "@/lib/cx";
 export { Doodles, PageHeader, type DoodleVariant } from "./Decor";
-export { LessonPoster } from "./LessonPoster";
+export { LessonArt, LessonPoster } from "./LessonPoster";
 import { cx } from "@/lib/cx";
 
 /* ------------------------------------------------------------------ Button */

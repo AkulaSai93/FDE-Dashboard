@@ -4,12 +4,9 @@ import * as React from "react";
 import Link from "next/link";
 import { Check, LayoutGrid, List, Play, Search, X } from "lucide-react";
 import { Page } from "@/components/shell/AppShell";
-import {
-  Button, Dropdown, EmptyState, FilterChips, ProgressBar, SectionHeading, StatTile,
-} from "@/components/ui";
+import { Button, Dropdown, EmptyState, FilterChips, LessonArt, ProgressBar, SectionHeading, StatTile } from "@/components/ui";
 import { ALL_TOPICS, MODULE_BY_ID, PHASES, PHASE_BY_ID, formatDuration } from "@/data/curriculum";
 import { useProgress } from "@/state/progress";
-import { lessonThumbnail } from "@/lib/media";
 import { cx } from "@/components/ui";
 
 type Filter = "all" | "completed" | "in-progress" | "not-started";
@@ -139,8 +136,8 @@ export function VideosView() {
               <li key={t.id}>
                 <Link href={`/learn/${t.id}`} className="group flex items-center gap-4 px-3 py-2.5 transition-colors hover:bg-card sm:px-4">
                   <span className="relative aspect-video w-28 shrink-0 overflow-hidden rounded-[var(--radius-sm)] bg-card sm:w-36">
-                    {/* eslint-disable-next-line @next/next/no-img-element -- remote placeholder thumbnails */}
-                    <img src={lessonThumbnail(t.id)} alt="" loading="lazy" className="h-full w-full object-cover" />
+                    { }
+                    <LessonArt topicId={t.id} compact />
                     <span className="nums absolute bottom-1 right-1 rounded bg-black/80 px-1 text-[10px] text-white">{formatDuration(t.videoSeconds)}</span>
                     {s !== "completed" && pos > 0 && (
                       <span className="absolute inset-x-0 bottom-0 h-0.5 bg-white/25">
@@ -183,13 +180,7 @@ export function VideosView() {
                 <Link href={`/learn/${t.id}`} className="group block">
                   {/* thumbnail */}
                   <div className="relative aspect-video overflow-hidden rounded-[var(--radius-lg)] bg-card ring-1 ring-line transition-[box-shadow,transform] duration-300 group-hover:-translate-y-0.5 group-hover:ring-line-hi">
-                    {/* eslint-disable-next-line @next/next/no-img-element -- remote placeholder thumbnails */}
-                    <img
-                      src={lessonThumbnail(t.id)}
-                      alt=""
-                      loading="lazy"
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
+                    <LessonArt topicId={t.id} className="transition-transform duration-500 group-hover:scale-105" />
                     <span className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                     <span className="absolute left-2.5 top-2.5 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-white backdrop-blur-sm">
                       P{p.code} · {m.code}
