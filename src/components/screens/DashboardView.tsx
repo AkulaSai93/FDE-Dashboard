@@ -6,7 +6,7 @@ import {
   ArrowRight, ArrowUpRight, Check, Flame, Play,
 } from "lucide-react";
 import { Page } from "@/components/shell/AppShell";
-import { LessonArt, WhatsAppIcon, cx } from "@/components/ui";
+import { LessonArt, ProgressRing, WhatsAppIcon, cx } from "@/components/ui";
 import {
   ALL_TOPICS, MODULE_BY_ID, PHASES, PHASE_BY_ID, formatDuration, formatMinutes, hash,
 } from "@/data/curriculum";
@@ -125,7 +125,19 @@ export function DashboardView() {
   const { program, byModule, modulesCompleted, currentPhase, byPhase, totals } = useRollups();
   const { topics, lastActiveMinutesAgo } = useProgress();
   const topic = useCurrentTopic();
-  const upNext = useUpNext(4).filter((t) => t.id !== topic.id).slice(0, 3);
+  const queue = useUpNext(60);
+  // One per module, so the queue doesn't just restate the hero's module.
+  const upNext = React.useMemo(() => {
+    const seen = new Set([topic.moduleId]);
+    const out: typeof queue = [];
+    for (const t of queue) {
+      if (t.id === topic.id || seen.has(t.moduleId)) continue;
+      seen.add(t.moduleId);
+      out.push(t);
+      if (out.length === 4) break;
+    }
+    return out;
+  }, [queue, topic]);
 
   const mod = MODULE_BY_ID.get(topic.moduleId)!;
   const phase = PHASE_BY_ID.get(topic.phaseId)!;
@@ -135,6 +147,8 @@ export function DashboardView() {
   const quizTopics = ALL_TOPICS.filter((t) => t.assignment);
   const quizzesDone = quizTopics.filter((t) => topics[t.id]?.assignment === "completed").length;
   const phasesDone = PHASES.filter((p) => byPhase.get(p.id)!.percent === 100).length;
+  const videoPct = ((tp?.videoPosition ?? 0) / topic.videoSeconds) * 100;
+  const modRollup = byModule.get(mod.id)!;
   const lastSeen = lastActiveMinutesAgo === 0 ? "just now" : `${lastActiveMinutesAgo} min ago`;
   const weekMax = Math.max(...WEEK.map((w) => w.min), 1);
   const weekTotal = WEEK.reduce((a, w) => a + w.min, 0);
@@ -162,112 +176,120 @@ export function DashboardView() {
         </p>
       </header>
 
-      {/* ================================================= 1 · do this now */}
+      {/* ================================================= 1 · do this now
+          The original card: a 240px thumbnail on the left with the play
+          affordance over it, the copy on the right. Progress lives in its own
+          section below — these are two questions, not one. */}
       <section>
-        <Band
-          label="Continue learning"
-          action={
-            <Link href={`/curriculum?phase=${phase.id}&module=${mod.id}`} className="shrink-0 text-[12px] text-ink-3 transition-colors hover:text-ink">
-              View module
-            </Link>
-          }
-        />
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
-          {/* the lesson */}
-          {/* Thumbnail sits beside the copy rather than above it: stacked, a
-              full-width 16:9 pushed this card past 900px tall on a desktop. */}
-          <Link
-            href={`/learn/${topic.id}`}
-            className="group edge-lit grid overflow-hidden rounded-[var(--radius-xl)] border border-line bg-card transition-colors hover:border-line-hi sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]"
-          >
-            <Thumb
-              topicId={topic.id}
-              seconds={topic.videoSeconds}
-              watched={tp?.videoPosition ?? 0}
-              aspect="aspect-video sm:aspect-auto"
-              className="min-w-0 sm:h-full"
-              big
-            />
-            <div className="flex flex-col justify-center gap-4 p-5">
-              <div>
-                <p className="eyebrow">
-                  Phase {phase.code} · {mod.code} {mod.title}
-                </p>
-                <h3 className="display mt-2 text-[22px] leading-tight text-ink sm:text-[26px]">{topic.title}</h3>
-                <div className="mt-3 flex flex-wrap items-center gap-x-3.5 gap-y-1.5 text-[12px] text-ink-3">
-                  <span className="nums">
-                    <span className="text-ink-2">{formatDuration(tp?.videoPosition ?? 0)}</span> / {formatDuration(topic.videoSeconds)}
-                  </span>
-                  <span className="size-0.5 rounded-full bg-ink-4" aria-hidden="true" />
-                  <span>Topic {topic.index} of {mod.topics.length}</span>
-                  <span className="size-0.5 rounded-full bg-ink-4" aria-hidden="true" />
-                  <span>{lastSeen}</span>
-                </div>
-              </div>
-              <span className="inline-flex w-fit items-center gap-2 rounded-[var(--radius-md)] bg-brand px-4 py-2.5 text-[13px] font-medium text-white transition-colors group-hover:bg-brand-hi">
-                Resume lesson <ArrowRight size={14} />
-              </span>
-            </div>
-          </Link>
-
-          {/* the number */}
-          <div className="plume flex flex-col overflow-hidden rounded-[var(--radius-xl)] border border-line bg-card p-5">
-            <div>
-              <p className="eyebrow">Your progress</p>
-              <p className="display nums mt-2 text-[44px] font-light leading-none text-ink">
-                {program.percent}<span className="text-[22px] text-ink-3">%</span>
-              </p>
-              {/* One notch per phase: the whole programme at a glance. */}
-              <div className="mt-4 flex gap-1" aria-hidden="true">
-                {PHASES.map((p) => {
-                  const r = byPhase.get(p.id)!;
-                  return (
-                    <span key={p.id} className="h-1.5 flex-1 overflow-hidden rounded-full bg-card-hi2" title={`Phase ${p.code} — ${r.percent}%`}>
-                      <span
-                        className={cx("block h-full rounded-full", r.percent === 100 ? "bg-ink-2" : "bg-brand")}
-                        style={{ width: `${r.percent}%` }}
-                      />
-                    </span>
-                  );
-                })}
-              </div>
-              <p className="eyebrow mt-2.5">Phase 01 → 09</p>
-            </div>
-
-            <dl className="mt-5 grid grid-cols-2 gap-x-5 gap-y-4 border-t border-line pt-4 sm:grid-cols-4">
-              {STATS.map((s) => (
-                <div key={s.label}>
-                  <dt className="eyebrow">{s.label}</dt>
-                  <dd className="nums mt-1.5 text-[15px] text-ink">
-                    {s.done}
-                    <span className="text-[11px] text-ink-4">/{s.total}</span>
-                  </dd>
-                  <Bar value={(s.done / s.total) * 100} tone="bg-ink-2" className="mt-2 h-1" />
-                </div>
-              ))}
-            </dl>
-
-            {/* The payoff for that number, so the panel ends on the reason to
-                keep going rather than on a statistic. */}
+        <Band label="Continue learning" />
+        <div className="overflow-hidden rounded-[var(--radius-xl)] border border-line bg-card">
+          <div className="grid sm:grid-cols-[240px_minmax(0,1fr)]">
             <Link
-              href="/certification"
-              className="group mt-auto flex items-center gap-3 border-t border-line pt-4"
+              href={`/learn/${topic.id}`}
+              className="group relative flex aspect-video items-center justify-center overflow-hidden bg-black sm:aspect-auto"
+              aria-label={`Resume ${topic.title}`}
             >
-              <span className="min-w-0 flex-1">
-                <span className="block text-[13px] text-ink transition-colors group-hover:text-brand-ink">
-                  Certificate of completion
-                </span>
-                <span className="nums mt-0.5 block text-[12px] text-ink-3">
-                  Unlocks at 100% · {100 - program.percent}% to go
-                </span>
+              <LessonArt
+                topicId={topic.id}
+                className="opacity-80 transition-transform duration-500 group-hover:scale-105"
+              />
+              <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/10" />
+              <span className="relative flex size-12 items-center justify-center rounded-full bg-brand text-white shadow-[0_0_30px_rgba(230,22,31,.5)] transition-transform group-hover:scale-105">
+                <Play size={18} fill="currentColor" strokeWidth={0} className="ml-0.5" />
               </span>
-              <ArrowRight size={14} className="shrink-0 text-ink-4 transition-colors group-hover:text-brand-ink" />
+              <span className="nums absolute bottom-2.5 right-3 rounded bg-black/70 px-1.5 py-0.5 text-[11px] text-ink-2">
+                {formatDuration(tp?.videoPosition ?? 0)} / {formatDuration(topic.videoSeconds)}
+              </span>
+              <span className="absolute inset-x-0 bottom-0 h-1 bg-white/10">
+                <span className="block h-full bg-brand" style={{ width: `${videoPct}%` }} />
+              </span>
             </Link>
+
+            <div className="flex flex-col justify-between gap-5 p-5 sm:p-6">
+              <div>
+                <p className="eyebrow">Video lesson · {formatMinutes(topic.videoSeconds)}</p>
+                <h3 className="display mt-2 text-[22px] leading-tight text-ink">{topic.title}</h3>
+                <p className="mt-1.5 text-[13px] text-ink-3">
+                  {mod.code} {mod.title} · Topic {topic.index} of {mod.topics.length} · Last watched {lastSeen}
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <Link
+                  href={`/learn/${topic.id}`}
+                  className="inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-brand px-4 py-2.5 text-[13px] font-medium text-white transition-colors hover:bg-brand-hi"
+                >
+                  Resume lesson <ArrowRight size={14} />
+                </Link>
+                <Link
+                  href={`/curriculum?phase=${phase.id}&module=${mod.id}`}
+                  className="text-[13px] text-ink-3 transition-colors hover:text-ink"
+                >
+                  View module · {modRollup.percent}% done
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* =================================================== 2 · the queue */}
+      {/* ================================================ 1b · how far am I */}
+      <section>
+        <Band
+          label="Your progress"
+          action={
+            <Link href="/certification" className="shrink-0 text-[12px] text-ink-3 transition-colors hover:text-ink">
+              Certificate
+            </Link>
+          }
+        />
+        <div className="flex flex-wrap items-center gap-x-10 gap-y-7 rounded-[var(--radius-xl)] border border-line bg-card p-6 lg:p-7">
+          <ProgressRing value={program.percent} size={124} stroke={5} sublabel="Complete" />
+
+          <div className="min-w-0 flex-1 basis-[280px]">
+            <div className="flex gap-1.5" aria-hidden="true">
+              {PHASES.map((p) => {
+                const r = byPhase.get(p.id)!;
+                return (
+                  <span
+                    key={p.id}
+                    className="h-2 flex-1 overflow-hidden rounded-full bg-card-hi2"
+                    title={`Phase ${p.code} — ${r.percent}%`}
+                  >
+                    <span
+                      className={cx("block h-full rounded-full", r.percent === 100 ? "bg-ink-2" : "bg-brand")}
+                      style={{ width: `${r.percent}%` }}
+                    />
+                  </span>
+                );
+              })}
+            </div>
+            <div className="mt-2.5 flex items-baseline justify-between">
+              <span className="eyebrow">Phase 01 → 09</span>
+              <span className="nums text-[12px] text-ink-3">
+                <span className="text-ink-2">{phasesDone}</span> of {totals.phases} done
+              </span>
+            </div>
+
+            <dl className="mt-6 grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-4">
+              {STATS.map((st) => (
+                <div key={st.label}>
+                  <dt className="eyebrow">{st.label}</dt>
+                  <dd className="nums mt-2 text-[17px] text-ink">
+                    {st.done}
+                    <span className="text-[12px] text-ink-4">/{st.total}</span>
+                  </dd>
+                  <Bar value={(st.done / st.total) * 100} tone="bg-ink-2" className="mt-2 h-1" />
+                </div>
+              ))}
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      {/* =================================================== 2 · the queue
+          One lesson per module: the raw "next four topics" were all from the
+          module already showing in the hero, so the queue repeated it three
+          times. Cards are borderless — the artwork is the card. */}
       {upNext.length > 0 && (
         <section>
           <Band
@@ -278,28 +300,27 @@ export function DashboardView() {
               </Link>
             }
           />
-          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {upNext.map((t, i) => {
+          <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {upNext.map((t) => {
               const m = MODULE_BY_ID.get(t.moduleId)!;
               const p = PHASE_BY_ID.get(t.phaseId)!;
               return (
                 <li key={t.id}>
-                  <Link
-                    href={`/learn/${t.id}`}
-                    className="group block overflow-hidden rounded-[var(--radius-lg)] border border-line bg-card transition-[border-color,transform] duration-300 hover:-translate-y-0.5 hover:border-line-hi"
-                  >
-                    <Thumb topicId={t.id} seconds={t.videoSeconds} />
-                    <div className="p-4">
-                      <p className="eyebrow">
-                        {String(i + 1).padStart(2, "0")} · P{p.code} · {m.code}
-                      </p>
-                      <h3 className="mt-2 line-clamp-2 text-[14px] leading-snug text-ink transition-colors group-hover:text-brand-ink">
-                        {t.title}
-                      </h3>
-                      <p className="nums mt-1.5 truncate text-[12px] text-ink-3">
-                        {m.title} · {formatMinutes(t.videoSeconds)}
-                      </p>
-                    </div>
+                  <Link href={`/learn/${t.id}`} className="group block">
+                    <Thumb
+                      topicId={t.id}
+                      seconds={t.videoSeconds}
+                      className="rounded-[var(--radius-lg)]"
+                    />
+                    <p className="eyebrow mt-3">
+                      P{p.code} · {m.code}
+                    </p>
+                    <h3 className="mt-1.5 line-clamp-2 text-[14px] leading-snug text-ink transition-colors group-hover:text-brand-ink">
+                      {t.title}
+                    </h3>
+                    <p className="nums mt-1 truncate text-[12px] text-ink-3">
+                      {m.title} · {formatMinutes(t.videoSeconds)}
+                    </p>
                   </Link>
                 </li>
               );
@@ -318,8 +339,8 @@ export function DashboardView() {
             </Link>
           }
         />
-        <div className="overflow-hidden rounded-[var(--radius-lg)] border border-line bg-card">
-          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-line px-5 py-4">
+        <div className="overflow-hidden">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-line pb-4">
             <p className="text-[13px] text-ink-3">
               <span className="nums text-ink">{phaseRollup.completed}</span> of {phaseRollup.total} topics ·{" "}
               {currentPhase.modules.length} modules
@@ -336,8 +357,8 @@ export function DashboardView() {
                   <Link
                     href={`/curriculum?phase=${currentPhase.id}&module=${m.id}`}
                     className={cx(
-                      "flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-card-hi",
-                      active && "bg-white/[0.02]",
+                      "-mx-3 flex items-center gap-4 rounded-[var(--radius-md)] px-3 py-3.5 transition-colors hover:bg-card",
+                      active && "bg-card",
                     )}
                   >
                     <span
