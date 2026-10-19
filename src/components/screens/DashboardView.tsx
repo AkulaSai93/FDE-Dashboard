@@ -149,22 +149,17 @@ export function DashboardView() {
   return (
     <Page className="space-y-10">
       {/* =============================================== 0 · who and where */}
-      <header className="flex flex-wrap items-end justify-between gap-4">
-        <div className="min-w-0">
-          <h1 className="display text-[30px] font-light leading-[1.05] text-ink sm:text-[36px]">
-            {greeting}, <span className="text-brand-ink">{USER.firstName}</span>
-          </h1>
-          <p className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[13px] text-ink-3">
-            <span className="nums text-ink-2">{program.percent}% complete</span>
-            <span className="size-0.5 rounded-full bg-ink-4" aria-hidden="true" />
-            <span>Phase {currentPhase.code} · {currentPhase.title}</span>
-            <span className="size-0.5 rounded-full bg-ink-4" aria-hidden="true" />
-            <span className="nums">{program.total - program.completed} topics to go</span>
-          </p>
-        </div>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.06] px-3 py-1.5 text-[12px] font-medium text-ink-2 ring-1 ring-inset ring-white/10">
-          <Flame size={13} /> {USER.streakDays}-day streak
-        </span>
+      <header className="min-w-0">
+        <h1 className="display text-[30px] font-light leading-[1.05] text-ink sm:text-[36px]">
+          {greeting}, <span className="text-brand-ink">{USER.firstName}</span>
+        </h1>
+        <p className="mt-2 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[13px] text-ink-3">
+          <span className="nums text-ink-2">{program.percent}% complete</span>
+          <span className="size-0.5 rounded-full bg-ink-4" aria-hidden="true" />
+          <span>Phase {currentPhase.code} · {currentPhase.title}</span>
+          <span className="size-0.5 rounded-full bg-ink-4" aria-hidden="true" />
+          <span className="nums">{program.total - program.completed} topics to go</span>
+        </p>
       </header>
 
       {/* ================================================= 1 · do this now */}
