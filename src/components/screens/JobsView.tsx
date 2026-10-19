@@ -1,8 +1,8 @@
 "use client";
 
-import { ArrowRight, Briefcase, Building2, Lock, MapPin, Sparkles } from "lucide-react";
+import { ArrowRight, Briefcase, Building2, Check, Lock, MapPin } from "lucide-react";
 import { Page } from "@/components/shell/AppShell";
-import { Badge, ButtonLink, Card, CardHeader, ProgressBar, cx } from "@/components/ui";
+import { Badge, ButtonLink, Card, CardHeader, Doodles, ProgressBar, cx } from "@/components/ui";
 import { PHASES, TOTALS } from "@/data/curriculum";
 import { useRollups } from "@/state/progress";
 
@@ -29,6 +29,7 @@ export function JobsView() {
       {/* ------------------------------------------------------ locked hero */}
       <Card className="brand-wash relative overflow-hidden border-line-hi">
         <div className="grid-field pointer-events-none absolute inset-0 opacity-50" />
+        <Doodles variant="career" className="top-4" />
         <div className="relative px-6 py-10 sm:px-10 sm:py-14">
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-line-hi bg-card px-3 py-1.5">
@@ -36,7 +37,7 @@ export function JobsView() {
               <span className="mono text-[10px] uppercase tracking-[0.14em] text-ink-3">Locked</span>
             </span>
 
-            <h1 className="display mt-6 text-[30px] leading-tight text-ink sm:text-[40px]">
+            <h1 className="display relative mt-6 text-[30px] leading-tight text-ink sm:text-[40px]">
               Your next opportunity starts here
             </h1>
             <p className="mt-4 text-[15px] leading-relaxed text-ink-2">
@@ -110,7 +111,9 @@ export function JobsView() {
             <ul className="divide-y divide-[#1a1a1a] border-t border-line">
               {UNLOCKS.map((u) => (
                 <li key={u.title} className="flex gap-3.5 px-5 py-4">
-                  <Sparkles size={14} className="mt-0.5 shrink-0 text-brand-ink" />
+                  <span className="mt-0.5 flex size-[18px] shrink-0 items-center justify-center rounded-full bg-done/15 text-done">
+                    <Check size={11} strokeWidth={3.5} />
+                  </span>
                   <span className="min-w-0">
                     <span className="block text-[13px] text-ink">{u.title}</span>
                     <span className="mt-1 block text-[12.5px] leading-relaxed text-ink-3">{u.body}</span>

@@ -8,10 +8,13 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { Doodles, type DoodleVariant } from "./Decor";
 import { createPortal } from "react-dom";
 import { Check, ChevronRight, Lock, Play, Circle, Loader2, X, ChevronDown } from "lucide-react";
 
 export { cx } from "@/lib/cx";
+export { Doodles, PageHeader, type DoodleVariant } from "./Decor";
+export { Avatar, initialsOf } from "./Avatar";
 import { cx } from "@/lib/cx";
 
 /* ------------------------------------------------------------------ Button */
@@ -119,21 +122,27 @@ export function SectionHeading({
   description,
   action,
   className,
+  decor,
 }: {
   eyebrow?: string;
   title: React.ReactNode;
   description?: React.ReactNode;
   action?: React.ReactNode;
   className?: string;
+  /** Faint line-art motif behind the heading, matched to the page's subject. */
+  decor?: DoodleVariant;
 }) {
   return (
-    <div className={cx("flex flex-wrap items-end justify-between gap-4", className)}>
-      <div className="min-w-0 max-w-2xl">
-        {eyebrow && <div className="eyebrow mb-2.5">{eyebrow}</div>}
-        <h1 className="display text-[30px] font-light leading-[1.05] text-ink sm:text-[38px]">{title}</h1>
-        {description && <p className="mt-2.5 text-[14px] leading-relaxed text-ink-3">{description}</p>}
+    <div className={cx("relative isolate", decor && "overflow-hidden")}>
+      {decor && <Doodles variant={decor} />}
+      <div className={cx("relative flex flex-wrap items-end justify-between gap-4", className)}>
+        <div className="min-w-0 max-w-2xl">
+          {eyebrow && <div className="eyebrow mb-2.5">{eyebrow}</div>}
+          <h1 className="display text-[30px] font-light leading-[1.05] text-ink sm:text-[38px]">{title}</h1>
+          {description && <p className="mt-2.5 text-[14px] leading-relaxed text-ink-3">{description}</p>}
+        </div>
+        {action}
       </div>
-      {action}
     </div>
   );
 }

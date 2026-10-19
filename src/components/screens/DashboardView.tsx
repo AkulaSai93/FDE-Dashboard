@@ -130,7 +130,7 @@ export function DashboardView() {
           {/* ---------------------------------------------- continue */}
           <div>
           <SectionTitle title="Continue learning" sub="Pick up exactly where you left off" />
-          <section className="overflow-hidden rounded-[var(--radius-xl)] border border-line bg-card">
+          <section className="edge-lit overflow-hidden rounded-[var(--radius-xl)] border border-line bg-card">
             <div className="grid sm:grid-cols-[240px_minmax(0,1fr)]">
               <Link
                 href={`/learn/${topic.id}`}
@@ -140,7 +140,7 @@ export function DashboardView() {
                 {/* eslint-disable-next-line @next/next/no-img-element -- remote placeholder thumbnail */}
                 <img src={lessonThumbnail(topic.id)} alt="" aria-hidden="true" className="absolute inset-0 h-full w-full object-cover opacity-80 transition-transform duration-500 group-hover:scale-105" />
                 <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/10" />
-                <span className="relative flex size-12 items-center justify-center rounded-full bg-brand text-white shadow-[0_0_30px_rgba(230,22,31,.5)] transition-transform group-hover:scale-105">
+                <span className="halo relative flex size-12 items-center justify-center rounded-full bg-brand text-white shadow-[0_0_30px_rgba(230,22,31,.5)] transition-transform group-hover:scale-105">
                   <Play size={18} fill="currentColor" strokeWidth={0} className="ml-0.5" />
                 </span>
                 <span className="nums absolute bottom-2.5 right-3 rounded bg-black/70 px-1.5 py-0.5 text-[11px] text-ink-2">
@@ -273,7 +273,7 @@ export function DashboardView() {
           {/* ---------------------------------------------- streak */}
           <section className="border-t border-line pt-7">
             <SectionTitle small title="Streak" sub="Study a little every day to keep it alive" />
-            <div className="flex items-center gap-4 rounded-[var(--radius-lg)] bg-quiz/[0.07] p-4 ring-1 ring-quiz/20">
+            <div className="plume edge-lit flex items-center gap-4 overflow-hidden rounded-[var(--radius-lg)] bg-quiz/[0.07] p-4 ring-1 ring-quiz/20">
               <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-quiz/15 text-quiz">
                 <Flame size={24} fill="currentColor" strokeWidth={1.5} />
               </span>

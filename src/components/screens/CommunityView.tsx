@@ -4,7 +4,7 @@ import {
   ArrowUpRight, Briefcase, Check, HelpCircle, Megaphone, Sparkles, Users,
 } from "lucide-react";
 import { Page } from "@/components/shell/AppShell";
-import { Card, CardHeader, WhatsAppIcon } from "@/components/ui";
+import { Card, CardHeader, Doodles, WhatsAppIcon } from "@/components/ui";
 import { COMMUNITY_STATS, WHATSAPP_COMMUNITY_URL } from "@/data/activity";
 
 const PERKS = [
@@ -46,10 +46,11 @@ export function CommunityView() {
       {/* ------------------------------------------------------------- hero */}
       <Card className="brand-wash relative overflow-hidden border-line-hi">
         <div className="grid-field pointer-events-none absolute inset-0 opacity-50" />
+        <Doodles variant="people" className="top-2" />
         <div className="relative flex flex-col gap-8 p-6 lg:flex-row lg:items-end lg:justify-between lg:p-8">
           <div className="max-w-xl">
             <div className="eyebrow text-brand-ink">Community</div>
-            <h1 className="display mt-3.5 text-[28px] leading-tight text-ink sm:text-[34px]">Join the FDE WhatsApp community</h1>
+            <h1 className="display relative mt-3.5 text-[28px] leading-tight text-ink sm:text-[34px]">Join the FDE WhatsApp community</h1>
             <p className="mt-3 text-[14px] leading-relaxed text-ink-2">
               Connect with learners working through the same AI deployment journey. Ask questions, share what you build,
               and get unstuck faster than you would alone.
