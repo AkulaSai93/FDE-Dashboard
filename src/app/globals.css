@@ -35,13 +35,12 @@
   --color-brand-ink: #ff6b71;   /* red text on dark, legible */
   --color-brand-dim: #4a0a0e;   /* red-tinted surface */
 
-  /* ---- Content types — one hue per kind of learning, used for icons,
-          dots and thin bars (never large fills) so red stays the brand ---- */
-  --color-video: #5b8cff;       /* lessons / videos */
-  --color-notes: #2dd4bf;       /* notes / reading */
-  --color-quiz: #f5a524;        /* assignments / quizzes */
-  --color-project: #a78bfa;     /* projects */
-  --color-done: #22c55e;        /* completed */
+  /* ---- Accent ------------------------------------------------------------
+     One accent, deliberately. An earlier revision hue-coded each content type
+     (blue video, teal notes, amber quiz, violet project, green done); across a
+     dashboard that reads as decoration rather than information. The product
+     now says everything with two values: white for finished, FDE red for the
+     thing in flight. Colour that matters comes from lesson thumbnails. ---- */
 
   /* ---- Functional (used sparingly, desaturated to stay in-system) ---- */
   --color-ok: #3fb950;

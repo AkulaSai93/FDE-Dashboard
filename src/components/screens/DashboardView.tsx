@@ -31,11 +31,11 @@ function useGreeting() {
 
 /** One hue per kind of learning — see the content-type tokens in globals.css. */
 const KIND = {
-  video: { icon: Play, text: "text-video", bg: "bg-video/12", bar: "bg-video" },
-  notes: { icon: FileText, text: "text-notes", bg: "bg-notes/12", bar: "bg-notes" },
-  quiz: { icon: ClipboardList, text: "text-quiz", bg: "bg-quiz/12", bar: "bg-quiz" },
-  project: { icon: Boxes, text: "text-project", bg: "bg-project/12", bar: "bg-project" },
-  done: { icon: Check, text: "text-done", bg: "bg-done/12", bar: "bg-done" },
+  video: { icon: Play, text: "text-ink-2", bg: "bg-white/[0.06]", bar: "bg-ink-2" },
+  notes: { icon: FileText, text: "text-ink-2", bg: "bg-white/[0.06]", bar: "bg-ink-2" },
+  quiz: { icon: ClipboardList, text: "text-ink-2", bg: "bg-white/[0.06]", bar: "bg-ink-2" },
+  project: { icon: Boxes, text: "text-ink-2", bg: "bg-white/[0.06]", bar: "bg-ink-2" },
+  done: { icon: Check, text: "text-ink", bg: "bg-white/[0.08]", bar: "bg-ink-2" },
 } as const;
 
 const ACTIVITY_KIND = {
@@ -122,7 +122,7 @@ export function DashboardView() {
                 <span className="nums text-ink-2">{program.percent}%</span> of the way there.
               </p>
             </div>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-quiz/12 px-3 py-1.5 text-[12px] font-medium text-quiz">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/[0.06] px-3 py-1.5 text-[12px] font-medium text-ink-2 ring-1 ring-inset ring-white/10">
               <Flame size={13} /> {USER.streakDays}-day streak
             </span>
           </header>
@@ -152,7 +152,7 @@ export function DashboardView() {
               </Link>
               <div className="flex flex-col justify-between gap-5 p-5 sm:p-6">
                 <div>
-                  <p className="text-[12px] font-medium text-video">Video lesson · {formatMinutes(topic.videoSeconds)}</p>
+                  <p className="eyebrow">Video lesson · {formatMinutes(topic.videoSeconds)}</p>
                   <h3 className="display mt-1.5 text-[22px] leading-tight text-ink">{topic.title}</h3>
                   <p className="mt-1.5 text-[13px] text-ink-3">
                     {mod.code} {mod.title} · Topic {topic.index} of {mod.topics.length} · Last watched {lastSeen}
@@ -200,13 +200,13 @@ export function DashboardView() {
                       <span className="text-[14px] text-ink">{m.title}</span>
                     </span>
                     <span className="col-span-2 row-start-2 flex items-center gap-3 sm:col-span-1 sm:row-start-auto">
-                      <Bar value={r.percent} tone={done ? "bg-done" : "bg-brand"} className="flex-1" />
+                      <Bar value={r.percent} tone={done ? "bg-ink-2" : "bg-brand"} className="flex-1" />
                       <span className="nums w-14 text-right text-[12px] text-ink-3">{r.completed}/{r.total}</span>
                     </span>
                     <span
                       className={cx(
                         "justify-self-end rounded-full px-2.5 py-1 text-[11px] font-medium",
-                        done ? "bg-done/12 text-done" : active ? "bg-brand/12 text-brand-ink" : "bg-card-hi text-ink-3",
+                        done ? "bg-white/[0.07] text-ink-2" : active ? "bg-brand/12 text-brand-ink" : "bg-card-hi text-ink-3",
                       )}
                     >
                       {done ? "Completed" : active ? "In progress" : "Not started"}
@@ -220,18 +220,41 @@ export function DashboardView() {
           {/* ---------------------------------------------- activity */}
           <section>
             <SectionTitle title="Recent activity" sub="Your last few sessions on the platform" />
-            <ol className="relative space-y-5 border-l border-line pl-6">
+            {/* Watch-history rows: the lesson's own thumbnail carries the
+                colour, so these need no icon chips or coloured markers. */}
+            <ol className="space-y-1">
               {RECENT_ACTIVITY.map((a) => {
                 const k = ACTIVITY_KIND[a.kind];
+                const topicId = a.href.startsWith("/learn/") ? a.href.slice("/learn/".length) : null;
                 return (
-                  <li key={a.id} className="relative">
-                    <span className={cx("absolute -left-[33px] top-0.5 flex size-[18px] items-center justify-center rounded-full ring-4 ring-panel", k.bg, k.text)}>
-                      <k.icon size={10} strokeWidth={2.5} />
-                    </span>
-                    <Link href={a.href} className="group block">
-                      <span className="text-[14px] text-ink transition-colors group-hover:text-brand-ink">{a.title}</span>
-                      <span className="mt-0.5 block text-[12px] text-ink-3">
-                        {a.context} · {a.when}
+                  <li key={a.id}>
+                    <Link
+                      href={a.href}
+                      className="group flex items-center gap-3.5 rounded-[var(--radius-md)] p-2 transition-colors hover:bg-card"
+                    >
+                      {topicId ? (
+                        <span className="relative aspect-video w-[76px] shrink-0 overflow-hidden rounded-[var(--radius-sm)] bg-card ring-1 ring-line">
+                          {/* eslint-disable-next-line @next/next/no-img-element -- remote placeholder thumbnail */}
+                          <img
+                            src={lessonThumbnail(topicId)}
+                            alt=""
+                            aria-hidden="true"
+                            loading="lazy"
+                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          />
+                        </span>
+                      ) : (
+                        <span className="flex aspect-video w-[76px] shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-card text-ink-3 ring-1 ring-line">
+                          <k.icon size={15} strokeWidth={1.75} />
+                        </span>
+                      )}
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-[14px] text-ink transition-colors group-hover:text-brand-ink">
+                          {a.title}
+                        </span>
+                        <span className="mt-0.5 block truncate text-[12px] text-ink-3">
+                          {a.context} · {a.when}
+                        </span>
                       </span>
                     </Link>
                   </li>
@@ -252,10 +275,10 @@ export function DashboardView() {
             <Bar value={program.percent} className="mt-3 h-2" />
             <dl className="mt-5 space-y-3.5">
               {[
-                { label: "Topics", done: program.completed, total: program.total, tone: "bg-video" },
-                { label: "Modules", done: modulesCompleted, total: totals.modules, tone: "bg-done" },
-                { label: "Assignments", done: quizzesDone, total: quizTopics.length, tone: "bg-quiz" },
-                { label: "Phases", done: PHASES.filter((p) => byPhase.get(p.id)!.percent === 100).length, total: totals.phases, tone: "bg-project" },
+                { label: "Topics", done: program.completed, total: program.total, tone: "bg-ink-2" },
+                { label: "Modules", done: modulesCompleted, total: totals.modules, tone: "bg-ink-2" },
+                { label: "Assignments", done: quizzesDone, total: quizTopics.length, tone: "bg-ink-2" },
+                { label: "Phases", done: PHASES.filter((p) => byPhase.get(p.id)!.percent === 100).length, total: totals.phases, tone: "bg-ink-2" },
               ].map((s) => (
                 <div key={s.label}>
                   <div className="flex items-baseline justify-between text-[13px]">
@@ -273,8 +296,8 @@ export function DashboardView() {
           {/* ---------------------------------------------- streak */}
           <section className="border-t border-line pt-7">
             <SectionTitle small title="Streak" sub="Study a little every day to keep it alive" />
-            <div className="plume edge-lit flex items-center gap-4 overflow-hidden rounded-[var(--radius-lg)] bg-quiz/[0.07] p-4 ring-1 ring-quiz/20">
-              <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-quiz/15 text-quiz">
+            <div className="plume edge-lit flex items-center gap-4 overflow-hidden rounded-[var(--radius-lg)] bg-white/[0.03] p-4 ring-1 ring-white/10">
+              <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-brand/15 text-brand-ink">
                 <Flame size={24} fill="currentColor" strokeWidth={1.5} />
               </span>
               <div>
@@ -294,7 +317,7 @@ export function DashboardView() {
                     <span
                       className={cx(
                         "flex size-8 items-center justify-center rounded-full",
-                        done ? "bg-quiz text-black" : today ? "ring-2 ring-quiz text-quiz" : "bg-card-hi2 text-ink-4",
+                        done ? "bg-ink text-black" : today ? "text-brand-ink ring-2 ring-brand" : "bg-card-hi2 text-ink-4",
                       )}
                     >
                       {done ? <Check size={14} strokeWidth={3} /> : <Flame size={13} />}
@@ -306,7 +329,7 @@ export function DashboardView() {
             </ol>
             {!STUDIED_TODAY && (
               <p className="mt-3 text-[12px] text-ink-3">
-                Finish one lesson today to make it <span className="nums text-quiz">{USER.streakDays + 1} days</span>.
+                Finish one lesson today to make it <span className="nums text-ink">{USER.streakDays + 1} days</span>.
               </p>
             )}
           </section>
@@ -374,7 +397,7 @@ export function DashboardView() {
                       <span
                         className={cx(
                           "flex size-4 shrink-0 items-center justify-center rounded-full",
-                          done ? "bg-done text-black" : current ? "ring-2 ring-brand" : "ring-1 ring-line-hi",
+                          done ? "bg-ink text-black" : current ? "ring-2 ring-brand" : "ring-1 ring-line-hi",
                         )}
                       >
                         {done && <Check size={10} strokeWidth={3.5} />}

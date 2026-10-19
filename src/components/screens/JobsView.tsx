@@ -111,7 +111,7 @@ export function JobsView() {
             <ul className="divide-y divide-[#1a1a1a] border-t border-line">
               {UNLOCKS.map((u) => (
                 <li key={u.title} className="flex gap-3.5 px-5 py-4">
-                  <span className="mt-0.5 flex size-[18px] shrink-0 items-center justify-center rounded-full bg-done/15 text-done">
+                  <span className="mt-0.5 flex size-[18px] shrink-0 items-center justify-center rounded-full bg-white/[0.08] text-ink">
                     <Check size={11} strokeWidth={3.5} />
                   </span>
                   <span className="min-w-0">

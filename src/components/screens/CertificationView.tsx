@@ -119,7 +119,7 @@ export function CertificationView() {
                 <div className="flex items-center justify-between">
                   <span className="text-[13px] text-ink-3">{r.label}</span>
                   {met && (
-                    <span className="inline-flex items-center gap-1 text-[12px] text-done">
+                    <span className="inline-flex items-center gap-1 text-[12px] text-ink-2">
                       <Check size={12} strokeWidth={3} /> Done
                     </span>
                   )}
@@ -129,7 +129,7 @@ export function CertificationView() {
                   <span className="text-[16px] text-ink-3"> / {r.total}</span>
                 </p>
                 <span className="mt-3 block h-1 overflow-hidden rounded-full bg-card-hi2">
-                  <span className={cx("block h-full rounded-full", met ? "bg-done" : "bg-brand")} style={{ width: `${(r.done / r.total) * 100}%` }} />
+                  <span className={cx("block h-full rounded-full", met ? "bg-ink-2" : "bg-brand")} style={{ width: `${(r.done / r.total) * 100}%` }} />
                 </span>
               </div>
             );

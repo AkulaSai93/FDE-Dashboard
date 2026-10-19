@@ -15,7 +15,6 @@ import { cx } from "@/components/ui";
 type Filter = "all" | "completed" | "in-progress" | "not-started";
 
 /** One hue per phase, so a lesson's thumbnail tells you where it sits. */
-const PHASE_HUE = ["#E6161F", "#5b8cff", "#a78bfa", "#2dd4bf", "#f5a524", "#22c55e", "#ff6b9a", "#38bdf8", "#f97316"];
 const PAGE = 24;
 const VIEW_KEY = "fde-lms:videos-view";
 
@@ -155,14 +154,14 @@ export function VideosView() {
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-[14px] text-ink transition-colors group-hover:text-brand-ink">{t.title}</span>
                     <span className="mt-0.5 block truncate text-[12px] text-ink-3">
-                      <span style={{ color: PHASE_HUE[(p.number - 1) % PHASE_HUE.length] }}>P{p.code}</span> · {m.code} {m.title}
+                      <span className="text-ink-2">P{p.code}</span> · {m.code} {m.title}
                     </span>
                   </span>
                   <span className="nums hidden w-14 shrink-0 text-right text-[12px] text-ink-3 sm:block">{formatDuration(t.videoSeconds)}</span>
                   <span
                     className={cx(
                       "hidden w-24 shrink-0 justify-center rounded-full px-2 py-1 text-[11px] font-medium md:flex",
-                      s === "completed" ? "bg-done/12 text-done" : s === "in-progress" ? "bg-brand/12 text-brand-ink" : "bg-card-hi text-ink-3",
+                      s === "completed" ? "bg-white/[0.07] text-ink" : s === "in-progress" ? "bg-brand/12 text-brand-ink" : "bg-card-hi text-ink-3",
                     )}
                   >
                     {s === "completed" ? "Watched" : s === "in-progress" ? "In progress" : "Not started"}
@@ -179,7 +178,6 @@ export function VideosView() {
             const pos = topics[t.id]?.videoPosition ?? 0;
             const m = MODULE_BY_ID.get(t.moduleId)!;
             const p = PHASE_BY_ID.get(t.phaseId)!;
-            const hue = PHASE_HUE[(p.number - 1) % PHASE_HUE.length];
             return (
               <li key={t.id}>
                 <Link href={`/learn/${t.id}`} className="group block">
@@ -193,10 +191,7 @@ export function VideosView() {
                       className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                     <span className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                    <span
-                      className="absolute left-2.5 top-2.5 rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-white"
-                      style={{ background: hue }}
-                    >
+                    <span className="absolute left-2.5 top-2.5 rounded bg-black/70 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.08em] text-white backdrop-blur-sm">
                       P{p.code} · {m.code}
                     </span>
                     <span className="absolute left-1/2 top-1/2 flex size-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-brand text-white opacity-0 shadow-[0_0_24px_rgba(230,22,31,.5)] transition-opacity group-hover:opacity-100">
@@ -206,7 +201,7 @@ export function VideosView() {
                       {formatDuration(t.videoSeconds)}
                     </span>
                     {s === "completed" ? (
-                      <span className="absolute right-2.5 top-2.5 inline-flex items-center gap-1 rounded bg-black/80 px-1.5 py-0.5 text-[11px] text-done">
+                      <span className="absolute right-2.5 top-2.5 inline-flex items-center gap-1 rounded bg-black/80 px-1.5 py-0.5 text-[11px] text-ink-2">
                         <Check size={11} strokeWidth={3} /> Watched
                       </span>
                     ) : pos > 0 ? (

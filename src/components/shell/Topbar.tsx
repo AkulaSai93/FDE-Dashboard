@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Bell, Menu, Flame } from "lucide-react";
 import { CommandSearch } from "./CommandSearch";
-import { Avatar, Breadcrumbs, cx } from "@/components/ui";
+import { Breadcrumbs, cx } from "@/components/ui";
 import { ALL_NAV_ITEMS } from "./nav";
 import { MODULE_BY_ID, PHASE_BY_ID, TOPIC_BY_ID } from "@/data/curriculum";
 import { PROJECT_BY_ID } from "@/data/projects";
@@ -119,14 +119,16 @@ function ProfileMenu() {
       <button
         onClick={() => setOpen((o) => !o)}
         aria-label="Account"
-        className="rounded-full ring-1 ring-line-hi transition-shadow hover:ring-ink-4"
+        className="flex size-9 items-center justify-center rounded-full bg-card-hi text-[12px] font-semibold text-ink-2 ring-1 ring-line-hi transition-colors hover:text-ink hover:ring-ink-4"
       >
-        <Avatar name={USER.name} initials={USER.initials} size={34} />
+        {USER.initials}
       </button>
       {open && (
         <div className="animate-fade absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-xl border border-line-hi bg-surface shadow-2xl shadow-black/70">
           <div className="flex items-center gap-3 border-b border-line px-4 py-3.5">
-            <Avatar name={USER.name} initials={USER.initials} size={38} />
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-card-hi text-[12px] font-semibold text-ink-2 ring-1 ring-line-hi">
+              {USER.initials}
+            </span>
             <p className="text-[13px] font-medium text-ink">{USER.name}</p>
             <p className="mt-0.5 truncate text-[12px] text-ink-3">{USER.email}</p>
             <p className="eyebrow mt-2">{USER.cohort} · Unlocked</p>

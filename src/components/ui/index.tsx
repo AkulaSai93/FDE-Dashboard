@@ -14,7 +14,6 @@ import { Check, ChevronRight, Lock, Play, Circle, Loader2, X, ChevronDown } from
 
 export { cx } from "@/lib/cx";
 export { Doodles, PageHeader, type DoodleVariant } from "./Decor";
-export { Avatar, initialsOf } from "./Avatar";
 import { cx } from "@/lib/cx";
 
 /* ------------------------------------------------------------------ Button */
@@ -164,7 +163,7 @@ export function ProgressBar({
 }) {
   const h = size === "xs" ? "h-[3px]" : size === "sm" ? "h-1" : "h-1.5";
   const fill =
-    tone === "muted" ? "bg-ink-4" : tone === "done" ? "bg-done" : "bg-brand";
+    tone === "muted" ? "bg-ink-4" : tone === "done" ? "bg-ink-2" : "bg-brand";
   return (
     <div
       role="progressbar"
@@ -195,7 +194,7 @@ export function SegmentedProgress({
       {segments.map((s) => (
         <div key={s.id} className="group/seg relative h-1.5 flex-1 overflow-hidden rounded-full bg-card-hi2" title={s.label}>
           <div
-            className={cx("h-full rounded-full transition-[width] duration-500", s.percent === 100 ? "bg-done" : "bg-brand")}
+            className={cx("h-full rounded-full transition-[width] duration-500", s.percent === 100 ? "bg-ink-2" : "bg-brand")}
             style={{ width: `${s.percent}%` }}
           />
         </div>
@@ -262,14 +261,14 @@ const STATUS_LABEL: Record<StatusKind, string> = {
 };
 
 const STATUS_STYLE: Record<StatusKind, string> = {
-  completed: "border-done/30 bg-done/10 text-done",
+  completed: "border-white/15 bg-white/[0.07] text-ink",
   "in-progress": "border-brand/40 bg-brand/12 text-brand-ink",
   "not-started": "border-line-hi bg-card-hi text-ink-3",
   upcoming: "border-line-hi bg-card-hi text-ink-2",
   locked: "border-line bg-bg-sub text-ink-4",
-  submitted: "border-quiz/30 bg-quiz/10 text-quiz",
-  evaluated: "border-done/30 bg-done/10 text-done",
-  review: "border-quiz/30 bg-quiz/10 text-quiz",
+  submitted: "border-white/12 bg-white/[0.05] text-ink-2",
+  evaluated: "border-white/15 bg-white/[0.07] text-ink",
+  review: "border-white/12 bg-white/[0.05] text-ink-2",
 };
 
 export function StatusBadge({ status, className }: { status: StatusKind; className?: string }) {
@@ -294,7 +293,7 @@ export function StatusDot({ status, size = 16 }: { status: StatusKind; size?: nu
   if (status === "completed" || status === "evaluated") {
     return (
       <span
-        className="flex shrink-0 items-center justify-center rounded-full bg-done text-black"
+        className="flex shrink-0 items-center justify-center rounded-full bg-ink text-black"
         style={{ width: size, height: size }}
       >
         <Check size={size * 0.62} strokeWidth={3.5} />
@@ -650,19 +649,19 @@ export function AssetChips({
     <div className={cx("flex flex-wrap items-center gap-x-3.5 gap-y-1", className)}>
       {video && (
         <span className={item}>
-          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden className="text-video"><rect x="0.5" y="1.5" width="11" height="9" rx="1.5" stroke="currentColor" /><path d="M5 4.5 8 6 5 7.5V4.5Z" fill="currentColor" /></svg>
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden className="text-ink-3"><rect x="0.5" y="1.5" width="11" height="9" rx="1.5" stroke="currentColor" /><path d="M5 4.5 8 6 5 7.5V4.5Z" fill="currentColor" /></svg>
           <span className="nums">{video}</span>
         </span>
       )}
       {notes && (
         <span className={item}>
-          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden className="text-notes"><rect x="1.5" y="0.5" width="9" height="11" rx="1.5" stroke="currentColor" /><path d="M3.5 3.5h5M3.5 6h5M3.5 8.5h3" stroke="currentColor" strokeLinecap="round" /></svg>
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden className="text-ink-3"><rect x="1.5" y="0.5" width="9" height="11" rx="1.5" stroke="currentColor" /><path d="M3.5 3.5h5M3.5 6h5M3.5 8.5h3" stroke="currentColor" strokeLinecap="round" /></svg>
           Notes
         </span>
       )}
       {assignment && (
         <span className={item}>
-          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden className="text-quiz"><path d="M2.5 1.5h7v9h-7z" stroke="currentColor" /><path d="M4.5 4.5h3M4.5 7h3" stroke="currentColor" strokeLinecap="round" /></svg>
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden className="text-ink-3"><path d="M2.5 1.5h7v9h-7z" stroke="currentColor" /><path d="M4.5 4.5h3M4.5 7h3" stroke="currentColor" strokeLinecap="round" /></svg>
           Assignment
         </span>
       )}
