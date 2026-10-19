@@ -118,7 +118,7 @@ export function AssignmentsView() {
                   className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 px-4 py-3.5 transition-colors hover:bg-card md:grid-cols-[minmax(0,1fr)_110px_80px_120px_130px]"
                 >
                   <div className="flex min-w-0 items-center gap-3">
-                    <span className={cx("flex size-9 shrink-0 items-center justify-center rounded-[var(--radius-md)]", quiz ? "bg-white/[0.07] text-ink" : "bg-white/[0.06] text-ink-2")}>
+                    <span className={cx("flex size-9 shrink-0 items-center justify-center rounded-[var(--radius-md)]", quiz ? "bg-tint-2 text-ink" : "bg-tint-1 text-ink-2")}>
                       {quiz ? <Check size={16} strokeWidth={2.5} /> : <ClipboardList size={16} />}
                     </span>
                     <div className="min-w-0">

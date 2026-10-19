@@ -106,7 +106,7 @@ function Thumb({
       >
         <Play size={big ? 20 : 13} fill="currentColor" strokeWidth={0} className="ml-0.5" />
       </span>
-      <span className="nums absolute bottom-2 right-2 rounded bg-black/80 px-1.5 py-0.5 text-[11px] text-ink-2 backdrop-blur-sm">
+      <span className="nums absolute bottom-2 right-2 rounded bg-black/80 px-1.5 py-0.5 text-[11px] text-white/90 backdrop-blur-sm">
         {formatDuration(seconds)}
       </span>
       {pct > 0 && (
@@ -204,7 +204,7 @@ export function DashboardView() {
                 <span className="absolute left-1/2 top-1/2 flex size-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-brand text-white shadow-[0_0_28px_rgba(230,22,31,.45)] transition-transform duration-200 group-hover:scale-110">
                   <Play size={16} fill="currentColor" strokeWidth={0} className="ml-0.5" />
                 </span>
-                <span className="nums absolute bottom-2 right-2.5 rounded bg-black/80 px-1.5 py-0.5 text-[11px] text-ink-2 backdrop-blur-sm">
+                <span className="nums absolute bottom-2 right-2.5 rounded bg-black/80 px-1.5 py-0.5 text-[11px] text-white/90 backdrop-blur-sm">
                   {formatDuration(tp?.videoPosition ?? 0)} / {formatDuration(topic.videoSeconds)}
                 </span>
                 <span className="absolute inset-x-0 bottom-0 h-[3px] bg-white/15">
@@ -374,7 +374,7 @@ export function DashboardView() {
                     <span
                       className={cx(
                         "flex size-[18px] shrink-0 items-center justify-center rounded-full",
-                        done ? "bg-ink text-black" : active ? "ring-2 ring-brand" : "ring-1 ring-line-hi",
+                        done ? "bg-ink text-panel" : active ? "ring-2 ring-brand" : "ring-1 ring-line-hi",
                       )}
                     >
                       {done && <Check size={10} strokeWidth={3.5} />}
@@ -422,7 +422,7 @@ export function DashboardView() {
                     <span
                       className={cx(
                         "flex size-8 items-center justify-center rounded-full",
-                        done ? "bg-ink text-black" : today ? "text-brand-ink ring-2 ring-brand" : "bg-card-hi2 text-ink-4",
+                        done ? "bg-ink text-panel" : today ? "text-brand-ink ring-2 ring-brand" : "bg-card-hi2 text-ink-4",
                       )}
                     >
                       {done ? <Check size={14} strokeWidth={3} /> : <Flame size={13} />}

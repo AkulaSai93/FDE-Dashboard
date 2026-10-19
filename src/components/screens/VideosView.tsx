@@ -158,7 +158,7 @@ export function VideosView() {
                   <span
                     className={cx(
                       "hidden w-24 shrink-0 justify-center rounded-full px-2 py-1 text-[11px] font-medium md:flex",
-                      s === "completed" ? "bg-white/[0.07] text-ink" : s === "in-progress" ? "bg-brand/12 text-brand-ink" : "bg-card-hi text-ink-3",
+                      s === "completed" ? "bg-tint-2 text-ink" : s === "in-progress" ? "bg-brand/12 text-brand-ink" : "bg-card-hi text-ink-3",
                     )}
                   >
                     {s === "completed" ? "Watched" : s === "in-progress" ? "In progress" : "Not started"}
@@ -192,7 +192,7 @@ export function VideosView() {
                       {formatDuration(t.videoSeconds)}
                     </span>
                     {s === "completed" ? (
-                      <span className="absolute right-2.5 top-2.5 inline-flex items-center gap-1 rounded bg-black/80 px-1.5 py-0.5 text-[11px] text-ink-2">
+                      <span className="absolute right-2.5 top-2.5 inline-flex items-center gap-1 rounded bg-black/80 px-1.5 py-0.5 text-[11px] text-white/90">
                         <Check size={11} strokeWidth={3} /> Watched
                       </span>
                     ) : pos > 0 ? (

@@ -82,9 +82,12 @@
   --c-line-soft: #eef0f3;
 
   --c-ink: #14161b;
-  --c-ink-2: #434852;
-  --c-ink-3: #6a707b;
-  --c-ink-4: #9aa0aa;
+  --c-ink-2: #3a3f49;
+  /* Darker than the dark theme's mirror values: #6a707b/#9aa0aa measured
+     3.9:1 and 2.5:1 against the light card, so denominators like "/371" and
+     the locked nav row failed AA. These clear 4.5:1. */
+  --c-ink-3: #5a616b;
+  --c-ink-4: #686e78;
 
   --c-brand: #e6161f;
   --c-brand-hi: #c2101a;    /* hover goes darker on light, not brighter */

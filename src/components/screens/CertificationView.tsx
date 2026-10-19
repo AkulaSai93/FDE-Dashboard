@@ -97,7 +97,7 @@ export function CertificationView() {
           />
           {!eligible && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-center">
-              <span className="flex size-12 items-center justify-center rounded-full bg-black/70 ring-1 ring-white/15">
+              <span className="flex size-12 items-center justify-center rounded-full bg-black/70 ring-1 ring-tint-line">
                 <Lock size={18} className="text-white" />
               </span>
               <p className="text-[14px] font-medium text-white">Unlocks at 100%</p>

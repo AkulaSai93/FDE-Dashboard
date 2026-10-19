@@ -262,14 +262,14 @@ const STATUS_LABEL: Record<StatusKind, string> = {
 };
 
 const STATUS_STYLE: Record<StatusKind, string> = {
-  completed: "border-white/15 bg-white/[0.07] text-ink",
+  completed: "border-tint-line bg-tint-2 text-ink",
   "in-progress": "border-brand/40 bg-brand/12 text-brand-ink",
   "not-started": "border-line-hi bg-card-hi text-ink-3",
   upcoming: "border-line-hi bg-card-hi text-ink-2",
   locked: "border-line bg-bg-sub text-ink-4",
-  submitted: "border-white/12 bg-white/[0.05] text-ink-2",
-  evaluated: "border-white/15 bg-white/[0.07] text-ink",
-  review: "border-white/12 bg-white/[0.05] text-ink-2",
+  submitted: "border-tint-line bg-tint-1 text-ink-2",
+  evaluated: "border-tint-line bg-tint-2 text-ink",
+  review: "border-tint-line bg-tint-1 text-ink-2",
 };
 
 export function StatusBadge({ status, className }: { status: StatusKind; className?: string }) {
@@ -294,7 +294,7 @@ export function StatusDot({ status, size = 16 }: { status: StatusKind; size?: nu
   if (status === "completed" || status === "evaluated") {
     return (
       <span
-        className="flex shrink-0 items-center justify-center rounded-full bg-ink text-black"
+        className="flex shrink-0 items-center justify-center rounded-full bg-ink text-panel"
         style={{ width: size, height: size }}
       >
         <Check size={size * 0.62} strokeWidth={3.5} />

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Bell, Menu, Flame } from "lucide-react";
 import { CommandSearch } from "./CommandSearch";
+import { ThemeToggle } from "./ThemeToggle";
 import { Breadcrumbs, cx } from "@/components/ui";
 import { ALL_NAV_ITEMS } from "./nav";
 import { MODULE_BY_ID, PHASE_BY_ID, TOPIC_BY_ID } from "@/data/curriculum";
@@ -79,7 +80,7 @@ function Notifications() {
             <span className="display text-[13px] text-ink">Notifications</span>
             <span className="eyebrow">{unread} unread</span>
           </div>
-          <ul className="max-h-[60vh] divide-y divide-[#1a1a1a] overflow-y-auto">
+          <ul className="max-h-[60vh] divide-y divide-line-soft overflow-y-auto">
             {NOTIFICATIONS.map((n) => (
               <li key={n.id}>
                 <Link
@@ -178,6 +179,7 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
           {USER.streakDays} day streak
         </span>
         <CommandSearch />
+        <ThemeToggle />
         <Notifications />
         <ProfileMenu />
       </div>

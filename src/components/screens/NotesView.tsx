@@ -150,7 +150,7 @@ export function NotesView() {
                                 href={`/notes/${t.id}`}
                                 className="group flex h-full items-start gap-3 rounded-[var(--radius-md)] border border-line bg-card p-3.5 transition-colors hover:border-notes/40 hover:bg-card-hi"
                               >
-                                <span className="flex size-9 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-white/[0.06] text-ink-2">
+                                <span className="flex size-9 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-tint-1 text-ink-2">
                                   <FileText size={16} />
                                 </span>
                                 <span className="min-w-0 flex-1">

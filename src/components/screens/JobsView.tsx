@@ -76,7 +76,7 @@ export function JobsView() {
             title="Roles shared with FDE graduates"
             action={<Badge tone="quiet"><Lock size={10} /> Locked</Badge>}
           />
-          <ul className="relative divide-y divide-[#1a1a1a] border-t border-line">
+          <ul className="relative divide-y divide-line-soft border-t border-line">
             {ROLES.map((r, i) => (
               <li
                 key={r.title}
@@ -108,10 +108,10 @@ export function JobsView() {
         <div className="space-y-4 lg:col-span-2">
           <Card>
             <CardHeader eyebrow="On unlock" title="What you get" />
-            <ul className="divide-y divide-[#1a1a1a] border-t border-line">
+            <ul className="divide-y divide-line-soft border-t border-line">
               {UNLOCKS.map((u) => (
                 <li key={u.title} className="flex gap-3.5 px-5 py-4">
-                  <span className="mt-0.5 flex size-[18px] shrink-0 items-center justify-center rounded-full bg-white/[0.08] text-ink">
+                  <span className="mt-0.5 flex size-[18px] shrink-0 items-center justify-center rounded-full bg-tint-2 text-ink">
                     <Check size={11} strokeWidth={3.5} />
                   </span>
                   <span className="min-w-0">
