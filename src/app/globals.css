@@ -58,11 +58,9 @@
   --c-tint-grid: rgba(255, 255, 255, 0.035); /* grid-field texture */
   --c-track: #2a2a2a;                        /* progress / scrollbar track */
 
-  /* Structure. Dark separates its planes by luminance — #000 chrome against a
-     #121212 sheet — so it needs neither of these. Light cannot: nothing is
-     lighter than the white sheet, so there the chrome needs a real edge and
-     the sheet needs to cast. Inert here, load-bearing there. */
-  --c-chrome-line: transparent;
+  /* The sheet's lift. Dark needs none — #000 chrome against a #121212 sheet
+     already separates. Light has no luminance headroom above white, so there
+     the shadow is what sets the sheet apart from the chrome around it. */
   --c-sheet-shadow: none;
 
   /* ---- Functional (used sparingly, desaturated to stay in-system) ---- */
@@ -72,15 +70,14 @@
 }
 
 [data-theme="light"] {
-  /* Light is not the dark ladder inverted. In dark, elevation reads as
-     *lighter*; in light you run out of room at white, so the order flips: a
-     clearly tinted canvas frames a white sheet, cards sit on that sheet as
-     tinted panels, and the chrome is separated by an edge rather than by
-     luminance. An earlier pass used #ffffff for the sidebar, the sheet and the
-     cards at once, which collapsed all three into a single white field. */
-  --c-bg: #e4e7ed;          /* canvas — frames the sheet, deliberately grey */
-  --c-bg-sub: #f1f4f7;      /* insets inside a card */
-  --c-surface: #f7f8fa;     /* sidebar, topbar — off-white, edged not filled */
+  /* One grey for everything that is not the sheet. The sidebar, the topbar and
+     the canvas around the sheet are a single continuous surface — the same
+     relationship dark has, where #000 chrome meets a #121212 sheet. Nothing is
+     divided by a border: the sheet is the only white thing on screen, and its
+     shadow does the separating. */
+  --c-bg: #f1f3f7;          /* canvas — continuous with the chrome */
+  --c-bg-sub: #e9ecf1;      /* insets inside a card */
+  --c-surface: #f1f3f7;     /* sidebar, topbar — same surface as the canvas */
   --c-panel: #ffffff;       /* the sheet — the paper you read on */
   --c-card: #f2f5f9;        /* card on the paper — tinted, so it reads as one */
   --c-card-hi: #eef1f5;     /* raised / hovered */
@@ -112,8 +109,7 @@
   --c-tint-grid: rgba(0, 0, 0, 0.045);
   --c-track: #dfe2e7;
 
-  --c-chrome-line: #dde1e8;
-  --c-sheet-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px -8px rgba(16, 24, 40, 0.10);
+  --c-sheet-shadow: 0 1px 3px rgba(16, 24, 40, 0.06), 0 12px 32px -10px rgba(16, 24, 40, 0.14);
 
   --c-ok: #1a7f37;
   --c-warn: #9a6700;
@@ -152,7 +148,6 @@
   --color-tint-line: var(--c-tint-line);
   --color-tint-edge: var(--c-tint-edge);
   --color-track: var(--c-track);
-  --color-chrome: var(--c-chrome-line);
 
   --color-ok: var(--c-ok);
   --color-warn: var(--c-warn);

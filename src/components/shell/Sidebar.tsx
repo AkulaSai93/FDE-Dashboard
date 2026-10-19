@@ -85,7 +85,7 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
 export function Sidebar() {
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 hidden w-[260px] border-r border-chrome lg:block">
+    <aside className="fixed inset-y-0 left-0 z-40 hidden w-[260px] lg:block">
       <SidebarContent />
     </aside>
   );

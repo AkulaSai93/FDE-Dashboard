@@ -32,7 +32,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {menuOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="animate-fade absolute inset-0 bg-black/75 backdrop-blur-[2px]" onClick={() => setMenuOpen(false)} />
-          <div className="absolute inset-y-0 left-0 w-[280px] border-r border-line shadow-2xl shadow-black/80">
+          <div className="absolute inset-y-0 left-0 w-[280px] shadow-2xl shadow-black/40">
             <button
               onClick={() => setMenuOpen(false)}
               aria-label="Close navigation"
