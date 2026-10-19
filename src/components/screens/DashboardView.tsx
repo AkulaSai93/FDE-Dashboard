@@ -176,101 +176,54 @@ export function DashboardView() {
         </p>
       </header>
 
-      {/* ================================================= 1 · do this now
-          The original card: a 240px thumbnail on the left with the play
-          affordance over it, the copy on the right. Progress lives in its own
-          section below — these are two questions, not one. */}
-      <section>
-        <Band label="Continue learning" />
-        <div className="overflow-hidden rounded-[var(--radius-xl)] border border-line bg-card">
-          <div className="grid sm:grid-cols-[240px_minmax(0,1fr)]">
-            <Link
-              href={`/learn/${topic.id}`}
-              className="group relative flex aspect-video items-center justify-center overflow-hidden bg-black sm:aspect-auto"
-              aria-label={`Resume ${topic.title}`}
-            >
-              <LessonArt
-                topicId={topic.id}
-                className="opacity-80 transition-transform duration-500 group-hover:scale-105"
-              />
-              <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/10" />
-              <span className="relative flex size-12 items-center justify-center rounded-full bg-brand text-white shadow-[0_0_30px_rgba(230,22,31,.5)] transition-transform group-hover:scale-105">
-                <Play size={18} fill="currentColor" strokeWidth={0} className="ml-0.5" />
-              </span>
-              <span className="nums absolute bottom-2.5 right-3 rounded bg-black/70 px-1.5 py-0.5 text-[11px] text-ink-2">
-                {formatDuration(tp?.videoPosition ?? 0)} / {formatDuration(topic.videoSeconds)}
-              </span>
-              <span className="absolute inset-x-0 bottom-0 h-1 bg-white/10">
-                <span className="block h-full bg-brand" style={{ width: `${videoPct}%` }} />
-              </span>
-            </Link>
-
-            <div className="flex flex-col justify-between gap-5 p-5 sm:p-6">
-              <div>
-                <p className="eyebrow">Video lesson · {formatMinutes(topic.videoSeconds)}</p>
-                <h3 className="display mt-2 text-[22px] leading-tight text-ink">{topic.title}</h3>
-                <p className="mt-1.5 text-[13px] text-ink-3">
-                  {mod.code} {mod.title} · Topic {topic.index} of {mod.topics.length} · Last watched {lastSeen}
-                </p>
-              </div>
-              <div className="flex flex-wrap items-center gap-3">
-                <Link
-                  href={`/learn/${topic.id}`}
-                  className="inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-brand px-4 py-2.5 text-[13px] font-medium text-white transition-colors hover:bg-brand-hi"
-                >
-                  Resume lesson <ArrowRight size={14} />
-                </Link>
-                <Link
-                  href={`/curriculum?phase=${phase.id}&module=${mod.id}`}
-                  className="text-[13px] text-ink-3 transition-colors hover:text-ink"
-                >
-                  View module · {modRollup.percent}% done
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ================================================ 1b · how far am I */}
-      <section>
-        <Band
-          label="Your progress"
-          action={
-            <Link href="/certification" className="shrink-0 text-[12px] text-ink-3 transition-colors hover:text-ink">
-              Certificate
-            </Link>
-          }
-        />
-        <div className="flex flex-wrap items-center gap-x-10 gap-y-7 rounded-[var(--radius-xl)] border border-line bg-card p-6 lg:p-7">
-          <ProgressRing value={program.percent} size={124} stroke={5} sublabel="Complete" />
-
-          <div className="min-w-0 flex-1 basis-[280px]">
-            <div className="flex gap-1.5" aria-hidden="true">
-              {PHASES.map((p) => {
-                const r = byPhase.get(p.id)!;
-                return (
-                  <span
-                    key={p.id}
-                    className="h-2 flex-1 overflow-hidden rounded-full bg-card-hi2"
-                    title={`Phase ${p.code} — ${r.percent}%`}
-                  >
-                    <span
-                      className={cx("block h-full rounded-full", r.percent === 100 ? "bg-ink-2" : "bg-brand")}
-                      style={{ width: `${r.percent}%` }}
-                    />
+      {/* ======================================= 1 · progress, then the lesson
+          Two sections side by side, not one merged band: "how far am I" on the
+          left, "what do I open" on the right. Each keeps its own label and its
+          own surface; the inner cards are h-full so their bottoms line up. */}
+      <div className="grid gap-x-6 gap-y-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.12fr)]">
+        {/* --------------------------------------------- how far am I
+            Second on a phone: stacked, left-to-right becomes top-to-bottom,
+            and leading with the stats would push Resume below the fold. */}
+        <section className="order-2 flex min-w-0 flex-col lg:order-1">
+          <Band
+            label="Your progress"
+            action={
+              <Link href="/certification" className="shrink-0 text-[12px] text-ink-3 transition-colors hover:text-ink">
+                Certificate
+              </Link>
+            }
+          />
+          <div className="flex h-full flex-col rounded-[var(--radius-xl)] border border-line bg-card p-6">
+            <div className="flex items-center gap-6">
+              <ProgressRing value={program.percent} size={112} stroke={5} sublabel="Complete" />
+              <div className="min-w-0 flex-1">
+                <div className="flex gap-1.5" aria-hidden="true">
+                  {PHASES.map((p) => {
+                    const r = byPhase.get(p.id)!;
+                    return (
+                      <span
+                        key={p.id}
+                        className="h-2 flex-1 overflow-hidden rounded-full bg-card-hi2"
+                        title={`Phase ${p.code} — ${r.percent}%`}
+                      >
+                        <span
+                          className={cx("block h-full rounded-full", r.percent === 100 ? "bg-ink-2" : "bg-brand")}
+                          style={{ width: `${r.percent}%` }}
+                        />
+                      </span>
+                    );
+                  })}
+                </div>
+                <div className="mt-2.5 flex items-baseline justify-between gap-3">
+                  <span className="eyebrow">Phase 01 → 09</span>
+                  <span className="nums text-[12px] text-ink-3">
+                    <span className="text-ink-2">{phasesDone}</span> of {totals.phases} done
                   </span>
-                );
-              })}
-            </div>
-            <div className="mt-2.5 flex items-baseline justify-between">
-              <span className="eyebrow">Phase 01 → 09</span>
-              <span className="nums text-[12px] text-ink-3">
-                <span className="text-ink-2">{phasesDone}</span> of {totals.phases} done
-              </span>
+                </div>
+              </div>
             </div>
 
-            <dl className="mt-6 grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-4">
+            <dl className="mt-6 grid grid-cols-2 gap-x-8 gap-y-5 border-t border-line pt-5">
               {STATS.map((st) => (
                 <div key={st.label}>
                   <dt className="eyebrow">{st.label}</dt>
@@ -283,8 +236,62 @@ export function DashboardView() {
               ))}
             </dl>
           </div>
-        </div>
-      </section>
+        </section>
+
+        {/* ------------------------------------------- what do I open */}
+        <section className="order-1 flex min-w-0 flex-col lg:order-2">
+          <Band label="Continue learning" />
+          <div className="h-full overflow-hidden rounded-[var(--radius-xl)] border border-line bg-card">
+            <div className="grid h-full sm:grid-cols-[240px_minmax(0,1fr)]">
+              <Link
+                href={`/learn/${topic.id}`}
+                className="group relative flex aspect-video items-center justify-center overflow-hidden bg-black sm:aspect-auto"
+                aria-label={`Resume ${topic.title}`}
+              >
+                <LessonArt
+                  topicId={topic.id}
+                  className="opacity-80 transition-transform duration-500 group-hover:scale-105"
+                />
+                <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/10" />
+                <span className="relative flex size-12 items-center justify-center rounded-full bg-brand text-white shadow-[0_0_30px_rgba(230,22,31,.5)] transition-transform group-hover:scale-105">
+                  <Play size={18} fill="currentColor" strokeWidth={0} className="ml-0.5" />
+                </span>
+                <span className="nums absolute bottom-2.5 right-3 rounded bg-black/70 px-1.5 py-0.5 text-[11px] text-ink-2">
+                  {formatDuration(tp?.videoPosition ?? 0)} / {formatDuration(topic.videoSeconds)}
+                </span>
+                <span className="absolute inset-x-0 bottom-0 h-1 bg-white/10">
+                  <span className="block h-full bg-brand" style={{ width: `${videoPct}%` }} />
+                </span>
+              </Link>
+
+              <div className="flex flex-col justify-between gap-5 p-5 sm:p-6">
+                <div>
+                  <p className="eyebrow">Video lesson · {formatMinutes(topic.videoSeconds)}</p>
+                  <h3 className="display mt-2 text-[22px] leading-tight text-ink">{topic.title}</h3>
+                  <p className="mt-1.5 text-[13px] leading-relaxed text-ink-3">
+                    {mod.code} {mod.title} · Topic {topic.index} of {mod.topics.length}
+                  </p>
+                  <p className="mt-1 text-[13px] text-ink-3">Last watched {lastSeen}</p>
+                </div>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
+                  <Link
+                    href={`/learn/${topic.id}`}
+                    className="inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-brand px-4 py-2.5 text-[13px] font-medium text-white transition-colors hover:bg-brand-hi"
+                  >
+                    Resume lesson <ArrowRight size={14} />
+                  </Link>
+                  <Link
+                    href={`/curriculum?phase=${phase.id}&module=${mod.id}`}
+                    className="text-[13px] text-ink-3 transition-colors hover:text-ink"
+                  >
+                    View module · {modRollup.percent}% done
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
 
       {/* =================================================== 2 · the queue
           One lesson per module: the raw "next four topics" were all from the
