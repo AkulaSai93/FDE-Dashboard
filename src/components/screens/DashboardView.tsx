@@ -176,15 +176,67 @@ export function DashboardView() {
         </p>
       </header>
 
-      {/* ======================================= 1 · progress, then the lesson
-          Two sections side by side, not one merged band: "how far am I" on the
-          left, "what do I open" on the right. Each keeps its own label and its
-          own surface; the inner cards are h-full so their bottoms line up. */}
-      <div className="grid gap-x-6 gap-y-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.12fr)]">
-        {/* --------------------------------------------- how far am I
-            Second on a phone: stacked, left-to-right becomes top-to-bottom,
-            and leading with the stats would push Resume below the fold. */}
-        <section className="order-2 flex min-w-0 flex-col lg:order-1">
+      {/* ======================================= 1 · the lesson, then progress
+          Reading order is the priority order: what to open first, how far along
+          second. Both cards are kept short on purpose — when the progress card
+          was tall it stretched the lesson thumbnail beside it into a portrait
+          strip, and left a void in each. */}
+      <div className="grid gap-x-6 gap-y-8 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+        {/* ------------------------------------------- what do I open */}
+        <section className="flex min-w-0 flex-col">
+          <Band label="Continue learning" />
+          <div className="h-full overflow-hidden rounded-[var(--radius-xl)] border border-line bg-card">
+            <div className="grid h-full sm:grid-cols-[minmax(0,230px)_minmax(0,1fr)]">
+              <Link
+                href={`/learn/${topic.id}`}
+                className="group relative flex aspect-video items-center justify-center overflow-hidden bg-black sm:aspect-auto"
+                aria-label={`Resume ${topic.title}`}
+              >
+                <LessonArt
+                  topicId={topic.id}
+                  className="opacity-85 transition-transform duration-500 group-hover:scale-105"
+                />
+                <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-black/5" />
+                <span className="relative flex size-11 items-center justify-center rounded-full bg-brand text-white shadow-[0_0_28px_rgba(230,22,31,.45)] transition-transform group-hover:scale-105">
+                  <Play size={16} fill="currentColor" strokeWidth={0} className="ml-0.5" />
+                </span>
+                <span className="nums absolute bottom-2 right-2.5 rounded bg-black/80 px-1.5 py-0.5 text-[11px] text-ink-2">
+                  {formatDuration(tp?.videoPosition ?? 0)} / {formatDuration(topic.videoSeconds)}
+                </span>
+                <span className="absolute inset-x-0 bottom-0 h-[3px] bg-white/15">
+                  <span className="block h-full bg-brand" style={{ width: `${videoPct}%` }} />
+                </span>
+              </Link>
+
+              <div className="flex flex-col gap-4 p-5 sm:p-6">
+                <div className="min-w-0">
+                  <p className="eyebrow">Video lesson · {formatMinutes(topic.videoSeconds)}</p>
+                  <h3 className="display mt-2 text-[22px] leading-tight text-ink">{topic.title}</h3>
+                  <p className="mt-1.5 text-[13px] leading-relaxed text-ink-3">
+                    {mod.code} {mod.title} · Topic {topic.index} of {mod.topics.length} · Last watched {lastSeen}
+                  </p>
+                </div>
+                <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-3">
+                  <Link
+                    href={`/learn/${topic.id}`}
+                    className="inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-brand px-4 py-2.5 text-[13px] font-medium text-white transition-colors hover:bg-brand-hi"
+                  >
+                    Resume lesson <ArrowRight size={14} />
+                  </Link>
+                  <Link
+                    href={`/curriculum?phase=${phase.id}&module=${mod.id}`}
+                    className="text-[13px] text-ink-3 transition-colors hover:text-ink"
+                  >
+                    View module · {modRollup.percent}% done
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* --------------------------------------------- how far am I */}
+        <section className="flex min-w-0 flex-col">
           <Band
             label="Your progress"
             action={
@@ -194,8 +246,8 @@ export function DashboardView() {
             }
           />
           <div className="flex h-full flex-col rounded-[var(--radius-xl)] border border-line bg-card p-6">
-            <div className="flex items-center gap-6">
-              <ProgressRing value={program.percent} size={112} stroke={5} sublabel="Complete" />
+            <div className="flex items-center gap-5">
+              <ProgressRing value={program.percent} size={96} stroke={4} sublabel="Complete" />
               <div className="min-w-0 flex-1">
                 <div className="flex gap-1.5" aria-hidden="true">
                   {PHASES.map((p) => {
@@ -223,72 +275,19 @@ export function DashboardView() {
               </div>
             </div>
 
-            <dl className="mt-6 grid grid-cols-2 gap-x-8 gap-y-5 border-t border-line pt-5">
+            {/* Counts only — the ring and the phase strip already carry the
+                proportions, so a bar under every number was repeating them. */}
+            <dl className="mt-auto grid grid-cols-2 gap-x-8 gap-y-3 border-t border-line pt-5">
               {STATS.map((st) => (
-                <div key={st.label}>
-                  <dt className="eyebrow">{st.label}</dt>
-                  <dd className="nums mt-2 text-[17px] text-ink">
+                <div key={st.label} className="flex items-baseline justify-between gap-3">
+                  <dt className="text-[13px] text-ink-3">{st.label}</dt>
+                  <dd className="nums text-[14px] text-ink">
                     {st.done}
                     <span className="text-[12px] text-ink-4">/{st.total}</span>
                   </dd>
-                  <Bar value={(st.done / st.total) * 100} tone="bg-ink-2" className="mt-2 h-1" />
                 </div>
               ))}
             </dl>
-          </div>
-        </section>
-
-        {/* ------------------------------------------- what do I open */}
-        <section className="order-1 flex min-w-0 flex-col lg:order-2">
-          <Band label="Continue learning" />
-          <div className="h-full overflow-hidden rounded-[var(--radius-xl)] border border-line bg-card">
-            <div className="grid h-full sm:grid-cols-[240px_minmax(0,1fr)]">
-              <Link
-                href={`/learn/${topic.id}`}
-                className="group relative flex aspect-video items-center justify-center overflow-hidden bg-black sm:aspect-auto"
-                aria-label={`Resume ${topic.title}`}
-              >
-                <LessonArt
-                  topicId={topic.id}
-                  className="opacity-80 transition-transform duration-500 group-hover:scale-105"
-                />
-                <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-black/10" />
-                <span className="relative flex size-12 items-center justify-center rounded-full bg-brand text-white shadow-[0_0_30px_rgba(230,22,31,.5)] transition-transform group-hover:scale-105">
-                  <Play size={18} fill="currentColor" strokeWidth={0} className="ml-0.5" />
-                </span>
-                <span className="nums absolute bottom-2.5 right-3 rounded bg-black/70 px-1.5 py-0.5 text-[11px] text-ink-2">
-                  {formatDuration(tp?.videoPosition ?? 0)} / {formatDuration(topic.videoSeconds)}
-                </span>
-                <span className="absolute inset-x-0 bottom-0 h-1 bg-white/10">
-                  <span className="block h-full bg-brand" style={{ width: `${videoPct}%` }} />
-                </span>
-              </Link>
-
-              <div className="flex flex-col justify-between gap-5 p-5 sm:p-6">
-                <div>
-                  <p className="eyebrow">Video lesson · {formatMinutes(topic.videoSeconds)}</p>
-                  <h3 className="display mt-2 text-[22px] leading-tight text-ink">{topic.title}</h3>
-                  <p className="mt-1.5 text-[13px] leading-relaxed text-ink-3">
-                    {mod.code} {mod.title} · Topic {topic.index} of {mod.topics.length}
-                  </p>
-                  <p className="mt-1 text-[13px] text-ink-3">Last watched {lastSeen}</p>
-                </div>
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-3">
-                  <Link
-                    href={`/learn/${topic.id}`}
-                    className="inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-brand px-4 py-2.5 text-[13px] font-medium text-white transition-colors hover:bg-brand-hi"
-                  >
-                    Resume lesson <ArrowRight size={14} />
-                  </Link>
-                  <Link
-                    href={`/curriculum?phase=${phase.id}&module=${mod.id}`}
-                    className="text-[13px] text-ink-3 transition-colors hover:text-ink"
-                  >
-                    View module · {modRollup.percent}% done
-                  </Link>
-                </div>
-              </div>
-            </div>
           </div>
         </section>
       </div>
