@@ -66,7 +66,7 @@ export function NotePageView({ topic }: { topic: Topic }) {
                 <li key={t.id}>
                   <Link
                     href={`/notes/${t.id}`}
-                    className={`block truncate rounded px-2 py-1.5 text-[12px] transition-colors ${t.id === topic.id ? "bg-notes/12 font-medium text-notes" : "text-ink-3 hover:bg-card-hi hover:text-ink-2"}`}
+                    className={`block truncate rounded px-2 py-1.5 text-[12px] transition-colors ${t.id === topic.id ? "bg-brand/12 font-medium text-brand-ink" : "text-ink-3 hover:bg-card-hi hover:text-ink-2"}`}
                   >
                     {t.title}
                   </Link>

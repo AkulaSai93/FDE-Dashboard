@@ -8,10 +8,13 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { Doodles, type DoodleVariant } from "./Decor";
 import { createPortal } from "react-dom";
 import { Check, ChevronRight, Lock, Play, Circle, Loader2, X, ChevronDown } from "lucide-react";
 
 export { cx } from "@/lib/cx";
+export { Doodles, PageHeader, type DoodleVariant } from "./Decor";
+export { LessonArt, LessonPoster } from "./LessonPoster";
 import { cx } from "@/lib/cx";
 
 /* ------------------------------------------------------------------ Button */
@@ -119,21 +122,27 @@ export function SectionHeading({
   description,
   action,
   className,
+  decor,
 }: {
   eyebrow?: string;
   title: React.ReactNode;
   description?: React.ReactNode;
   action?: React.ReactNode;
   className?: string;
+  /** Faint line-art motif behind the heading, matched to the page's subject. */
+  decor?: DoodleVariant;
 }) {
   return (
-    <div className={cx("flex flex-wrap items-end justify-between gap-4", className)}>
-      <div className="min-w-0 max-w-2xl">
-        {eyebrow && <div className="eyebrow mb-2.5">{eyebrow}</div>}
-        <h1 className="display text-[30px] font-light leading-[1.05] text-ink sm:text-[38px]">{title}</h1>
-        {description && <p className="mt-2.5 text-[14px] leading-relaxed text-ink-3">{description}</p>}
+    <div className={cx("relative isolate", decor && "overflow-hidden")}>
+      {decor && <Doodles variant={decor} />}
+      <div className={cx("relative flex flex-wrap items-end justify-between gap-4", className)}>
+        <div className="min-w-0 max-w-2xl">
+          {eyebrow && <div className="eyebrow mb-2.5">{eyebrow}</div>}
+          <h1 className="display text-[30px] font-light leading-[1.05] text-ink sm:text-[38px]">{title}</h1>
+          {description && <p className="mt-2.5 text-[14px] leading-relaxed text-ink-3">{description}</p>}
+        </div>
+        {action}
       </div>
-      {action}
     </div>
   );
 }
@@ -155,7 +164,7 @@ export function ProgressBar({
 }) {
   const h = size === "xs" ? "h-[3px]" : size === "sm" ? "h-1" : "h-1.5";
   const fill =
-    tone === "muted" ? "bg-ink-4" : tone === "done" ? "bg-done" : "bg-brand";
+    tone === "muted" ? "bg-ink-4" : tone === "done" ? "bg-ink-2" : "bg-brand";
   return (
     <div
       role="progressbar"
@@ -186,7 +195,7 @@ export function SegmentedProgress({
       {segments.map((s) => (
         <div key={s.id} className="group/seg relative h-1.5 flex-1 overflow-hidden rounded-full bg-card-hi2" title={s.label}>
           <div
-            className={cx("h-full rounded-full transition-[width] duration-500", s.percent === 100 ? "bg-done" : "bg-brand")}
+            className={cx("h-full rounded-full transition-[width] duration-500", s.percent === 100 ? "bg-ink-2" : "bg-brand")}
             style={{ width: `${s.percent}%` }}
           />
         </div>
@@ -213,7 +222,7 @@ export function ProgressRing({
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="#1c1c1c" strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--c-track)" strokeWidth={stroke} />
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -253,14 +262,14 @@ const STATUS_LABEL: Record<StatusKind, string> = {
 };
 
 const STATUS_STYLE: Record<StatusKind, string> = {
-  completed: "border-done/30 bg-done/10 text-done",
+  completed: "border-tint-line bg-tint-2 text-ink",
   "in-progress": "border-brand/40 bg-brand/12 text-brand-ink",
   "not-started": "border-line-hi bg-card-hi text-ink-3",
   upcoming: "border-line-hi bg-card-hi text-ink-2",
   locked: "border-line bg-bg-sub text-ink-4",
-  submitted: "border-quiz/30 bg-quiz/10 text-quiz",
-  evaluated: "border-done/30 bg-done/10 text-done",
-  review: "border-quiz/30 bg-quiz/10 text-quiz",
+  submitted: "border-tint-line bg-tint-1 text-ink-2",
+  evaluated: "border-tint-line bg-tint-2 text-ink",
+  review: "border-tint-line bg-tint-1 text-ink-2",
 };
 
 export function StatusBadge({ status, className }: { status: StatusKind; className?: string }) {
@@ -285,7 +294,7 @@ export function StatusDot({ status, size = 16 }: { status: StatusKind; size?: nu
   if (status === "completed" || status === "evaluated") {
     return (
       <span
-        className="flex shrink-0 items-center justify-center rounded-full bg-done text-black"
+        className="flex shrink-0 items-center justify-center rounded-full bg-ink text-panel"
         style={{ width: size, height: size }}
       >
         <Check size={size * 0.62} strokeWidth={3.5} />
@@ -641,19 +650,19 @@ export function AssetChips({
     <div className={cx("flex flex-wrap items-center gap-x-3.5 gap-y-1", className)}>
       {video && (
         <span className={item}>
-          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden className="text-video"><rect x="0.5" y="1.5" width="11" height="9" rx="1.5" stroke="currentColor" /><path d="M5 4.5 8 6 5 7.5V4.5Z" fill="currentColor" /></svg>
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden className="text-ink-3"><rect x="0.5" y="1.5" width="11" height="9" rx="1.5" stroke="currentColor" /><path d="M5 4.5 8 6 5 7.5V4.5Z" fill="currentColor" /></svg>
           <span className="nums">{video}</span>
         </span>
       )}
       {notes && (
         <span className={item}>
-          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden className="text-notes"><rect x="1.5" y="0.5" width="9" height="11" rx="1.5" stroke="currentColor" /><path d="M3.5 3.5h5M3.5 6h5M3.5 8.5h3" stroke="currentColor" strokeLinecap="round" /></svg>
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden className="text-ink-3"><rect x="1.5" y="0.5" width="9" height="11" rx="1.5" stroke="currentColor" /><path d="M3.5 3.5h5M3.5 6h5M3.5 8.5h3" stroke="currentColor" strokeLinecap="round" /></svg>
           Notes
         </span>
       )}
       {assignment && (
         <span className={item}>
-          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden className="text-quiz"><path d="M2.5 1.5h7v9h-7z" stroke="currentColor" /><path d="M4.5 4.5h3M4.5 7h3" stroke="currentColor" strokeLinecap="round" /></svg>
+          <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden className="text-ink-3"><path d="M2.5 1.5h7v9h-7z" stroke="currentColor" /><path d="M4.5 4.5h3M4.5 7h3" stroke="currentColor" strokeLinecap="round" /></svg>
           Assignment
         </span>
       )}

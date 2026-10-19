@@ -1,133 +1,116 @@
 "use client";
 
 import {
-  ArrowUpRight, Briefcase, Check, HelpCircle, Megaphone, Sparkles, Users,
+  ArrowUpRight, Briefcase, HelpCircle, Megaphone, Sparkles,
 } from "lucide-react";
 import { Page } from "@/components/shell/AppShell";
-import { Card, CardHeader, WhatsAppIcon } from "@/components/ui";
+import { Doodles, WhatsAppIcon } from "@/components/ui";
 import { COMMUNITY_STATS, WHATSAPP_COMMUNITY_URL } from "@/data/activity";
 
+/* ============================================================================
+ * COMMUNITY
+ *
+ * This page has exactly one job: get the learner into the WhatsApp group.
+ * It used to spend three stacked rows of equal-weight cards doing it — four
+ * perks with paragraph-length bodies, a three-step how-to and four house rules,
+ * each in its own bordered box. That is a landing page, not a product page.
+ *
+ * Now: one hero that carries the action, four one-line perks as plain rows, and
+ * the rules folded into small print beneath. Roughly half the height, same
+ * information.
+ * ========================================================================= */
+
 const PERKS = [
-  { icon: HelpCircle, title: "Get unstuck fast", body: "Post a question about a lab, quiz or project and get answers from peers and mentors." },
-  { icon: Megaphone, title: "Programme announcements", body: "Live sessions, new content drops and deadline reminders land here first." },
-  { icon: Sparkles, title: "Share what you build", body: "Show your projects, get feedback and see how others approached the same problem." },
-  { icon: Briefcase, title: "Jobs & referrals", body: "Openings, referrals and interview tips shared by alumni and hiring partners." },
+  { icon: HelpCircle, title: "Get unstuck", body: "Answers on labs, quizzes and projects, from peers and mentors." },
+  { icon: Megaphone, title: "Announcements", body: "Live sessions, new content and deadlines land here first." },
+  { icon: Sparkles, title: "Show your work", body: "Share projects and see how others solved the same problem." },
+  { icon: Briefcase, title: "Jobs & referrals", body: "Openings and interview tips from alumni and hiring partners." },
 ];
 
-const STEPS = [
-  "Tap “Join on WhatsApp” — it opens the community invite.",
-  "Join the Announcements group so you never miss an update.",
-  "Introduce yourself in the General group: name, role and what you want to build.",
+/** Joining and conduct: necessary, but not headline material. */
+const SMALL_PRINT = [
+  "Join the Announcements group so you never miss an update, then introduce yourself in General.",
+  "Keep threads on topic and use the right group. No full quiz answers, no spam, no unsolicited DMs.",
 ];
-
-const RULES = [
-  "Be kind and constructive — everyone is learning.",
-  "Keep threads on topic; use the right group for your question.",
-  "Don't share full quiz answers or project solutions.",
-  "No spam, promotions or unsolicited DMs.",
-];
-
-function JoinButton({ className = "" }: { className?: string }) {
-  return (
-    <a
-      href={WHATSAPP_COMMUNITY_URL}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={`inline-flex items-center gap-2 rounded-md bg-[#25D366] px-5 py-2.5 text-[14px] font-medium text-black transition-opacity hover:opacity-90 ${className}`}
-    >
-      <WhatsAppIcon size={16} /> Join on WhatsApp <ArrowUpRight size={15} />
-    </a>
-  );
-}
 
 export function CommunityView() {
   return (
-    <Page className="space-y-6">
+    <Page className="space-y-8">
       {/* ------------------------------------------------------------- hero */}
-      <Card className="brand-wash relative overflow-hidden border-line-hi">
-        <div className="grid-field pointer-events-none absolute inset-0 opacity-50" />
-        <div className="relative flex flex-col gap-8 p-6 lg:flex-row lg:items-end lg:justify-between lg:p-8">
+      <section className="relative isolate overflow-hidden rounded-[var(--radius-xl)] border border-line bg-card">
+        <Doodles variant="people" className="top-0 opacity-[0.04]" />
+        <div className="relative flex flex-col gap-8 p-6 sm:p-8 lg:flex-row lg:items-center lg:justify-between lg:gap-12">
           <div className="max-w-xl">
-            <div className="eyebrow text-brand-ink">Community</div>
-            <h1 className="display mt-3.5 text-[28px] leading-tight text-ink sm:text-[34px]">Join the FDE WhatsApp community</h1>
-            <p className="mt-3 text-[14px] leading-relaxed text-ink-2">
-              Connect with learners working through the same AI deployment journey. Ask questions, share what you build,
-              and get unstuck faster than you would alone.
+            <p className="eyebrow">Community</p>
+            <h1 className="display mt-3 text-[28px] font-light leading-tight text-ink sm:text-[34px]">
+              Join the FDE WhatsApp community
+            </h1>
+            <p className="mt-3 text-[14px] leading-relaxed text-ink-3">
+              {COMMUNITY_STATS.members.toLocaleString("en-IN")}+ learners working through the same AI deployment
+              journey. Ask questions, share what you build, get unstuck faster.
             </p>
-            <div className="mt-6 flex flex-wrap items-center gap-4">
-              <JoinButton />
-              <span className="flex items-center gap-2 text-[12px] text-ink-3">
+
+            <div className="mt-6 flex flex-wrap items-center gap-x-5 gap-y-3">
+              <a
+                href={WHATSAPP_COMMUNITY_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-[var(--radius-md)] bg-[#25D366] px-5 py-3 text-[14px] font-medium text-black transition-opacity hover:opacity-90"
+              >
+                <WhatsAppIcon size={16} /> Join on WhatsApp <ArrowUpRight size={15} />
+              </a>
+              <span className="flex items-center gap-2 text-[13px] text-ink-3">
                 <span className="relative flex size-2">
                   <span className="absolute inline-flex size-full animate-ping rounded-full bg-[#25D366]/60" />
                   <span className="relative inline-flex size-2 rounded-full bg-[#25D366]" />
                 </span>
-                {COMMUNITY_STATS.online} members online now
+                {COMMUNITY_STATS.online} online now
               </span>
             </div>
           </div>
 
-          <div className="flex shrink-0 gap-8">
-            <div>
-              <div className="display nums text-[46px] leading-none text-ink">{COMMUNITY_STATS.members.toLocaleString("en-IN")}+</div>
-              <div className="eyebrow mt-2.5">Members joined</div>
-            </div>
+          <div className="shrink-0 lg:text-right">
+            <p className="display nums text-[48px] font-light leading-none text-ink sm:text-[56px]">
+              {COMMUNITY_STATS.members.toLocaleString("en-IN")}+
+            </p>
+            <p className="eyebrow mt-2.5">Members joined</p>
           </div>
         </div>
-      </Card>
+      </section>
 
-      {/* ------------------------------------------------------------ perks */}
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {PERKS.map(({ icon: Icon, title, body }) => (
-          <Card key={title} className="p-5">
-            <span className="flex size-9 items-center justify-center rounded-md border border-line bg-bg-sub text-brand-ink">
-              <Icon size={16} />
-            </span>
-            <h2 className="display mt-4 text-[15px] text-ink">{title}</h2>
-            <p className="mt-1.5 text-[13px] leading-relaxed text-ink-2">{body}</p>
-          </Card>
-        ))}
-      </div>
-
-      {/* ------------------------------------------------- steps + rules */}
-      <div className="grid gap-5 lg:grid-cols-2">
-        <Card>
-          <CardHeader eyebrow="Getting started" title="Join in three steps" />
-          <ol className="space-y-4 border-t border-line px-5 py-5">
-            {STEPS.map((s, i) => (
-              <li key={s} className="flex gap-3.5">
-                <span className="nums flex size-6 shrink-0 items-center justify-center rounded-full border border-brand/40 bg-brand/10 text-[11px] text-brand-ink">
-                  {i + 1}
-                </span>
-                <span className="pt-0.5 text-[13px] leading-relaxed text-ink-2">{s}</span>
-              </li>
-            ))}
-          </ol>
-        </Card>
-
-        <Card>
-          <CardHeader eyebrow="House rules" title="Keep it useful for everyone" />
-          <ul className="space-y-3.5 border-t border-line px-5 py-5">
-            {RULES.map((r) => (
-              <li key={r} className="flex gap-3 text-[13px] leading-relaxed text-ink-2">
-                <Check size={14} strokeWidth={3} className="mt-[3px] shrink-0 text-[#25D366]" />
-                {r}
-              </li>
-            ))}
-          </ul>
-        </Card>
-      </div>
-
-      {/* ------------------------------------------------------------ footer */}
-      <Card className="flex flex-wrap items-center justify-between gap-4 p-5">
-        <div className="flex items-center gap-3.5">
-          <Users size={18} className="shrink-0 text-ink-3" />
-          <div>
-            <p className="display text-[14px] text-ink">{COMMUNITY_STATS.members.toLocaleString("en-IN")}+ learners are already in</p>
-            <p className="mt-1 text-[13px] text-ink-2">It takes one tap to join — you can mute groups any time.</p>
-          </div>
+      {/* ------------------------------------------------- what it's for */}
+      <section>
+        <div className="mb-4 flex items-center gap-4">
+          <h2 className="eyebrow shrink-0">What it&apos;s for</h2>
+          <span className="h-px flex-1 bg-line" aria-hidden="true" />
         </div>
-        <JoinButton />
-      </Card>
+        {/* Plain rows rather than four bordered boxes: the icon and the label
+            carry it, and the page stops looking like a pricing table. */}
+        <ul className="grid gap-x-10 gap-y-5 sm:grid-cols-2">
+          {PERKS.map((p) => (
+            <li key={p.title} className="flex gap-3.5">
+              <p.icon size={17} strokeWidth={1.75} className="mt-0.5 shrink-0 text-brand-ink" />
+              <span className="min-w-0">
+                <span className="block text-[14px] text-ink">{p.title}</span>
+                <span className="mt-1 block text-[13px] leading-relaxed text-ink-3">{p.body}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* ------------------------------------------------------ small print */}
+      <section className="border-t border-line pt-6">
+        <h2 className="eyebrow">Before you join</h2>
+        <ul className="mt-3 space-y-2">
+          {SMALL_PRINT.map((line) => (
+            <li key={line} className="flex gap-2.5 text-[13px] leading-relaxed text-ink-3">
+              <span className="mt-[9px] size-1 shrink-0 rounded-full bg-ink-4" aria-hidden="true" />
+              {line}
+            </li>
+          ))}
+        </ul>
+      </section>
     </Page>
   );
 }

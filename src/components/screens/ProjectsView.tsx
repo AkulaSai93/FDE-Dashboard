@@ -45,6 +45,7 @@ export function ProjectsView() {
   return (
     <Page className="space-y-6">
       <SectionHeading
+        decor="build"
         eyebrow="Projects"
         title="What you'll ship"
         description="Each project is a real-world problem statement. Open one to read the brief, watch the walkthrough video and grab the resources."

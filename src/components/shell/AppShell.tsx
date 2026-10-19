@@ -32,7 +32,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       {menuOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
           <div className="animate-fade absolute inset-0 bg-black/75 backdrop-blur-[2px]" onClick={() => setMenuOpen(false)} />
-          <div className="absolute inset-y-0 left-0 w-[280px] border-r border-line shadow-2xl shadow-black/80">
+          <div className="absolute inset-y-0 left-0 w-[280px] shadow-2xl shadow-black/40">
             <button
               onClick={() => setMenuOpen(false)}
               aria-label="Close navigation"
@@ -49,7 +49,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <Topbar onOpenMenu={() => setMenuOpen(true)} />
         {/* Content sheet: a rounded #121212 panel on the black canvas, exactly like the
             landing page's hero section (rounded-[32px] bg-ink-deep mx-4/6/8). */}
-        <main className="mx-2 mb-20 min-h-[calc(100dvh-4rem)] rounded-[24px] bg-panel sm:mx-3 lg:mb-3 lg:ml-0 lg:mr-3 lg:rounded-[32px]">
+        <main className="mx-2 mb-20 min-h-[calc(100dvh-4rem)] rounded-[24px] sheet sm:mx-3 lg:mb-3 lg:ml-0 lg:mr-3 lg:rounded-[32px]">
           {children}
         </main>
       </div>

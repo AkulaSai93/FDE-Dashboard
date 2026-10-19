@@ -4,7 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import { ArrowRight, Check, Download, Lock, Share2 } from "lucide-react";
 import { Page } from "@/components/shell/AppShell";
-import { Button, ButtonLink, cx } from "@/components/ui";
+import { Button, ButtonLink, Doodles, cx } from "@/components/ui";
 import { useToast } from "@/components/ui/toast";
 import { ALL_TOPICS } from "@/data/curriculum";
 import { useProgress, useRollups } from "@/state/progress";
@@ -34,10 +34,11 @@ export function CertificationView() {
   return (
     <Page className="flex flex-col gap-10 lg:min-h-[calc(100dvh-4.5rem)]">
       {/* ------------------------------------------------------------ hero */}
-      <section className="grid flex-1 items-center gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.3fr)]">
-        <div>
+      <section className="relative isolate grid flex-1 items-center gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.3fr)]">
+        <Doodles variant="award" className="-top-6 max-w-[48%]" />
+        <div className="relative">
           <p className="eyebrow">Certification</p>
-          <h1 className="display mt-3 text-[34px] font-light leading-[1.05] text-ink sm:text-[42px]">
+          <h1 className="display relative mt-3 text-[34px] font-light leading-[1.05] text-ink sm:text-[42px]">
             {eligible ? (
               <>Your certificate is <span className="text-brand-ink">ready.</span></>
             ) : (
@@ -96,7 +97,7 @@ export function CertificationView() {
           />
           {!eligible && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-center">
-              <span className="flex size-12 items-center justify-center rounded-full bg-black/70 ring-1 ring-white/15">
+              <span className="flex size-12 items-center justify-center rounded-full bg-black/70 ring-1 ring-tint-line">
                 <Lock size={18} className="text-white" />
               </span>
               <p className="text-[14px] font-medium text-white">Unlocks at 100%</p>
@@ -118,7 +119,7 @@ export function CertificationView() {
                 <div className="flex items-center justify-between">
                   <span className="text-[13px] text-ink-3">{r.label}</span>
                   {met && (
-                    <span className="inline-flex items-center gap-1 text-[12px] text-done">
+                    <span className="inline-flex items-center gap-1 text-[12px] text-ink-2">
                       <Check size={12} strokeWidth={3} /> Done
                     </span>
                   )}
@@ -128,7 +129,7 @@ export function CertificationView() {
                   <span className="text-[16px] text-ink-3"> / {r.total}</span>
                 </p>
                 <span className="mt-3 block h-1 overflow-hidden rounded-full bg-card-hi2">
-                  <span className={cx("block h-full rounded-full", met ? "bg-done" : "bg-brand")} style={{ width: `${(r.done / r.total) * 100}%` }} />
+                  <span className={cx("block h-full rounded-full", met ? "bg-ink-2" : "bg-brand")} style={{ width: `${(r.done / r.total) * 100}%` }} />
                 </span>
               </div>
             );

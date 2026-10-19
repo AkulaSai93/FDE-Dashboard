@@ -21,8 +21,8 @@ const FILTERS: Array<{ value: Filter; label: string }> = [
 ];
 
 const DIFFICULTY_DOT = {
-  Beginner: "bg-done",
-  Intermediate: "bg-quiz",
+  Beginner: "bg-ink-3",
+  Intermediate: "bg-ink-2",
   Advanced: "bg-brand",
 } as const;
 
@@ -58,6 +58,7 @@ export function AssignmentsView() {
   return (
     <Page className="space-y-6">
       <SectionHeading
+        decor="study"
         eyebrow="Assignments"
         title="Quick MCQ checks"
         description="One short multiple-choice quiz at the end of each module. Answer, submit, see your score."
@@ -117,7 +118,7 @@ export function AssignmentsView() {
                   className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-4 gap-y-2 px-4 py-3.5 transition-colors hover:bg-card md:grid-cols-[minmax(0,1fr)_110px_80px_120px_130px]"
                 >
                   <div className="flex min-w-0 items-center gap-3">
-                    <span className={cx("flex size-9 shrink-0 items-center justify-center rounded-[var(--radius-md)]", quiz ? "bg-done/12 text-done" : "bg-quiz/12 text-quiz")}>
+                    <span className={cx("flex size-9 shrink-0 items-center justify-center rounded-[var(--radius-md)]", quiz ? "bg-tint-2 text-ink" : "bg-tint-1 text-ink-2")}>
                       {quiz ? <Check size={16} strokeWidth={2.5} /> : <ClipboardList size={16} />}
                     </span>
                     <div className="min-w-0">
@@ -135,7 +136,7 @@ export function AssignmentsView() {
                       <span className="flex items-center gap-2">
                         <span className="nums text-[13px] text-ink">{quiz.correct}/{quiz.total}</span>
                         <span className="h-1 flex-1 overflow-hidden rounded-full bg-card-hi2">
-                          <span className={cx("block h-full rounded-full", pct >= 80 ? "bg-done" : "bg-quiz")} style={{ width: `${pct}%` }} />
+                          <span className={cx("block h-full rounded-full", pct >= 80 ? "bg-ink-2" : "bg-ink-2")} style={{ width: `${pct}%` }} />
                         </span>
                       </span>
                     ) : (

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Bell, Menu, Flame } from "lucide-react";
 import { CommandSearch } from "./CommandSearch";
+import { ThemeToggle } from "./ThemeToggle";
 import { Breadcrumbs, cx } from "@/components/ui";
 import { ALL_NAV_ITEMS } from "./nav";
 import { MODULE_BY_ID, PHASE_BY_ID, TOPIC_BY_ID } from "@/data/curriculum";
@@ -79,7 +80,7 @@ function Notifications() {
             <span className="display text-[13px] text-ink">Notifications</span>
             <span className="eyebrow">{unread} unread</span>
           </div>
-          <ul className="max-h-[60vh] divide-y divide-[#1a1a1a] overflow-y-auto">
+          <ul className="max-h-[60vh] divide-y divide-line-soft overflow-y-auto">
             {NOTIFICATIONS.map((n) => (
               <li key={n.id}>
                 <Link
@@ -119,13 +120,16 @@ function ProfileMenu() {
       <button
         onClick={() => setOpen((o) => !o)}
         aria-label="Account"
-        className="flex size-8.5 items-center justify-center rounded-md border border-line-hi bg-card-hi text-[11px] font-semibold text-ink transition-colors hover:border-[#3a3a3a]"
+        className="flex size-9 items-center justify-center rounded-full bg-card-hi text-[12px] font-semibold text-ink-2 ring-1 ring-line-hi transition-colors hover:text-ink hover:ring-ink-4"
       >
         {USER.initials}
       </button>
       {open && (
         <div className="animate-fade absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-xl border border-line-hi bg-surface shadow-2xl shadow-black/70">
-          <div className="border-b border-line px-4 py-3.5">
+          <div className="flex items-center gap-3 border-b border-line px-4 py-3.5">
+            <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-card-hi text-[12px] font-semibold text-ink-2 ring-1 ring-line-hi">
+              {USER.initials}
+            </span>
             <p className="text-[13px] font-medium text-ink">{USER.name}</p>
             <p className="mt-0.5 truncate text-[12px] text-ink-3">{USER.email}</p>
             <p className="eyebrow mt-2">{USER.cohort} · Unlocked</p>
@@ -175,6 +179,7 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
           {USER.streakDays} day streak
         </span>
         <CommandSearch />
+        <ThemeToggle />
         <Notifications />
         <ProfileMenu />
       </div>

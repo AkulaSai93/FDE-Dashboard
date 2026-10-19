@@ -46,13 +46,6 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                             : "text-ink-2 hover:bg-card hover:text-ink",
                       )}
                     >
-                      {/* Red accent indicator — not a red pill */}
-                      <span
-                        className={cx(
-                          "absolute left-0 top-1/2 h-4 w-0.5 -translate-y-1/2 rounded-r-full bg-brand transition-opacity",
-                          active ? "opacity-100" : "opacity-0",
-                        )}
-                      />
                       <Icon
                         size={15}
                         strokeWidth={1.75}
