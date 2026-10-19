@@ -185,22 +185,26 @@ export function DashboardView() {
         {/* ------------------------------------------- what do I open */}
         <section className="flex min-w-0 flex-col">
           <Band label="Continue learning" />
-          <div className="h-full overflow-hidden rounded-[var(--radius-xl)] border border-line bg-card">
-            <div className="grid h-full sm:grid-cols-[minmax(0,230px)_minmax(0,1fr)]">
+          <div className="h-full rounded-[var(--radius-xl)] border border-line bg-card p-5 sm:p-6">
+            {/* The thumbnail is inset and keeps a true 16:9. Previously it was
+                bled to the card edges and stretched to the card's height, which
+                cropped a 16:9 still into a near-square and cut the right third
+                of the artwork off. */}
+            <div className="grid h-full gap-5 sm:grid-cols-[minmax(0,300px)_minmax(0,1fr)] sm:gap-6">
               <Link
                 href={`/learn/${topic.id}`}
-                className="group relative flex aspect-video items-center justify-center overflow-hidden bg-black sm:aspect-auto"
+                className="group relative block aspect-video self-center overflow-hidden rounded-[var(--radius-lg)] bg-black ring-1 ring-line"
                 aria-label={`Resume ${topic.title}`}
               >
                 <LessonArt
                   topicId={topic.id}
-                  className="opacity-85 transition-transform duration-500 group-hover:scale-105"
+                  className="transition-transform duration-500 group-hover:scale-105"
                 />
-                <span className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/15 to-black/5" />
-                <span className="relative flex size-11 items-center justify-center rounded-full bg-brand text-white shadow-[0_0_28px_rgba(230,22,31,.45)] transition-transform group-hover:scale-105">
+                <span className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
+                <span className="absolute left-1/2 top-1/2 flex size-11 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-brand text-white shadow-[0_0_28px_rgba(230,22,31,.45)] transition-transform duration-200 group-hover:scale-110">
                   <Play size={16} fill="currentColor" strokeWidth={0} className="ml-0.5" />
                 </span>
-                <span className="nums absolute bottom-2 right-2.5 rounded bg-black/80 px-1.5 py-0.5 text-[11px] text-ink-2">
+                <span className="nums absolute bottom-2 right-2.5 rounded bg-black/80 px-1.5 py-0.5 text-[11px] text-ink-2 backdrop-blur-sm">
                   {formatDuration(tp?.videoPosition ?? 0)} / {formatDuration(topic.videoSeconds)}
                 </span>
                 <span className="absolute inset-x-0 bottom-0 h-[3px] bg-white/15">
@@ -208,7 +212,7 @@ export function DashboardView() {
                 </span>
               </Link>
 
-              <div className="flex flex-col gap-4 p-5 sm:p-6">
+              <div className="flex min-w-0 flex-col gap-4">
                 <div className="min-w-0">
                   <p className="eyebrow">Video lesson · {formatMinutes(topic.videoSeconds)}</p>
                   <h3 className="display mt-2 text-[22px] leading-tight text-ink">{topic.title}</h3>
