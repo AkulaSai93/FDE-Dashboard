@@ -58,6 +58,13 @@
   --c-tint-grid: rgba(255, 255, 255, 0.035); /* grid-field texture */
   --c-track: #2a2a2a;                        /* progress / scrollbar track */
 
+  /* Structure. Dark separates its planes by luminance — #000 chrome against a
+     #121212 sheet — so it needs neither of these. Light cannot: nothing is
+     lighter than the white sheet, so there the chrome needs a real edge and
+     the sheet needs to cast. Inert here, load-bearing there. */
+  --c-chrome-line: transparent;
+  --c-sheet-shadow: none;
+
   /* ---- Functional (used sparingly, desaturated to stay in-system) ---- */
   --c-ok: #3fb950;
   --c-warn: #d29922;
@@ -65,21 +72,23 @@
 }
 
 [data-theme="light"] {
-  /* The same six-step ladder inverted: a tinted canvas so the white sheet and
-     the cards on it stay distinguishable. A pure-white canvas would collapse
-     the sheet, the card and the page into one plane — the exact failure the
-     dark theme had before it was layered. */
-  --c-bg: #e9ebef;
-  --c-bg-sub: #f1f3f6;
-  --c-surface: #ffffff;
-  --c-panel: #ffffff;
-  --c-card: #f7f8fa;
-  --c-card-hi: #eef0f4;
-  --c-card-hi2: #e2e5ea;
+  /* Light is not the dark ladder inverted. In dark, elevation reads as
+     *lighter*; in light you run out of room at white, so the order flips: a
+     clearly tinted canvas frames a white sheet, cards sit on that sheet as
+     tinted panels, and the chrome is separated by an edge rather than by
+     luminance. An earlier pass used #ffffff for the sidebar, the sheet and the
+     cards at once, which collapsed all three into a single white field. */
+  --c-bg: #e4e7ed;          /* canvas — frames the sheet, deliberately grey */
+  --c-bg-sub: #f1f4f7;      /* insets inside a card */
+  --c-surface: #f7f8fa;     /* sidebar, topbar — off-white, edged not filled */
+  --c-panel: #ffffff;       /* the sheet — the paper you read on */
+  --c-card: #f2f5f9;        /* card on the paper — tinted, so it reads as one */
+  --c-card-hi: #eef1f5;     /* raised / hovered */
+  --c-card-hi2: #e3e7ed;    /* pressed / nested / track */
 
-  --c-line: #e4e6eb;
-  --c-line-hi: #ccd0d7;
-  --c-line-soft: #eef0f3;
+  --c-line: #e0e4ea;
+  --c-line-hi: #c6cdd6;
+  --c-line-soft: #ecf0f4;
 
   --c-ink: #14161b;
   --c-ink-2: #3a3f49;
@@ -102,6 +111,9 @@
   --c-tint-edge: rgba(0, 0, 0, 0.08);
   --c-tint-grid: rgba(0, 0, 0, 0.045);
   --c-track: #dfe2e7;
+
+  --c-chrome-line: #dde1e8;
+  --c-sheet-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 8px 24px -8px rgba(16, 24, 40, 0.10);
 
   --c-ok: #1a7f37;
   --c-warn: #9a6700;
@@ -140,6 +152,7 @@
   --color-tint-line: var(--c-tint-line);
   --color-tint-edge: var(--c-tint-edge);
   --color-track: var(--c-track);
+  --color-chrome: var(--c-chrome-line);
 
   --color-ok: var(--c-ok);
   --color-warn: var(--c-warn);
@@ -167,7 +180,13 @@
 
 /* ============================ Base ============================ */
 
-* { border-color: var(--color-line); }
+/* In @layer base on purpose. Unlayered rules beat anything in
+   @layer utilities regardless of specificity, so an unlayered `*` default was
+   silently overriding every border-* colour utility in the product —
+   border-line-hi, border-brand/30 and the rest all resolved to --c-line. */
+@layer base {
+  * { border-color: var(--color-line); }
+}
 
 html { color-scheme: dark; background: var(--c-bg); }
 [data-theme="light"] { color-scheme: light; }
@@ -217,6 +236,14 @@ body {
 @utility nums { font-variant-numeric: tabular-nums; }
 
 /* ========================= Surface utilities ========================= */
+
+/* The reading surface. Carries its own shadow rather than using a Tailwind
+   shadow utility: `shadow-[var(--c-sheet-shadow)]` gets composed with
+   --tw-shadow-color and came out fully transparent. */
+@utility sheet {
+  background: var(--c-panel);
+  box-shadow: var(--c-sheet-shadow);
+}
 
 @utility card {
   background: var(--color-card);
