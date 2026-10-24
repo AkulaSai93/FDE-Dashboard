@@ -1,4 +1,3 @@
-import { hash } from "@/data/curriculum";
 
 /* ============================================================================
  * LEADERBOARD
@@ -16,22 +15,13 @@ import { hash } from "@/data/curriculum";
  * The signed-in learner's score is computed from their real progress at render
  * time, so their row and rank are true. Everyone else is seeded.
  *
- * Time ranges are derived deterministically from the all-time score rather
- * than from real session history, which the product does not record yet.
- * Replace `COHORT` and `scoreFor` with the rankings endpoint and the rest of
- * the screen is unchanged.
+ * Rankings are all-time. There is no weekly or monthly view because the
+ * product records no session history to build one from — an earlier revision
+ * faked it by scaling the all-time score, which is worse than not offering it.
+ * Replace `COHORT` with the rankings endpoint and the screen is unchanged.
  * ========================================================================= */
 
 export const XP = { topic: 10, quiz: 50 } as const;
-
-export type Range = "all" | "month" | "week" | "day";
-
-export const RANGES: ReadonlyArray<{ value: Range; label: string }> = [
-  { value: "all", label: "All time" },
-  { value: "month", label: "This month" },
-  { value: "week", label: "This week" },
-  { value: "day", label: "Today" },
-];
 
 export interface Learner {
   id: string;
@@ -59,15 +49,6 @@ export const COHORT: Learner[] = [
   { id: "l-11", name: "Neha Bansal", allTime: 2105 },
   { id: "l-12", name: "Rahul Kulkarni", allTime: 1870 },
 ];
-
-/** A shorter window is a fraction of the all-time score, varied per learner so
- *  the order genuinely reshuffles between tabs instead of staying fixed. */
-export function scoreFor(learner: Learner, range: Range): number {
-  if (range === "all") return learner.allTime;
-  const share = { month: 0.34, week: 0.12, day: 0.03 }[range];
-  const wobble = 0.72 + (hash(learner.id + range) % 57) / 100; // 0.72–1.28
-  return Math.round((learner.allTime * share * wobble) / 5) * 5;
-}
 
 export function initialsOf(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);

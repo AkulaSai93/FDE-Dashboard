@@ -6,9 +6,7 @@ import { Page } from "@/components/shell/AppShell";
 import { Doodles, cx } from "@/components/ui";
 import { ALL_TOPICS } from "@/data/curriculum";
 import { USER } from "@/data/user";
-import {
-  COHORT, RANGES, XP, initialsOf, scoreFor, type Learner, type Range,
-} from "@/data/leaderboard";
+import { COHORT, XP, initialsOf, type Learner } from "@/data/leaderboard";
 import { useProgress, useRollups } from "@/state/progress";
 
 /* ============================================================================
@@ -89,7 +87,6 @@ function Avatar({ name, size, className }: { name: string; size: number; classNa
 }
 
 export function LeaderboardView() {
-  const [range, setRange] = React.useState<Range>("all");
   const { program } = useRollups();
   const { topics } = useProgress();
 
@@ -105,10 +102,10 @@ export function LeaderboardView() {
 
   const ranked = React.useMemo(() => {
     return [...COHORT, you]
-      .map((l) => ({ ...l, score: scoreFor(l, range) }))
+      .map((l) => ({ ...l, score: l.allTime }))
       .sort((a, b) => b.score - a.score)
       .map((l, i) => ({ ...l, rank: i + 1 }));
-  }, [range, you.allTime]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [you.allTime]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const podium = ranked.slice(0, 3);
   const yourRow = ranked.find((l) => l.isYou)!;
@@ -118,7 +115,7 @@ export function LeaderboardView() {
   return (
     <Page className="space-y-9">
       {/* ------------------------------------------------------------ podium */}
-      <section className="relative isolate overflow-hidden rounded-[var(--radius-xl)] border border-line bg-card px-6 py-9 sm:px-8">
+      <section className="relative isolate overflow-hidden px-2 pb-2 pt-4 sm:px-4">
         <Doodles variant="award" className="top-0 opacity-[0.045]" />
         <div className="relative">
           {/* A podium with actual steps: first stands higher, flanked by
@@ -151,7 +148,7 @@ export function LeaderboardView() {
                       <Avatar
                         name={l.name}
                         size={first ? 86 : 62}
-                        className={cx("ring-2 ring-offset-2 ring-offset-card", m.ring)}
+                        className={cx("ring-2 ring-offset-2 ring-offset-panel", m.ring)}
                       />
                     </span>
                     <span
@@ -191,27 +188,6 @@ export function LeaderboardView() {
             {XP.quiz} per quiz passed.
           </p>
 
-          {/* -------------------------------------------------------- ranges */}
-          <div
-            role="tablist"
-            aria-label="Leaderboard range"
-            className="mx-auto mt-7 flex w-fit items-center gap-1 rounded-full border border-line bg-bg-sub p-1"
-          >
-            {RANGES.map((r) => (
-              <button
-                key={r.value}
-                role="tab"
-                aria-selected={range === r.value}
-                onClick={() => setRange(r.value)}
-                className={cx(
-                  "rounded-full px-4 py-1.5 text-[13px] transition-colors",
-                  range === r.value ? "bg-card-hi font-medium text-ink" : "text-ink-3 hover:text-ink-2",
-                )}
-              >
-                {r.label}
-              </button>
-            ))}
-          </div>
         </div>
       </section>
 
@@ -242,7 +218,7 @@ export function LeaderboardView() {
       {/* ------------------------------------------------------------- table */}
       <section>
         <div className="mb-3 flex items-center gap-4">
-          <h2 className="eyebrow shrink-0">{RANGES.find((r) => r.value === range)!.label}</h2>
+          <h2 className="eyebrow shrink-0">Standings</h2>
           <span className="h-px flex-1 bg-line" aria-hidden="true" />
           <span className="eyebrow shrink-0">{ranked.length} learners</span>
         </div>
