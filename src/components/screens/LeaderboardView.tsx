@@ -20,24 +20,28 @@ import { useProgress, useRollups } from "@/state/progress";
  * brand red — the same "this is the thing in flight" the rest of the LMS uses.
  * ========================================================================= */
 
-/* Medal colour lives on filled chips and rings only. As *text* it was a pale
-   metallic on a pale surface in the light theme — the XP values washed out —
-   so scores stay in the normal ink ramp and the rank carries the colour. */
+/* Rank in the brand's own colours rather than gold, silver and bronze. Red is
+   first — the same "this is the one that matters" the rest of the LMS uses —
+   then white, then grey. Three legible steps in both themes, and nothing
+   introduced that the palette didn't already contain. */
 const MEDAL = [
   {
-    ring: "ring-[#d4a63c]", bg: "bg-[#d4a63c]/10", chip: "bg-[#d4a63c] text-black",
-    tint: "text-[#d4a63c]",
-    step: "bg-gradient-to-b from-[#d4a63c]/22 to-transparent",
+    ring: "ring-brand",
+    chip: "bg-brand text-white",
+    tint: "text-brand-ink",
+    step: "bg-gradient-to-b from-brand/30 to-transparent",
   },
   {
-    ring: "ring-[#9aa4b0]", bg: "bg-[#9aa4b0]/10", chip: "bg-[#9aa4b0] text-black",
-    tint: "text-[#9aa4b0]",
-    step: "bg-gradient-to-b from-[#9aa4b0]/20 to-transparent",
+    ring: "ring-ink-2",
+    chip: "bg-ink text-panel",
+    tint: "text-ink-2",
+    step: "bg-gradient-to-b from-ink-2/22 to-transparent",
   },
   {
-    ring: "ring-[#b07a4a]", bg: "bg-[#b07a4a]/10", chip: "bg-[#b07a4a] text-black",
-    tint: "text-[#b07a4a]",
-    step: "bg-gradient-to-b from-[#b07a4a]/20 to-transparent",
+    ring: "ring-ink-4",
+    chip: "bg-ink-3 text-panel",
+    tint: "text-ink-3",
+    step: "bg-gradient-to-b from-ink-4/22 to-transparent",
   },
 ] as const;
 
@@ -116,16 +120,6 @@ export function LeaderboardView() {
       {/* ------------------------------------------------------------ podium */}
       <section className="relative isolate overflow-hidden rounded-[var(--radius-xl)] border border-line bg-card px-6 py-9 sm:px-8">
         <Doodles variant="award" className="top-0 opacity-[0.045]" />
-        {/* The light the podium stands in. */}
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{
-            backgroundImage:
-              "radial-gradient(58% 62% at 50% 6%, rgba(212,166,60,0.14) 0%, rgba(212,166,60,0.04) 42%, transparent 72%)",
-          }}
-          aria-hidden="true"
-        />
-
         <div className="relative">
           {/* A podium with actual steps: first stands higher, flanked by
               laurels and lit by its own halo. */}
@@ -141,7 +135,7 @@ export function LeaderboardView() {
                   style={{ animationDelay: `${i * 90}ms` }}
                 >
                   {first && (
-                    <Crown size={22} className="mb-2 drop-shadow-[0_0_10px_rgba(224,180,81,0.55)] text-[#e0b451]" aria-hidden="true" />
+                    <Crown size={22} className="mb-2 text-brand drop-shadow-[0_0_10px_rgba(230,22,31,0.5)]" aria-hidden="true" />
                   )}
 
                   <span className={cx("relative flex items-center justify-center", m.tint)}>
@@ -270,9 +264,7 @@ export function LeaderboardView() {
                     l.rank === 1 && "shine",
                     l.isYou
                       ? "bg-brand/[0.08] ring-1 ring-inset ring-brand/25"
-                      : m
-                        ? cx(m.bg, "ring-1 ring-inset", m.ring.replace("ring-", "ring-") + "/25", "hover:bg-card-hi")
-                        : "hover:bg-card",
+                      : "hover:bg-card",
                   )}
                 >
                   <span
