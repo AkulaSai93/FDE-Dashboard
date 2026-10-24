@@ -3,7 +3,7 @@
 import * as React from "react";
 import { Crown, Minus, TrendingUp } from "lucide-react";
 import { Page } from "@/components/shell/AppShell";
-import { Doodles, cx } from "@/components/ui";
+import { cx } from "@/components/ui";
 import { ALL_TOPICS } from "@/data/curriculum";
 import { USER } from "@/data/user";
 import { COHORT, XP, initialsOf, type Learner } from "@/data/leaderboard";
@@ -116,7 +116,6 @@ export function LeaderboardView() {
     <Page className="space-y-9">
       {/* ------------------------------------------------------------ podium */}
       <section className="relative isolate overflow-hidden px-2 pb-2 pt-4 sm:px-4">
-        <Doodles variant="award" className="top-0 opacity-[0.045]" />
         <div className="relative">
           {/* A podium with actual steps: first stands higher, flanked by
               laurels and lit by its own halo. */}
