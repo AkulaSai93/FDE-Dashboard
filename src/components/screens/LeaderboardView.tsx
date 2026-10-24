@@ -24,10 +24,50 @@ import { useProgress, useRollups } from "@/state/progress";
    metallic on a pale surface in the light theme — the XP values washed out —
    so scores stay in the normal ink ramp and the rank carries the colour. */
 const MEDAL = [
-  { ring: "ring-[#d4a63c]", bg: "bg-[#d4a63c]/10", chip: "bg-[#d4a63c] text-black" },
-  { ring: "ring-[#9aa4b0]", bg: "bg-[#9aa4b0]/10", chip: "bg-[#9aa4b0] text-black" },
-  { ring: "ring-[#b07a4a]", bg: "bg-[#b07a4a]/10", chip: "bg-[#b07a4a] text-black" },
+  {
+    ring: "ring-[#d4a63c]", bg: "bg-[#d4a63c]/10", chip: "bg-[#d4a63c] text-black",
+    tint: "text-[#d4a63c]",
+    step: "bg-gradient-to-b from-[#d4a63c]/22 to-transparent",
+  },
+  {
+    ring: "ring-[#9aa4b0]", bg: "bg-[#9aa4b0]/10", chip: "bg-[#9aa4b0] text-black",
+    tint: "text-[#9aa4b0]",
+    step: "bg-gradient-to-b from-[#9aa4b0]/20 to-transparent",
+  },
+  {
+    ring: "ring-[#b07a4a]", bg: "bg-[#b07a4a]/10", chip: "bg-[#b07a4a] text-black",
+    tint: "text-[#b07a4a]",
+    step: "bg-gradient-to-b from-[#b07a4a]/20 to-transparent",
+  },
 ] as const;
+
+/** Laurel flanking first place. Two mirrored sprigs, drawn rather than
+ *  imported so it inherits currentColor and costs no request. */
+function Laurel({ className }: { className?: string }) {
+  const sprig = (
+    <g stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinecap="round">
+      <path d="M30 4C16 12 9 26 10 44c1 14 8 25 20 32" />
+      {[0, 1, 2, 3, 4, 5].map((i) => {
+        const y = 12 + i * 10;
+        const x = 22 - i * 2.2;
+        return (
+          <path
+            key={i}
+            d={`M${x} ${y}c-7-3-12 0-14 5 5 3 11 2 14-5Z`}
+            fill="currentColor"
+            fillOpacity="0.5"
+            stroke="none"
+          />
+        );
+      })}
+    </g>
+  );
+  return (
+    <svg viewBox="0 0 60 80" fill="none" aria-hidden="true" className={className}>
+      {sprig}
+    </svg>
+  );
+}
 
 function Avatar({ name, size, className }: { name: string; size: number; className?: string }) {
   return (
@@ -76,35 +116,74 @@ export function LeaderboardView() {
       {/* ------------------------------------------------------------ podium */}
       <section className="relative isolate overflow-hidden rounded-[var(--radius-xl)] border border-line bg-card px-6 py-9 sm:px-8">
         <Doodles variant="award" className="top-0 opacity-[0.045]" />
+        {/* The light the podium stands in. */}
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            backgroundImage:
+              "radial-gradient(58% 62% at 50% 6%, rgba(212,166,60,0.14) 0%, rgba(212,166,60,0.04) 42%, transparent 72%)",
+          }}
+          aria-hidden="true"
+        />
 
         <div className="relative">
-          <div className="flex items-end justify-center gap-5 sm:gap-10">
-            {podiumOrder.map((l) => {
+          {/* A podium with actual steps: first stands higher, flanked by
+              laurels and lit by its own halo. */}
+          <div className="flex items-end justify-center gap-3 sm:gap-6">
+            {podiumOrder.map((l, i) => {
               const place = l.rank - 1;
               const m = MEDAL[place];
               const first = l.rank === 1;
               return (
-                <div key={l.id} className={cx("flex min-w-0 flex-col items-center", first ? "pb-2" : "pb-0")}>
-                  {first && <Crown size={20} className="mb-2 text-[#e0b451]" aria-hidden="true" />}
-                  <span className="relative">
-                    <Avatar
-                      name={l.name}
-                      size={first ? 84 : 62}
-                      className={cx("ring-2 ring-offset-2 ring-offset-card", m.ring)}
-                    />
+                <div
+                  key={l.id}
+                  className="animate-pop flex min-w-0 flex-1 flex-col items-center sm:max-w-[200px]"
+                  style={{ animationDelay: `${i * 90}ms` }}
+                >
+                  {first && (
+                    <Crown size={22} className="mb-2 drop-shadow-[0_0_10px_rgba(224,180,81,0.55)] text-[#e0b451]" aria-hidden="true" />
+                  )}
+
+                  <span className={cx("relative flex items-center justify-center", m.tint)}>
+                    {first && (
+                      <>
+                        {/* Hidden on phones: at 375px the sprigs reach across
+                            and collide with the second-place avatar. */}
+                        <Laurel className="pointer-events-none absolute -left-11 hidden h-[96px] w-[52px] opacity-70 sm:block" />
+                        <Laurel className="pointer-events-none absolute -right-11 hidden h-[96px] w-[52px] -scale-x-100 opacity-70 sm:block" />
+                      </>
+                    )}
+                    <span className={cx("medal-glow", first && "medal-glow-lg")}>
+                      <Avatar
+                        name={l.name}
+                        size={first ? 86 : 62}
+                        className={cx("ring-2 ring-offset-2 ring-offset-card", m.ring)}
+                      />
+                    </span>
                     <span
                       className={cx(
-                        "absolute -bottom-1.5 left-1/2 flex size-6 -translate-x-1/2 items-center justify-center rounded-full text-[11px] font-bold",
+                        "absolute -bottom-2 left-1/2 flex -translate-x-1/2 items-center justify-center rounded-full font-bold shadow-lg",
+                        first ? "size-7 text-[12px]" : "size-6 text-[11px]",
                         m.chip,
                       )}
                     >
                       {l.rank}
                     </span>
                   </span>
-                  <p className={cx("display mt-4 max-w-[9rem] truncate text-center text-ink", first ? "text-[18px]" : "text-[15px]")}>
+
+                  <p className={cx("display mt-5 w-full truncate text-center text-ink", first ? "text-[18px]" : "text-[15px]")}>
                     {l.name.split(" ")[0]}
                   </p>
-                  <p className="nums mt-1 text-[13px] text-ink-2">{l.score.toLocaleString("en-IN")} XP</p>
+                  <p className="nums mt-0.5 text-[13px] text-ink-2">{l.score.toLocaleString("en-IN")} XP</p>
+
+                  {/* the step itself */}
+                  <div
+                    className={cx(
+                      "mt-3 w-full rounded-t-[var(--radius-md)] border border-b-0 border-line",
+                      m.step,
+                    )}
+                    style={{ height: first ? 72 : l.rank === 2 ? 52 : 38 }}
+                  />
                 </div>
               );
             })}
@@ -179,21 +258,27 @@ export function LeaderboardView() {
             const place = l.rank - 1;
             const m = place < 3 ? MEDAL[place] : null;
             return (
-              <li key={l.id}>
+              <li
+                key={l.id}
+                className="animate-rise"
+                style={{ animationDelay: `${Math.min(place, 11) * 45}ms` }}
+              >
                 <div
                   className={cx(
                     "flex items-center gap-4 rounded-[var(--radius-md)] px-4 py-3 transition-colors",
+                    // First place gets the sweep; it is the only row that does.
+                    l.rank === 1 && "shine",
                     l.isYou
                       ? "bg-brand/[0.08] ring-1 ring-inset ring-brand/25"
                       : m
-                        ? cx(m.bg, "hover:bg-card-hi")
+                        ? cx(m.bg, "ring-1 ring-inset", m.ring.replace("ring-", "ring-") + "/25", "hover:bg-card-hi")
                         : "hover:bg-card",
                   )}
                 >
                   <span
                     className={cx(
                       "nums flex size-7 shrink-0 items-center justify-center rounded-full text-[12px] font-bold",
-                      l.isYou ? "bg-brand text-white" : m ? m.chip : "bg-card-hi2 text-ink-3",
+                      l.isYou ? "bg-brand text-white" : m ? cx(m.chip, "shadow-md") : "bg-card-hi2 text-ink-3",
                     )}
                   >
                     {l.rank}
