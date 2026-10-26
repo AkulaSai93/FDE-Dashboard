@@ -3,12 +3,14 @@
 import * as React from "react";
 import Link from "next/link";
 import {
-  ArrowRight, ArrowUpRight, Check, Flame, Play,
+  ArrowRight, ArrowUpRight, Check, Play,
 } from "lucide-react";
 import { Page } from "@/components/shell/AppShell";
 import { LessonArt, ProgressRing, WhatsAppIcon, cx } from "@/components/ui";
+import { StreakPanel } from "@/components/shell/StreakPanel";
+import { TODAY, WEEK, WEEK_MAX, WEEK_TOTAL } from "@/data/streak";
 import {
-  ALL_TOPICS, MODULE_BY_ID, PHASES, PHASE_BY_ID, formatDuration, formatMinutes, hash,
+  ALL_TOPICS, MODULE_BY_ID, PHASES, PHASE_BY_ID, formatDuration, formatMinutes,
 } from "@/data/curriculum";
 import { COMMUNITY_STATS, WHATSAPP_COMMUNITY_URL } from "@/data/activity";
 import { USER } from "@/data/user";
@@ -42,15 +44,6 @@ function useGreeting() {
   }, []);
   return greeting;
 }
-
-/** Placeholder week position until study sessions are tracked: today is
- *  Friday and the learner hasn't studied yet, so the streak is "at risk". */
-const TODAY = 4;
-const STUDIED_TODAY = false;
-const WEEK = ["M", "T", "W", "T", "F", "S", "S"].map((d, i) => ({
-  d,
-  min: i < TODAY || (i === TODAY && STUDIED_TODAY) ? 15 + (hash(`wk${i}`) % 70) : 0,
-}));
 
 /* ------------------------------------------------------------- primitives */
 
@@ -150,8 +143,6 @@ export function DashboardView() {
   const videoPct = ((tp?.videoPosition ?? 0) / topic.videoSeconds) * 100;
   const modRollup = byModule.get(mod.id)!;
   const lastSeen = lastActiveMinutesAgo === 0 ? "just now" : `${lastActiveMinutesAgo} min ago`;
-  const weekMax = Math.max(...WEEK.map((w) => w.min), 1);
-  const weekTotal = WEEK.reduce((a, w) => a + w.min, 0);
 
   const STATS = [
     { label: "Topics", done: program.completed, total: program.total },
@@ -401,42 +392,7 @@ export function DashboardView() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {/* streak */}
           <div className="plume edge-lit overflow-hidden rounded-[var(--radius-lg)] border border-line bg-card p-5">
-            <div className="flex items-center gap-4">
-              <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-brand/15 text-brand-ink">
-                <Flame size={22} fill="currentColor" strokeWidth={1.5} />
-              </span>
-              <div>
-                <p className="display nums text-[28px] font-light leading-none text-ink">
-                  {USER.streakDays}
-                  <span className="ml-1.5 text-[14px] text-ink-3">day streak</span>
-                </p>
-                <p className="nums mt-1.5 text-[12px] text-ink-3">Best: {USER.bestStreakDays} days</p>
-              </div>
-            </div>
-            <ol className="mt-5 grid grid-cols-7 gap-1.5">
-              {WEEK.map((w, i) => {
-                const today = i === TODAY;
-                const done = i < TODAY || (today && STUDIED_TODAY);
-                return (
-                  <li key={i} className="flex flex-col items-center gap-1.5">
-                    <span
-                      className={cx(
-                        "flex size-8 items-center justify-center rounded-full",
-                        done ? "bg-ink text-panel" : today ? "text-brand-ink ring-2 ring-brand" : "bg-card-hi2 text-ink-4",
-                      )}
-                    >
-                      {done ? <Check size={14} strokeWidth={3} /> : <Flame size={13} />}
-                    </span>
-                    <span className={cx("text-[10px]", today ? "text-ink" : "text-ink-4")}>{w.d}</span>
-                  </li>
-                );
-              })}
-            </ol>
-            {!STUDIED_TODAY && (
-              <p className="mt-4 text-[12px] text-ink-3">
-                Finish one lesson today to make it <span className="nums text-ink">{USER.streakDays + 1} days</span>.
-              </p>
-            )}
+            <StreakPanel compact />
           </div>
 
           {/* this week */}
@@ -444,7 +400,7 @@ export function DashboardView() {
             <div className="flex items-baseline justify-between gap-3">
               <p className="eyebrow">This week</p>
               <p className="nums text-[12px] text-ink-3">
-                <span className="text-ink">{Math.floor(weekTotal / 60)}h {weekTotal % 60}m</span> of learning
+                <span className="text-ink">{Math.floor(WEEK_TOTAL / 60)}h {WEEK_TOTAL % 60}m</span> of learning
               </p>
             </div>
             <div className="mt-5 flex h-[108px] items-end gap-2">
@@ -452,7 +408,7 @@ export function DashboardView() {
                 <div key={i} className="flex flex-1 flex-col items-center gap-2">
                   <span
                     className={cx("w-full rounded-t-[4px]", i === TODAY ? "bg-brand/40" : w.min ? "bg-ink-2/70" : "bg-card-hi2")}
-                    style={{ height: `${Math.max(4, (w.min / weekMax) * 84)}px` }}
+                    style={{ height: `${Math.max(4, (w.min / WEEK_MAX) * 84)}px` }}
                     title={`${w.min} min`}
                   />
                   <span className={cx("text-[10px]", i === TODAY ? "text-ink" : "text-ink-4")}>{w.d}</span>
