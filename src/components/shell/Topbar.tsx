@@ -81,9 +81,12 @@ function StreakMenu() {
         {USER.streakDays} day streak
       </button>
 
+      {/* Same treatment as the dashboard's streak card — card surface, plume
+          and lit edge — rather than the flat popover chrome the notification
+          and profile menus use. It is the same object in two places. */}
       {open && (
-        <div className="animate-fade absolute right-0 z-50 mt-2 w-[300px] rounded-xl border border-line-hi bg-surface p-4 shadow-2xl shadow-black/40">
-          <StreakPanel />
+        <div className="animate-fade plume edge-lit absolute right-0 z-50 mt-2 w-[340px] overflow-hidden rounded-[var(--radius-lg)] border border-line bg-card p-5 shadow-2xl shadow-black/40">
+          <StreakPanel compact />
         </div>
       )}
     </div>
