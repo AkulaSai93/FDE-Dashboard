@@ -63,6 +63,13 @@
      the shadow is what sets the sheet apart from the chrome around it. */
   --c-sheet-shadow: none;
 
+  /* ---- Notes ------------------------------------------------------------
+     The one content type that kept a hue. Notes are a reading surface rather
+     than a progress state, so red would be wrong (nothing is "in flight") and
+     grey made the section indistinguishable from the rest of the product. --- */
+  --c-notes: #2dd4bf;
+  --c-notes-ink: #5eead4;
+
   /* ---- Functional (used sparingly, desaturated to stay in-system) ---- */
   --c-ok: #3fb950;
   --c-warn: #d29922;
@@ -111,6 +118,9 @@
 
   --c-sheet-shadow: 0 1px 3px rgba(16, 24, 40, 0.06), 0 12px 32px -10px rgba(16, 24, 40, 0.14);
 
+  --c-notes: #0d9488;
+  --c-notes-ink: #0f766e;   /* #5eead4 is unreadable on white */
+
   --c-ok: #1a7f37;
   --c-warn: #9a6700;
   --c-info: #0969da;
@@ -148,6 +158,9 @@
   --color-tint-line: var(--c-tint-line);
   --color-tint-edge: var(--c-tint-edge);
   --color-track: var(--c-track);
+
+  --color-notes: var(--c-notes);
+  --color-notes-ink: var(--c-notes-ink);
 
   --color-ok: var(--c-ok);
   --color-warn: var(--c-warn);
