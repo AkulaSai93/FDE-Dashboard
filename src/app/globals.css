@@ -64,11 +64,11 @@
   --c-sheet-shadow: none;
 
   /* ---- Notes ------------------------------------------------------------
-     The one content type that kept a hue. Notes are a reading surface rather
-     than a progress state, so red would be wrong (nothing is "in flight") and
-     grey made the section indistinguishable from the rest of the product. --- */
-  --c-notes: #2dd4bf;
-  --c-notes-ink: #5eead4;
+     Kept as its own token so the Notes page has one place to be re-tinted,
+     but pointed at the brand: the section reads in red like everything else.
+     Was teal (#2dd4bf) briefly. ----------------------------------------- */
+  --c-notes: #e6161f;
+  --c-notes-ink: #ff6b71;
 
   /* ---- Functional (used sparingly, desaturated to stay in-system) ---- */
   --c-ok: #3fb950;
@@ -118,8 +118,8 @@
 
   --c-sheet-shadow: 0 1px 3px rgba(16, 24, 40, 0.06), 0 12px 32px -10px rgba(16, 24, 40, 0.14);
 
-  --c-notes: #0d9488;
-  --c-notes-ink: #0f766e;   /* #5eead4 is unreadable on white */
+  --c-notes: #e6161f;
+  --c-notes-ink: #c2101a;   /* the light theme's legible red, not #ff6b71 */
 
   --c-ok: #1a7f37;
   --c-warn: #9a6700;
