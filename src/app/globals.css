@@ -335,6 +335,67 @@ body {
 @utility animate-fade { animation: fde-fade 240ms var(--ease-out-fde) both; }
 @utility animate-toast { animation: fde-toast 260ms var(--ease-out-fde) both; }
 
+/* ---------------------------------------------------------------------------
+   Leaderboard effects. Confined to that screen: a ranking is the one place in
+   this product where celebration is the point.
+   ------------------------------------------------------------------------ */
+
+@keyframes fde-shine {
+  0%   { transform: translateX(-130%) skewX(-18deg); }
+  55%  { transform: translateX(240%) skewX(-18deg); }
+  100% { transform: translateX(240%) skewX(-18deg); }
+}
+
+@keyframes fde-pulse-glow {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50%      { opacity: 0.9;  transform: scale(1.06); }
+}
+
+@keyframes fde-pop {
+  0%   { opacity: 0; transform: translateY(14px) scale(0.92); }
+  60%  { opacity: 1; transform: translateY(-3px) scale(1.02); }
+  100% { opacity: 1; transform: none; }
+}
+
+/* A light sweeping across the first-place row. */
+@utility shine {
+  position: relative;
+  overflow: hidden;
+  &::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    left: 0;
+    width: 28%;
+    pointer-events: none;
+    background: linear-gradient(90deg, transparent, var(--c-tint-edge), transparent);
+    animation: fde-shine 4.5s var(--ease-out-fde) infinite;
+  }
+}
+
+/* Soft halo behind a podium avatar; colour comes from the element's own
+   currentColor so each medal tints its own glow. */
+@utility medal-glow {
+  position: relative;
+  isolation: isolate;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -42%;
+    z-index: -1;
+    pointer-events: none;
+    border-radius: 9999px;
+    background: radial-gradient(closest-side, currentColor, transparent 72%);
+    opacity: 0.5;
+  }
+}
+
+@utility medal-glow-lg {
+  &::before { animation: fde-pulse-glow 3.4s ease-in-out infinite; }
+}
+
+@utility animate-pop { animation: fde-pop 520ms var(--ease-out-fde) both; }
+
 /* Indeterminate sheen on in-progress bars */
 @utility bar-sheen {
   position: relative;

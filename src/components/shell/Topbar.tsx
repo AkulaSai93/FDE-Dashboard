@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Bell, Menu, Flame } from "lucide-react";
 import { CommandSearch } from "./CommandSearch";
+import { StreakPanel } from "./StreakPanel";
 import { ThemeToggle } from "./ThemeToggle";
 import { Breadcrumbs, cx } from "@/components/ui";
 import { ALL_NAV_ITEMS } from "./nav";
@@ -48,6 +49,48 @@ function useBreadcrumbs() {
     crumbs.push({ label: nav?.label ?? seg[0] });
     return crumbs;
   }, [pathname]);
+}
+
+/** The topbar streak chip opens the same panel the dashboard shows, so the
+ *  week is reachable from every screen rather than only from the dashboard. */
+function StreakMenu() {
+  const [open, setOpen] = React.useState(false);
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!open) return;
+    const onDoc = (e: MouseEvent) => ref.current && !ref.current.contains(e.target as Node) && setOpen(false);
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  return (
+    <div ref={ref} className="relative hidden xl:block">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        aria-label={`${USER.streakDays} day streak`}
+        className="mono inline-flex items-center gap-1.5 rounded-md border border-line bg-card px-2.5 py-1.5 text-[11px] text-ink-2 transition-colors hover:border-line-hi hover:text-ink"
+      >
+        <Flame size={12} className="text-brand-ink" />
+        {USER.streakDays} day streak
+      </button>
+
+      {/* Same treatment as the dashboard's streak card — card surface, plume
+          and lit edge — rather than the flat popover chrome the notification
+          and profile menus use. It is the same object in two places. */}
+      {open && (
+        <div className="animate-fade plume edge-lit absolute right-0 z-50 mt-2 w-[340px] overflow-hidden rounded-[var(--radius-lg)] border border-line bg-card p-5 shadow-2xl shadow-black/40">
+          <StreakPanel compact />
+        </div>
+      )}
+    </div>
+  );
 }
 
 function Notifications() {
@@ -174,10 +217,7 @@ export function Topbar({ onOpenMenu }: { onOpenMenu: () => void }) {
       <div className="flex-1 md:hidden" />
 
       <div className="flex shrink-0 items-center gap-2">
-        <span className="mono hidden items-center gap-1.5 rounded-md border border-line bg-card px-2.5 py-1.5 text-[11px] text-ink-2 xl:inline-flex">
-          <Flame size={12} className="text-brand-ink" />
-          {USER.streakDays} day streak
-        </span>
+        <StreakMenu />
         <CommandSearch />
         <ThemeToggle />
         <Notifications />
