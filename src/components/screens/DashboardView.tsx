@@ -362,13 +362,23 @@ export function DashboardView() {
                       active && "bg-card",
                     )}
                   >
+                    {/* ring-inset on purpose: an outside ring grows the box,
+                        so done/active/not-started rendered at 18, 22 and 20px
+                        and the column of markers did not line up. Inset keeps
+                        all three at 18px. The active state carries a dot so it
+                        reads as a state rather than an empty outline. */}
                     <span
                       className={cx(
                         "flex size-[18px] shrink-0 items-center justify-center rounded-full",
-                        done ? "bg-ink text-panel" : active ? "ring-2 ring-brand" : "ring-1 ring-line-hi",
+                        done
+                          ? "bg-ink text-panel"
+                          : active
+                            ? "ring-2 ring-inset ring-brand"
+                            : "ring-1 ring-inset ring-line-hi",
                       )}
                     >
                       {done && <Check size={10} strokeWidth={3.5} />}
+                      {!done && active && <span className="size-1.5 rounded-full bg-brand" />}
                     </span>
                     <span className="mono hidden shrink-0 text-[11px] text-ink-4 sm:block">{m.code}</span>
                     <span className={cx("min-w-0 flex-1 truncate text-[14px]", done ? "text-ink-2" : "text-ink")}>

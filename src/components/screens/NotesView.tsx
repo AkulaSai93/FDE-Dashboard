@@ -43,7 +43,6 @@ export function NotesView() {
   return (
     <Page className="space-y-7">
       <SectionHeading
-        decor="study"
         eyebrow="Notes"
         title="Structured notes"
         description="Module-by-module notes that follow the videos, so you revise in minutes instead of rewatching hours."
@@ -93,7 +92,7 @@ export function NotesView() {
                       active ? "bg-card text-ink ring-1 ring-line-hi" : "text-ink-3 hover:bg-card/60 hover:text-ink-2",
                     )}
                   >
-                    <span className={cx("mono text-[11px]", active ? "text-ink-3" : "text-ink-4")}>{p.code}</span>
+                    <span className={cx("mono text-[11px]", active ? "text-notes-ink" : "text-ink-4")}>{p.code}</span>
                     <span className="truncate text-[13px] lg:flex-1">{p.title}</span>
                     <span className="nums hidden text-[11px] text-ink-4 lg:inline">{count}</span>
                   </button>
@@ -123,12 +122,12 @@ export function NotesView() {
                 <div key={p.id} className="space-y-7">
                   {filtering ? (
                     <h2 className="display text-[18px] text-ink">
-                      <span className="mono mr-2 text-[12px] text-ink-3">P{p.code}</span>
+                      <span className="mono mr-2 text-[12px] text-notes-ink">P{p.code}</span>
                       {p.title}
                     </h2>
                   ) : (
                     <div>
-                      <p className="mono text-[11px] uppercase tracking-[0.12em] text-ink-3">Phase {p.code}</p>
+                      <p className="mono text-[11px] uppercase tracking-[0.12em] text-notes-ink">Phase {p.code}</p>
                       <h2 className="display mt-1.5 text-[24px] font-light leading-tight text-ink">{p.title}</h2>
                     </div>
                   )}
@@ -150,11 +149,11 @@ export function NotesView() {
                                 href={`/notes/${t.id}`}
                                 className="group flex h-full items-start gap-3 rounded-[var(--radius-md)] border border-line bg-card p-3.5 transition-colors hover:border-notes/40 hover:bg-card-hi"
                               >
-                                <span className="flex size-9 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-tint-1 text-ink-2">
+                                <span className="flex size-9 shrink-0 items-center justify-center rounded-[var(--radius-sm)] bg-notes/12 text-notes-ink">
                                   <FileText size={16} />
                                 </span>
                                 <span className="min-w-0 flex-1">
-                                  <span className="line-clamp-2 text-[13.5px] leading-snug text-ink transition-colors group-hover:text-ink">{t.title}</span>
+                                  <span className="line-clamp-2 text-[13.5px] leading-snug text-ink transition-colors group-hover:text-notes-ink">{t.title}</span>
                                   <span className="mt-1.5 flex items-center gap-2 text-[11.5px] text-ink-3">
                                     <span className="nums">{readMinutes(t.id)} min read</span>
                                     {read && (

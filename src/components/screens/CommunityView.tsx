@@ -4,7 +4,7 @@ import {
   ArrowUpRight, Briefcase, HelpCircle, Megaphone, Sparkles,
 } from "lucide-react";
 import { Page } from "@/components/shell/AppShell";
-import { Doodles, WhatsAppIcon } from "@/components/ui";
+import { WhatsAppIcon } from "@/components/ui";
 import { COMMUNITY_STATS, WHATSAPP_COMMUNITY_URL } from "@/data/activity";
 
 /* ============================================================================
@@ -38,7 +38,6 @@ export function CommunityView() {
     <Page className="space-y-8">
       {/* ------------------------------------------------------------- hero */}
       <section className="relative isolate overflow-hidden rounded-[var(--radius-xl)] border border-line bg-card">
-        <Doodles variant="people" className="top-0 opacity-[0.04]" />
         <div className="relative flex flex-col gap-8 p-6 sm:p-8 lg:flex-row lg:items-center lg:justify-between lg:gap-12">
           <div className="max-w-xl">
             <p className="eyebrow">Community</p>

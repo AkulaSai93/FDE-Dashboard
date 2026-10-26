@@ -63,6 +63,13 @@
      the shadow is what sets the sheet apart from the chrome around it. */
   --c-sheet-shadow: none;
 
+  /* ---- Notes ------------------------------------------------------------
+     Kept as its own token so the Notes page has one place to be re-tinted,
+     but pointed at the brand: the section reads in red like everything else.
+     Was teal (#2dd4bf) briefly. ----------------------------------------- */
+  --c-notes: #e6161f;
+  --c-notes-ink: #ff6b71;
+
   /* ---- Functional (used sparingly, desaturated to stay in-system) ---- */
   --c-ok: #3fb950;
   --c-warn: #d29922;
@@ -111,6 +118,9 @@
 
   --c-sheet-shadow: 0 1px 3px rgba(16, 24, 40, 0.06), 0 12px 32px -10px rgba(16, 24, 40, 0.14);
 
+  --c-notes: #e6161f;
+  --c-notes-ink: #c2101a;   /* the light theme's legible red, not #ff6b71 */
+
   --c-ok: #1a7f37;
   --c-warn: #9a6700;
   --c-info: #0969da;
@@ -148,6 +158,9 @@
   --color-tint-line: var(--c-tint-line);
   --color-tint-edge: var(--c-tint-edge);
   --color-track: var(--c-track);
+
+  --color-notes: var(--c-notes);
+  --color-notes-ink: var(--c-notes-ink);
 
   --color-ok: var(--c-ok);
   --color-warn: var(--c-warn);

@@ -2,7 +2,7 @@
 
 import { ArrowRight, Briefcase, Building2, Check, Lock, MapPin } from "lucide-react";
 import { Page } from "@/components/shell/AppShell";
-import { Badge, ButtonLink, Card, CardHeader, Doodles, ProgressBar, cx } from "@/components/ui";
+import { Badge, ButtonLink, Card, CardHeader, ProgressBar, cx } from "@/components/ui";
 import { PHASES, TOTALS } from "@/data/curriculum";
 import { useRollups } from "@/state/progress";
 
@@ -29,7 +29,6 @@ export function JobsView() {
       {/* ------------------------------------------------------ locked hero */}
       <Card className="brand-wash relative overflow-hidden border-line-hi">
         <div className="grid-field pointer-events-none absolute inset-0 opacity-50" />
-        <Doodles variant="career" className="top-4" />
         <div className="relative px-6 py-10 sm:px-10 sm:py-14">
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-line-hi bg-card px-3 py-1.5">

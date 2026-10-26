@@ -32,7 +32,7 @@ export function StreakPanel({ compact }: { compact?: boolean }) {
                 w.done
                   ? "bg-ink text-panel"
                   : w.isToday
-                    ? "text-brand-ink ring-2 ring-brand"
+                    ? "text-brand-ink ring-2 ring-inset ring-brand"
                     : "bg-card-hi2 text-ink-4",
               )}
             >
