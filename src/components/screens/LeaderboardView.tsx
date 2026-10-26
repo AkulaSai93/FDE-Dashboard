@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Crown, Minus, TrendingUp } from "lucide-react";
+import { ChevronDown, Crown, Minus, TrendingUp } from "lucide-react";
 import { Page } from "@/components/shell/AppShell";
 import { cx } from "@/components/ui";
 import { ALL_TOPICS } from "@/data/curriculum";
@@ -18,28 +18,30 @@ import { useProgress, useRollups } from "@/state/progress";
  * brand red — the same "this is the thing in flight" the rest of the LMS uses.
  * ========================================================================= */
 
-/* Rank in the brand's own colours rather than gold, silver and bronze. Red is
-   first — the same "this is the one that matters" the rest of the LMS uses —
-   then white, then grey. Three legible steps in both themes, and nothing
-   introduced that the palette didn't already contain. */
+/* A colour per place, first in the brand. Red is reserved for the top of the
+   board; second and third take their own hues so the podium separates at a
+   glance rather than reading as one colour at three opacities. */
 const MEDAL = [
   {
+    hex: "#e6161f",
     ring: "ring-brand",
     chip: "bg-brand text-white",
     tint: "text-brand-ink",
     step: "bg-gradient-to-b from-brand/30 to-transparent",
   },
   {
-    ring: "ring-ink-2",
-    chip: "bg-ink text-panel",
-    tint: "text-ink-2",
-    step: "bg-gradient-to-b from-ink-2/22 to-transparent",
+    hex: "#e8b33c",
+    ring: "ring-[#e8b33c]",
+    chip: "bg-[#e8b33c] text-black",
+    tint: "text-[#e8b33c]",
+    step: "bg-gradient-to-b from-[#e8b33c]/28 to-transparent",
   },
   {
-    ring: "ring-ink-4",
-    chip: "bg-ink-3 text-panel",
-    tint: "text-ink-3",
-    step: "bg-gradient-to-b from-ink-4/22 to-transparent",
+    hex: "#5b93c7",
+    ring: "ring-[#5b93c7]",
+    chip: "bg-[#5b93c7] text-black",
+    tint: "text-[#5b93c7]",
+    step: "bg-gradient-to-b from-[#5b93c7]/26 to-transparent",
   },
 ] as const;
 
@@ -83,6 +85,14 @@ export function LeaderboardView() {
   const yourRow = ranked.find((l) => l.isYou)!;
   // Podium reading order places first in the middle, as a podium does.
   const podiumOrder = [podium[1], podium[0], podium[2]].filter(Boolean);
+
+  const [showAll, setShowAll] = React.useState(false);
+
+  /* Ten by default. If the learner ranks below the cut they are appended after
+     a break, so the board always answers "where am I" without expanding. */
+  const TOP_N = 10;
+  const head = showAll ? ranked : ranked.slice(0, TOP_N);
+  const youBelowCut = !showAll && yourRow.rank > TOP_N;
 
   return (
     <Page className="space-y-9">
@@ -187,15 +197,18 @@ export function LeaderboardView() {
         </div>
 
         <ol className="space-y-1">
-          {ranked.map((l) => {
+          {(youBelowCut ? [...head, yourRow] : head).map((l, idx) => {
             const place = l.rank - 1;
             const m = place < 3 ? MEDAL[place] : null;
             return (
               <li
                 key={l.id}
                 className="animate-rise"
-                style={{ animationDelay: `${Math.min(place, 11) * 45}ms` }}
+                style={{ animationDelay: `${Math.min(idx, 11) * 45}ms` }}
               >
+                {youBelowCut && l.isYou && (
+                  <p className="eyebrow py-2 text-center">· · ·</p>
+                )}
                 <div
                   className={cx(
                     "flex items-center gap-4 rounded-[var(--radius-md)] px-4 py-3 transition-colors",
@@ -231,6 +244,17 @@ export function LeaderboardView() {
             );
           })}
         </ol>
+
+        {ranked.length > TOP_N && (
+          <button
+            onClick={() => setShowAll((v) => !v)}
+            aria-expanded={showAll}
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-[var(--radius-md)] border border-line py-3 text-[13px] text-ink-2 transition-colors hover:border-line-hi hover:bg-card hover:text-ink"
+          >
+            {showAll ? "Show less" : `Show all ${ranked.length} learners`}
+            <ChevronDown size={14} className={cx("transition-transform", showAll && "rotate-180")} />
+          </button>
+        )}
 
         <p className="mt-5 flex items-center gap-2 text-[12px] text-ink-3">
           <Minus size={12} />
