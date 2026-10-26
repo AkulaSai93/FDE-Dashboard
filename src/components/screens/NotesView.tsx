@@ -43,7 +43,6 @@ export function NotesView() {
   return (
     <Page className="space-y-7">
       <SectionHeading
-        decor="study"
         eyebrow="Notes"
         title="Structured notes"
         description="Module-by-module notes that follow the videos, so you revise in minutes instead of rewatching hours."

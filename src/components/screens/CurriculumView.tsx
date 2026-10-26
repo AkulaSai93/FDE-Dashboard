@@ -275,7 +275,6 @@ export function CurriculumView() {
   return (
     <Page className="space-y-6">
       <SectionHeading
-        decor="ideas"
         eyebrow="Curriculum"
         title="The structured FDE curriculum"
         description={`${totals.phases} phases, ${totals.modules} modules and ${totals.topics} topics. Every topic carries its own video, notes, resources and — where it earns one — a lab.`}

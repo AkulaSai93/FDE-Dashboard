@@ -4,7 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import { ArrowRight, Check, Download, Lock, Share2 } from "lucide-react";
 import { Page } from "@/components/shell/AppShell";
-import { Button, ButtonLink, Doodles, cx } from "@/components/ui";
+import { Button, ButtonLink, cx } from "@/components/ui";
 import { useToast } from "@/components/ui/toast";
 import { ALL_TOPICS } from "@/data/curriculum";
 import { useProgress, useRollups } from "@/state/progress";
@@ -35,7 +35,6 @@ export function CertificationView() {
     <Page className="flex flex-col gap-10 lg:min-h-[calc(100dvh-4.5rem)]">
       {/* ------------------------------------------------------------ hero */}
       <section className="relative isolate grid flex-1 items-center gap-10 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.3fr)]">
-        <Doodles variant="award" className="-top-6 max-w-[48%]" />
         <div className="relative">
           <p className="eyebrow">Certification</p>
           <h1 className="display relative mt-3 text-[34px] font-light leading-[1.05] text-ink sm:text-[42px]">

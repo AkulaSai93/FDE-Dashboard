@@ -58,7 +58,6 @@ export function AssignmentsView() {
   return (
     <Page className="space-y-6">
       <SectionHeading
-        decor="study"
         eyebrow="Assignments"
         title="Quick MCQ checks"
         description="One short multiple-choice quiz at the end of each module. Answer, submit, see your score."
