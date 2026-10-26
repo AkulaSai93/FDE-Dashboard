@@ -43,34 +43,6 @@ const MEDAL = [
   },
 ] as const;
 
-/** Laurel flanking first place. Two mirrored sprigs, drawn rather than
- *  imported so it inherits currentColor and costs no request. */
-function Laurel({ className }: { className?: string }) {
-  const sprig = (
-    <g stroke="currentColor" strokeWidth="1.6" fill="none" strokeLinecap="round">
-      <path d="M30 4C16 12 9 26 10 44c1 14 8 25 20 32" />
-      {[0, 1, 2, 3, 4, 5].map((i) => {
-        const y = 12 + i * 10;
-        const x = 22 - i * 2.2;
-        return (
-          <path
-            key={i}
-            d={`M${x} ${y}c-7-3-12 0-14 5 5 3 11 2 14-5Z`}
-            fill="currentColor"
-            fillOpacity="0.5"
-            stroke="none"
-          />
-        );
-      })}
-    </g>
-  );
-  return (
-    <svg viewBox="0 0 60 80" fill="none" aria-hidden="true" className={className}>
-      {sprig}
-    </svg>
-  );
-}
-
 function Avatar({ name, size, className }: { name: string; size: number; className?: string }) {
   return (
     <span
@@ -135,14 +107,6 @@ export function LeaderboardView() {
                   )}
 
                   <span className={cx("relative flex items-center justify-center", m.tint)}>
-                    {first && (
-                      <>
-                        {/* Hidden on phones: at 375px the sprigs reach across
-                            and collide with the second-place avatar. */}
-                        <Laurel className="pointer-events-none absolute -left-11 hidden h-[96px] w-[52px] opacity-70 sm:block" />
-                        <Laurel className="pointer-events-none absolute -right-11 hidden h-[96px] w-[52px] -scale-x-100 opacity-70 sm:block" />
-                      </>
-                    )}
                     <span className={cx("medal-glow", first && "medal-glow-lg")}>
                       <Avatar
                         name={l.name}
@@ -172,7 +136,7 @@ export function LeaderboardView() {
                       "mt-3 w-full rounded-t-[var(--radius-md)] border border-b-0 border-line",
                       m.step,
                     )}
-                    style={{ height: first ? 72 : l.rank === 2 ? 52 : 38 }}
+                    style={{ height: first ? 132 : l.rank === 2 ? 98 : 74 }}
                   />
                 </div>
               );
